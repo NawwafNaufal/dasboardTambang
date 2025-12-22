@@ -1,0 +1,35 @@
+version: "3.9"
+services:
+  dataTambang:
+    container_name: dataTambang
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+    ports:
+      - "3306:3306"
+    volumes:
+      - data-tambang:/var/lib/mysql
+
+  dasboardBackend:
+    build: ./backend
+    container_name: backend
+    image: dasboard-tambang-be:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+    ports:
+      - "4000:4000"
+    depends_on:
+      - dataTambang
+  dasboardFrontend:
+    build: ./frontend
+    container_name: frontend
+    image: dasboard-tambang-fe:latest
+    ports:
+      - "80:80"
+    depends_on:
+      - dasboardBackend
+  
+volumes:
+  data-tambang:
