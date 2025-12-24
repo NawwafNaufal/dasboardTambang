@@ -9,8 +9,8 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - data-tambang:/var/lib/mysql
-
+      - data-tambang:/var/lib/mysql 
+    
   dasboardBackend:
     build: ./backend
     container_name: backend
@@ -18,16 +18,23 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
       MYSQL_DATABASE: "${MYSQL_DATABASE}"
+      MYSQL_HOST: "${MYSQL_HOST}" 
     ports:
       - "4000:4000"
     depends_on:
       - dataTambang
+    
   dasboardFrontend:
-    build: ./frontend
+    build: ./frontend/vite-project
     container_name: frontend
     image: dasboard-tambang-fe:latest
+    environment:
+      - CHOKIDAR_USEPOLLING=true 
+    volumes:
+      - ./frontend/vite-project:/app
+      - /app/node_modules 
     ports:
-      - "80:80"
+      - "80:5173"  
     depends_on:
       - dasboardBackend
   
