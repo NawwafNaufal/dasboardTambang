@@ -7,6 +7,7 @@ const PORT = 4000
 app.use(express.json())
 
 import login from "./routes/auth/login"
+import {error} from "./middleware/errorHandling/error"
 
 app.get("/hhh",(req,res) => {
     res.send("Hello World")
@@ -26,6 +27,8 @@ app.get("/role",async(req,res) => {
 })
 
 app.use("/auth",login)
+
+app.use(error)
 
 app.listen(PORT, () => {
     console.log("Server listen in PORT :", PORT)
