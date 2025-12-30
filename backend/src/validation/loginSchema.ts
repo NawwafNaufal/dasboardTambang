@@ -1,7 +1,12 @@
 import Joi from "joi"
 
-const loginSchema = Joi.object({
+export const loginSchema = Joi.object({
                 username: Joi.string()
                             .required()
-                            .max(26)
+                            .trim()
+                            .min(3)
+                            .max(26),
+                password: Joi.string()
+                            .required()
+                            .min(8)
 })
