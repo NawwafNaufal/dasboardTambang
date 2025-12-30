@@ -27,7 +27,7 @@ services:
       - /app/node_modules   
     depends_on:
       - dataTambang
-    
+      
   dasboardFrontend:
     build: ./frontend/vite-project
     container_name: frontend
