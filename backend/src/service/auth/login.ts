@@ -15,6 +15,8 @@ export const loginService = async ({username,password} : loginType) => {
 
     return {
         id : users.id,
-        username : users.username
+        username : users.username,
+        id_role : users.id_role,
+        id_company : users.id_company
     }
 }

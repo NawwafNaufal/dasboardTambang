@@ -8,5 +8,5 @@ export const loginSchema = Joi.object({
                             .max(26),
                 password: Joi.string()
                             .required()
-                            .min(8)
+                            .min(3)
 })
