@@ -1,7 +1,8 @@
 import connection from "../../config/connection";
 
 export const findByUsername = async (username : string) => {
-    const query  = `SELECT id,username,password 
+    const query  = `SELECT 
+                    id,username,password,id_role,id_company                  
                     FROM users 
                     WHERE username = ?
                     LIMIT 1` 
