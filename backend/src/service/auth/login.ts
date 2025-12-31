@@ -1,5 +1,5 @@
 import {findByUsername} from "../../model/auth/login";
-import { loginType } from "../../interface/auth/login";
+import { loginType } from "../../interface/auth";
 
 export const loginService = async ({username,password} : loginType) => {
 
