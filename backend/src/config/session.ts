@@ -3,7 +3,7 @@ import "dotenv/config"
 
 export const sessionConfig = session ({
     name : "sid",
-    secret : process.env.SESSION_SECRET as string,
+    secret : process.env.SESSION_SECRET || "super-secret",
     resave : false,
     saveUninitialized : false,
     rolling : true,
