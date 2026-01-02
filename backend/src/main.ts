@@ -1,9 +1,9 @@
+import "dotenv/config"
 import express from "express";
-import connection from "./config/connection"
 import { sessionConfig } from "./config/session";
 
 const app = express()
-const PORT = 4000
+const PORT = process.env.PORT
 
 app.use(express.json())
 app.use(sessionConfig)
