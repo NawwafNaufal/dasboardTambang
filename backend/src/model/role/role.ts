@@ -21,5 +21,12 @@ export const updateRole = async (role_name : string, id : number) : Promise<numb
     const query = "UPDATE role SET role_name = ? WHERE id = ? "
 
         const [rows] = await connection.execute<ResultSetHeader>(query,[role_name,id])
-            return rows.insertId
+            return rows.affectedRows
 }
+
+export const deleteRole = async (id : number) : Promise<number> => {
+    const query = "DELETE FROM role WHERE id = ?"
+
+        const [rows] = await connection.execute<ResultSetHeader>(query,[id])
+            return rows.affectedRows
+} 
