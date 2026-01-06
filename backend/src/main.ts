@@ -12,12 +12,14 @@ import login from "./routes/auth/login"
 import register from "./routes/auth/register"
 import {error} from "./middleware/errorHandling/error"
 
+import unit from "./routes/unit/unit"
 import company from "./routes/company.ts/company"
 import productivity from "./routes/productivity/productivity"
 
 app.use("/auth",login)
 app.use("/auth",register)
 
+app.use("/",unit)
 app.use("/",company)
 app.use("/",productivity)
 
