@@ -14,6 +14,7 @@ import {error} from "./middleware/errorHandling/error"
 
 import unit from "./routes/unit/unit"
 import company from "./routes/company.ts/company"
+import plan from "./routes/plan/plan"
 import productivity from "./routes/productivity/productivity"
 
 app.use("/auth",login)
@@ -21,6 +22,7 @@ app.use("/auth",register)
 
 app.use("/",unit)
 app.use("/",company)
+app.use("/",plan)
 app.use("/",productivity)
 
 app.use(error)
