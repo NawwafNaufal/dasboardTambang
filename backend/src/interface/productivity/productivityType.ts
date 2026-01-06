@@ -1,9 +1,11 @@
 export interface productivityType {
-    plan : number,
-    actual_value : number,
-    rkpa : number,
-    tanggal : Date,
-    id_company : number,
-    id_unit : number,
-    id_activity : number
+    actual_value: number,
+    value_input: number,
+    date: Date,
+    id_plan: number,
+    id_unit: number
+}
+
+export interface productivityTypeService extends productivityType {
+    id : number
 }
