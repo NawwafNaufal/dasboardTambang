@@ -1,6 +1,6 @@
-import "dotenv/config"
 import express from "express";
 import { sessionConfig } from "./config/session";
+import "dotenv/config"
 
 const app = express()
 const PORT = process.env.PORT
@@ -12,14 +12,22 @@ import login from "./routes/auth/login"
 import register from "./routes/auth/register"
 import {error} from "./middleware/errorHandling/error"
 
+import createRole from "./routes/role/role"
+import unit from "./routes/unit/unit"
 import company from "./routes/company.ts/company"
 import activity from "./routes/activity/activity"
+import plan from "./routes/plan/plan"
+import productivity from "./routes/productivity/productivity"
 
 app.use("/auth",login)
 app.use("/auth",register)
 
+app.use("/",createRole)
+app.use("/",unit)
 app.use("/",company)
 app.use("/",activity)
+app.use("/",plan)
+app.use("/",productivity)
 
 app.use(error)
 
