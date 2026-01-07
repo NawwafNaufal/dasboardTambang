@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { updateRoleService } from "../../service/role/updateRole";
+import { updateRoleService } from "../../service/role/updateRole.service";
 
 export const updateRoleController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     const {role_name} = req.body
@@ -15,5 +15,4 @@ export const updateRoleController = async (req : Request, res : Response, next :
     } catch (error) {
         return next(error)
     }
-
 }

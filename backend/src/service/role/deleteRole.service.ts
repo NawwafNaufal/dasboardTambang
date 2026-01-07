@@ -1,4 +1,4 @@
-import { deleteRole } from "../../model/role/role";
+import { deleteRole } from "../../model/role/role.model";
 import { responseError } from "../../error/responseError";
 
 export const deleteRoleService = async (id : number) : Promise<number> => {

@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { createRoleService } from "../../service/role/createRole";
+import { createRoleService } from "../../service/role/createRole.service";
 import { roleType } from "../../interface/role/typeRole";
 
 export const createRoleController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {

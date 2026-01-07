@@ -30,3 +30,10 @@ export const deleteRole = async (id : number) : Promise<number> => {
         const [rows] = await connection.execute<ResultSetHeader>(query,[id])
             return rows.affectedRows
 } 
+
+export const isDeletable = async (id_role : number) : Promise<boolean> => {
+    const query = "SELECT 1 FROM users WHERE id_role = ? LIMIT 1"
+
+        const [rows] = await connection.execute<any[]>(query,[id_role])
+            return rows.length === 0
+}
