@@ -1,6 +1,6 @@
 import { responseError } from "../../error/responseError";
 import { planTypeService } from "../../interface/plan/planType";
-import { updatePlan } from "../../model/plan/planDb";
+import { updatePlan } from "../../model/plan/plan.model";
 
 export const updatePlanService = async (payload : planTypeService) : Promise<void> => {
     const {plan,rkap,date,id} = payload

@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { updatePlanService } from "../../service/plan/updatePlan";
+import { updatePlanService } from "../../service/plan/updatePlan.service";
 
 export const updatePlanController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     const {plan,rkap,date} = req.body

@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { getPlanService } from "../../service/plan/getPlan";
+import { getPlanService } from "../../service/plan/getPlan.service";
 
 export const getPlanController = async (req : Request, res : Response, next : NextFunction) => {
     try {

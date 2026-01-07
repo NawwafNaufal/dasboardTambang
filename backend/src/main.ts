@@ -13,7 +13,7 @@ import register from "./routes/auth/register"
 import {error} from "./middleware/errorHandling/error"
 
 import company from "./routes/company.ts/company"
-import plan from "./routes/plan/plan"
+import plan from "./routes/plan/plan.route"
 
 app.use("/auth",login)
 app.use("/auth",register)

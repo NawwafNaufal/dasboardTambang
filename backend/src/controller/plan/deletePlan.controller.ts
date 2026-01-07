@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { deletePlanService } from "../../service/plan/deletePlan";
+import { deletePlanService } from "../../service/plan/deletePlan.service";
 
 export const deletePlanController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     const id = Number(req.params.id)

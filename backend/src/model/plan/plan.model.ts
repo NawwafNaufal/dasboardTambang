@@ -35,3 +35,10 @@ export const deletePlan = async (id : number) : Promise<number> => {
         const [rows] = await connection.execute<ResultSetHeader>(query,[id])
             return rows.affectedRows
 } 
+
+export const isDeletable = async (id_activity : number) : Promise<boolean> => {
+    const query = "SELECT 1 FROM produktivity WHERE id_plan = ? LIMIT 1"
+
+        const [rows] = await connection.execute<any[]>(query,[id_activity])
+            return rows.length === 0
+}

@@ -1,8 +1,8 @@
 import express from "express"
-import { createPlanController } from "../../controller/plan/createPlan"
-import { getPlanController } from "../../controller/plan/getPlan"
-import { updatePlanController } from "../../controller/plan/updatePlan"
-import { deletePlanController } from "../../controller/plan/deletePlan"
+import { createPlanController } from "../../controller/plan/createPlan.controller"
+import { getPlanController } from "../../controller/plan/getPlan.controller"
+import { updatePlanController } from "../../controller/plan/updatePlan.controller"
+import { deletePlanController } from "../../controller/plan/deletePlan.controller"
 import { validatePlan } from "../../middleware/plan/validatePlan"
 
 const routes = express.Router()
