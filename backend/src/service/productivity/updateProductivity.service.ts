@@ -1,6 +1,6 @@
 import { responseError } from "../../error/responseError";
 import { productivityTypeService } from "../../interface/productivity/productivityType";
-import { updateProductivity } from "../../model/produktivity/produktivity";
+import { updateProductivity } from "../../model/produktivity/produktivity.model";
 
 export const updateProductivityService = async (payload : productivityTypeService) : Promise<void> => {
 

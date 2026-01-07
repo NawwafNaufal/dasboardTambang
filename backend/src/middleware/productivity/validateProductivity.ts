@@ -2,7 +2,9 @@ import { Request,Response,NextFunction } from "express";
 import { productivitySchema } from "../../validation/productivitySchema";
 
 export const validateProductivity = (req : Request, res : Response, next : NextFunction) => {
-    const {error,value} = productivitySchema.validate(req.body)
+    const {error,value} = productivitySchema.validate(req.body,{
+        abortEarly : false
+    })
 
         if(error){
             return next(error)

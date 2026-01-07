@@ -1,6 +1,6 @@
 import { Request,Response,NextFunction } from "express";
 import { productivityType } from "../../interface/productivity/productivityType";
-import { createProductivityService } from "../../service/productivity/createProductivity";
+import { createProductivityService } from "../../service/productivity/createProductivity.service";
 
 export const createProductivityController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     try {

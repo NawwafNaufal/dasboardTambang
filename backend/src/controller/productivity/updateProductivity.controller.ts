@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { updateProductivityService } from "../../service/productivity/updateProductivity";
+import { updateProductivityService } from "../../service/productivity/updateProductivity.service";
 
 export const updateProductivityController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     const {actual_value,value_input,date,id_plan,id_unit} = req.body
