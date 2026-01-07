@@ -12,7 +12,7 @@ import login from "./routes/auth/login"
 import register from "./routes/auth/register"
 import {error} from "./middleware/errorHandling/error"
 
-import unit from "./routes/unit/unit"
+import unit from "./routes/unit/unit.route"
 
 app.use("/auth",login)
 app.use("/auth",register)

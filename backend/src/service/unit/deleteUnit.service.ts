@@ -1,4 +1,4 @@
-import { deleteUnit } from "../../model/unit/unit";
+import { deleteUnit } from "../../model/unit/unit.model";
 import { responseError } from "../../error/responseError";
 
 export const deleteUnitService = async (id: number) : Promise<number> => {
