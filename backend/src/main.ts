@@ -12,6 +12,7 @@ import login from "./routes/auth/login"
 import register from "./routes/auth/register"
 import {error} from "./middleware/errorHandling/error"
 
+import unit from "./routes/unit/unit.route"
 import createRole from "./routes/role/role"
 import unit from "./routes/unit/unit"
 import company from "./routes/company.ts/company"
