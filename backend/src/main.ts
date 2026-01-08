@@ -18,6 +18,7 @@ import company from "./routes/company.ts/company"
 import activity from "./routes/activity/activity"
 import plan from "./routes/plan/plan"
 import productivity from "./routes/productivity/productivity"
+import users from "./routes/users/users.route"
 import userActivity from "./routes/userActivity/userActivity.route"
 
 app.use("/auth",login)
@@ -29,6 +30,7 @@ app.use("/",company)
 app.use("/",activity)
 app.use("/",plan)
 app.use("/",productivity)
+app.use("/",users)
 app.use("/",userActivity)
 
 app.use(error)
