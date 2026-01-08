@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { deleteActivityService } from "../../service/activity/deleteActivity";
+import { deleteActivityService } from "../../service/activity/deleteActivity.service";
 
 export const deleteActivityController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     const id = Number(req.params.id)

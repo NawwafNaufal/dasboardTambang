@@ -17,7 +17,7 @@ import unit from "./routes/unit/unit.route"
 import company from "./routes/company.ts/company.route"
 import productivity from "./routes/productivity/productivity.route"
 import plan from "./routes/plan/plan.route"
-import activity from "./routes/activity/activity"
+import activity from "./routes/activity/activity.route"
 import users from "./routes/users/users.route"
 import userActivity from "./routes/userActivity/userActivity.route"
 
