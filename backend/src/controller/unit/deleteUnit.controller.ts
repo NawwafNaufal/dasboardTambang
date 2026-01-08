@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { deleteUnitService } from "../../service/unit/deleteUnit";
+import { deleteUnitService } from "../../service/unit/deleteUnit.service";
 
 export const deleteUnitController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     const id = Number(req.params.id)

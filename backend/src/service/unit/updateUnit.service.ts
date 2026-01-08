@@ -1,9 +1,10 @@
-import { updateUnit } from "../../model/unit/unit";
+import { updateUnit } from "../../model/unit/unit.model";
 import { unitTypeService } from "../../interface/unit/typeUnit";
 import { responseError } from "../../error/responseError";
 
 export const updateUnitService = async (payload : unitTypeService) : Promise<number> => {
-    const result = await updateUnit(payload.unit_name,payload.id)
+    const {unit_name,id_activity,id} = payload
+        const result = await updateUnit({unit_name,id_activity,id})
 
         if(result === 0) {
             throw new responseError("Id tidak ditemukan", 400)
