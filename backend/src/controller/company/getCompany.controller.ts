@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { getCompanyService } from "../../service/company/getCompany";
+import { getCompanyService } from "../../service/company/getCompany.service";
 
 export const getCompanyController = async (req : Request, res : Response, next : NextFunction) => {
     try {

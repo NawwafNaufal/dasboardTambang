@@ -1,6 +1,6 @@
 import { Request,Response,NextFunction } from "express";
 import { companyType } from "../../interface/company/company";
-import { createCompanyService } from "../../service/company/createCompany";
+import { createCompanyService } from "../../service/company/createCompany.service";
 
 export const createCompanyController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     try {
