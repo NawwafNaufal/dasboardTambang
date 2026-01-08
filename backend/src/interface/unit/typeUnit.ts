@@ -1,8 +1,8 @@
 export interface unitType {
     unit_name : string
+    id_activity : number
 }
 
-export interface unitTypeService {
-    unit_name : string,
+export interface unitTypeService extends unitType {
     id : number
 }
