@@ -1,5 +1,5 @@
 import { responseError } from "../../error/responseError";
-import { deleteProduktivity } from "../../model/produktivity/produktivity";
+import { deleteProduktivity } from "../../model/produktivity/produktivity.model";
 
 export const deleteProductivityService = async (id : number) : Promise<number> => {
     const result = await deleteProduktivity(id)

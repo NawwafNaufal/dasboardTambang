@@ -1,5 +1,5 @@
 import { productivityType } from "../../interface/productivity/productivityType"
-import { createProductivity } from "../../model/produktivity/produktivity"
+import { createProductivity } from "../../model/produktivity/produktivity.model"
 
 export const createProductivityService = async (payload : productivityType) : Promise<number> => {
 

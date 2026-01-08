@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { getProductivityService } from "../../service/productivity/getProductivity";
+import { getProductivityService } from "../../service/productivity/getProductivity.service";
 
 export const getProductivityController = async (req : Request, res : Response, next : NextFunction) => {
     try {

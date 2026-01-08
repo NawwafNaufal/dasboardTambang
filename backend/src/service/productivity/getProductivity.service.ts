@@ -1,6 +1,6 @@
 import { responseError } from "../../error/responseError";
 import { productivityType } from "../../interface/productivity/productivityType";
-import { getProductivity } from "../../model/produktivity/produktivity";
+import { getProductivity } from "../../model/produktivity/produktivity.model";
 
 export const getProductivityService = async () : Promise<productivityType[]> => {
     const getDataProductivity = await getProductivity()
