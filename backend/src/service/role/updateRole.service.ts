@@ -1,4 +1,4 @@
-import { updateRole } from "../../model/role/role";
+import { updateRole } from "../../model/role/role.model";
 import { roleTypePatch } from "../../interface/role/typeRole";
 import { responseError } from "../../error/responseError";
 
