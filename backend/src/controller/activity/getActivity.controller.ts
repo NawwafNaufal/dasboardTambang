@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { getActivityService } from "../../service/activity/getActivity";
+import { getActivityService } from "../../service/activity/getActivity.service";
 
 export const getActivityController = async (req : Request, res : Response, next : NextFunction) => {
     try {

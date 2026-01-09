@@ -1,6 +1,6 @@
 import { Request,Response,NextFunction } from "express";
 import { activityType } from "../../interface/activity/activity";
-import { createActivityService } from "../../service/activity/createActivity";
+import { createActivityService } from "../../service/activity/createActivity.service";
 
 export const createActivityController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     try {

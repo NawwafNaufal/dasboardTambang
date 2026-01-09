@@ -1,5 +1,5 @@
 import { Request,Response,NextFunction } from "express";
-import { updateActivityService } from "../../service/activity/updateActivity";
+import { updateActivityService } from "../../service/activity/updateActivity.service";
 
 export const updateActivityController = async (req : Request, res : Response, next : NextFunction) : Promise<void> => {
     const {activity_name} = req.body

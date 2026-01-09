@@ -1,8 +1,8 @@
 import express from "express"
-import { createActivityController } from "../../controller/activity/createActivity"
-import { getActivityController } from "../../controller/activity/getActivity"
-import { deleteActivityController } from "../../controller/activity/deleteActivity"
-import { updateActivityController } from "../../controller/activity/updateActivity"
+import { createActivityController } from "../../controller/activity/createActivity.controller"
+import { getActivityController } from "../../controller/activity/getActivity.controller"
+import { deleteActivityController } from "../../controller/activity/deleteActivity.controller"
+import { updateActivityController } from "../../controller/activity/updateActivity.controller"
 import { validateActivity } from "../../middleware/activity/validateActivity"
 
 const routes = express.Router()

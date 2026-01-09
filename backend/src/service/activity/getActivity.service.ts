@@ -1,5 +1,5 @@
 import { responseError } from "../../error/responseError";
-import { getActivity } from "../../model/activity/activity";
+import { getActivity } from "../../model/activity/activity.model";
 import { activityType } from "../../interface/activity/activity";
 
 export const getActivityService = async () : Promise<activityType[]> => {
