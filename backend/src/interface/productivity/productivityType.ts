@@ -9,3 +9,23 @@ export interface productivityType {
 export interface productivityTypeService extends productivityType {
     id : number
 }
+
+export interface PaginationProduktivityResult {
+    data: productivityType[]
+    total: number
+}
+
+
+export interface SummaryRow {
+    date: string;
+    activity_name: string;
+    plan: number;
+    rkap: number;
+    actual: number;
+}
+
+export interface DetailRow {
+    date: string;
+    unit_name: string;
+    value_input: number;
+}
