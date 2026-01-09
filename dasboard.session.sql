@@ -191,3 +191,48 @@ FROM monthly_plan;
 
 SELECT * FROM monthly_plan WHERE id = 1;
 
+
+SELECT
+        produktivity.date,
+        unit.unit_name,
+        produktivity.value_input
+    FROM produktivity
+    JOIN unit ON unit.id = produktivity.id_unit
+    WHERE 
+        MONTH(produktivity.date) = 1
+        AND YEAR(produktivity.date) = 2026
+    ORDER BY produktivity.date ASC;
+
+    SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE activity
+
+SELECT * FROM unit
+
+SHOW TABLES
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+SELECT  
+    produktivity.date,
+    activity.activity_name,
+    mp.plan,
+    mp.rkap,
+    SUM(produktivity.value_input) AS actual
+FROM produktivity
+JOIN unit 
+    ON unit.id = produktivity.id_unit
+JOIN activity 
+    ON activity.id = unit.id_activity
+JOIN monthly_plan mp 
+    ON mp.id = produktivity.id_plan
+WHERE 
+    MONTH(produktivity.date) = 1
+    AND YEAR(produktivity.date) = 2026
+GROUP BY
+    produktivity.date,
+    activity.id,
+    activity.activity_name,
+    mp.plan,
+    mp.rkap
+ORDER BY produktivity.date ASC
