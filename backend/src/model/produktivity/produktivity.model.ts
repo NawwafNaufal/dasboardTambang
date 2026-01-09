@@ -5,6 +5,7 @@ import { productivityType } from "../../interface/productivity/productivityType"
 import { productivityTypeService } from "../../interface/productivity/productivityType";
 import { SummaryRow } from "../../interface/productivity/productivityType";
 import { DetailRow } from "../../interface/productivity/productivityType";
+import { ChartRow } from "../../interface/productivity/productivityType";
 
 export const createProductivity = async (payload : productivityType) : Promise<number> => {
     const query = `INSERT INTO produktivity 
@@ -18,15 +19,6 @@ export const createProductivity = async (payload : productivityType) : Promise<n
 
             return rows.insertId
 }
-
-export const getProductivity = async () : Promise<productivityType[]> => {
-    const query = `SELECT 
-                    actual_value,value_input,date,id_plan,id_unit 
-                    FROM produktivity`
-
-        const [rows] = await connection.execute<RowDataPacket[]>(query)
-            return rows as productivityType[]
-} 
 
 export const updateProductivity = async (payload : productivityTypeService) : Promise<number> => {
 
@@ -47,63 +39,53 @@ export const deleteProduktivity = async (id : number) : Promise<number> => {
 } 
 
 export const getSummaryByMonthRepo = async (
-  month: number,
-  year: number
+    month: number,
+    year: number
 ): Promise<SummaryRow[]> => {
 
 const [rows] = await connection.execute<RowDataPacket[] & SummaryRow[]>(
-    `SELECT  
-    produktivity.date,
-    activity.activity_name,
-    mp.plan,
-    mp.rkap,
-    SUM(produktivity.value_input) AS actual
-FROM produktivity
-JOIN unit 
-    ON unit.id = produktivity.id_unit
-JOIN activity 
-    ON activity.id = unit.id_activity
-JOIN monthly_plan mp 
-    ON mp.id = produktivity.id_plan
-WHERE 
-    MONTH(produktivity.date) = 1
-    AND YEAR(produktivity.date) = 2026
-GROUP BY
-    produktivity.date,
-    activity.id,
-    activity.activity_name,
-    mp.plan,
-    mp.rkap
-ORDER BY produktivity.date ASC;
-    `,
-    [month, year, month, year]
+            `SELECT produktivity.date,activity.activity_name,mp.plan,mp.rkap,SUM(produktivity.value_input) AS actual
+                        FROM produktivity
+                        JOIN unit ON unit.id = produktivity.id_unit
+                        JOIN activity ON activity.id = unit.id_activity
+                        JOIN monthly_plan mp ON mp.id = produktivity.id_plan
+                        WHERE MONTH(produktivity.date) = ? AND YEAR(produktivity.date) = ?
+                        GROUP BY produktivity.date,activity.id,activity.activity_name,mp.plan,mp.rkap
+                        ORDER BY produktivity.date ASC`,
+    [month, year]
 );
     return rows;
 };
-
 
 export const getDetailByMonthRepo = async (
     month: number,
     year: number
 ): Promise<DetailRow[]> => {
 
-  const [rows] = await connection.execute<RowDataPacket[] & DetailRow[]>(
-    `
-    SELECT
-        produktivity.date,
-        unit.unit_name,
-        produktivity.value_input
-    FROM produktivity
-    JOIN unit ON unit.id = produktivity.id_unit
-    WHERE 
-        MONTH(produktivity.date) = 1
-        AND YEAR(produktivity.date) = 2026
-    ORDER BY produktivity.date ASC;
-    `,
+const [rows] = await connection.execute<RowDataPacket[] & DetailRow[]>(
+    `SELECT produktivity.date,unit.unit_name,produktivity.value_input
+                FROM produktivity JOIN unit ON unit.id = produktivity.id_unit
+                WHERE MONTH(produktivity.date) = ? AND YEAR(produktivity.date) = ? ORDER BY produktivity.date ASC;`,
     [month, year]
-  );
+);
+    return rows;
+};
 
-  return rows;
+export const getChartByYearRepo = async (
+    year: number
+): Promise<ChartRow[]> => {
+
+const [rows] = await connection.execute<RowDataPacket[] & ChartRow[]>(
+    `SELECT MONTH(produktivity.date) as month,activity.activity_name,SUM(produktivity.value_input) AS actual
+                FROM produktivity
+                JOIN unit ON unit.id = produktivity.id_unit
+                JOIN activity ON activity.id = unit.id_activity
+                WHERE YEAR(produktivity.date) = ?
+                GROUP BYMONTH(produktivity.date),activity.id,activity.activity_name
+                ORDER BY MONTH(produktivity.date) ASCactivity.activity_name ASC`,
+    [year]
+);
+    return rows;
 };
 
 export const countProduktivity = async (): Promise<number> => {

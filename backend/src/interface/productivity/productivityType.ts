@@ -29,3 +29,9 @@ export interface DetailRow {
     unit_name: string;
     value_input: number;
 }
+
+export interface ChartRow {
+    month: number;
+    activity_name: string;
+    actual: number;
+}
