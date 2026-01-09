@@ -51,9 +51,8 @@ export const getSummaryByMonthRepo = async (
   year: number
 ): Promise<SummaryRow[]> => {
 
-  const [rows] = await connection.execute<RowDataPacket[] & SummaryRow[]>(
-    `
-  SELECT  
+const [rows] = await connection.execute<RowDataPacket[] & SummaryRow[]>(
+    `SELECT  
     produktivity.date,
     activity.activity_name,
     mp.plan,
@@ -67,8 +66,8 @@ JOIN activity
 JOIN monthly_plan mp 
     ON mp.id = produktivity.id_plan
 WHERE 
-    MONTH(produktivity.date) = ?
-    AND YEAR(produktivity.date) = ?
+    MONTH(produktivity.date) = 1
+    AND YEAR(produktivity.date) = 2026
 GROUP BY
     produktivity.date,
     activity.id,
@@ -78,15 +77,14 @@ GROUP BY
 ORDER BY produktivity.date ASC;
     `,
     [month, year, month, year]
-  );
-
-  return rows;
+);
+    return rows;
 };
 
 
 export const getDetailByMonthRepo = async (
-  month: number,
-  year: number
+    month: number,
+    year: number
 ): Promise<DetailRow[]> => {
 
   const [rows] = await connection.execute<RowDataPacket[] & DetailRow[]>(
@@ -98,8 +96,8 @@ export const getDetailByMonthRepo = async (
     FROM produktivity
     JOIN unit ON unit.id = produktivity.id_unit
     WHERE 
-        MONTH(produktivity.date) = ?
-        AND YEAR(produktivity.date) = ?
+        MONTH(produktivity.date) = 1
+        AND YEAR(produktivity.date) = 2026
     ORDER BY produktivity.date ASC;
     `,
     [month, year]

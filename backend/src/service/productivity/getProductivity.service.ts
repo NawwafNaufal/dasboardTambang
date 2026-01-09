@@ -11,13 +11,18 @@ export const getProduktivityByMonthService = async (
     getDetailByMonthRepo(month, year)
   ]);
 
-
   console.log(summary.length)
   console.log(detail.length)
 
   return summary.map((row: any) => {
+    // ✅ Konversi tanggal ke format YYYY-MM-DD untuk perbandingan
+    const rowDate = new Date(row.date).toISOString().split('T')[0];
+    
     const units = detail
-      .filter((d: any) => d.date === row.date)
+      .filter((d: any) => {
+        const detailDate = new Date(d.date).toISOString().split('T')[0];
+        return detailDate === rowDate;
+      })
       .reduce((acc: any, cur: any) => {
         acc[cur.unit_name] = cur.value_input;
         return acc;
