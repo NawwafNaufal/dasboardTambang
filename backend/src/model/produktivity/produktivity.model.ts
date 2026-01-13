@@ -34,7 +34,6 @@ export const deleteProduktivity = async (id : number) : Promise<number> => {
     const query = "DELETE FROM produktivity WHERE id = ?"
 
         const [rows] = await connection.execute<ResultSetHeader>(query,[id])
-        console.log("ddhjdhd",rows)
             return rows.affectedRows
 } 
 
