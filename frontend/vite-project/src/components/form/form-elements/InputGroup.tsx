@@ -16,7 +16,7 @@ export default function InputGroup() {
           </div>
         </div>
       <div>
-          <Label>Plan</Label>
+          <Label>Rkap</Label>
           <div className="relative">
             <Input
               placeholder="info@gmail.com"

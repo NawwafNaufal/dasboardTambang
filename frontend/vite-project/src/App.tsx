@@ -19,6 +19,8 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import FormElementsProduktivity from "./pages/Forms/FormElementsProduktivity";
+import FormProdukUser from "./pages/Forms/FormProdukUser";
+import TablesAdmin from "./pages/Tables/TablesAdmin";
 
 export default function App() {
   return (
@@ -38,9 +40,11 @@ export default function App() {
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
             <Route path="/form-elements-produktivity" element={<FormElementsProduktivity />} />
+            <Route path="/form-produk-user" element={<FormProdukUser />} />
 
             {/* Tables */}
             <Route path="/basic-tables" element={<BasicTables />} />
+            <Route path="/admin-tables" element={<TablesAdmin />} />
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />

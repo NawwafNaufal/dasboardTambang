@@ -2,7 +2,7 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const ptData = {
   "Lamongan Shorebase": {
@@ -40,10 +40,33 @@ const ptData = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ApexChart = Chart as any;
+
 export default function MonthlySalesChart() {
   const [selectedPT, setSelectedPT] = useState<keyof typeof ptData>("Site Omi Sale");
   const [isPTDropdownOpen, setIsPTDropdownOpen] = useState(false);
   const [currentProductIndex, setCurrentProductIndex] = useState(2);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Detect dark mode
+  useEffect(() => {
+    const checkDarkMode = () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      setIsDarkMode(isDark);
+    };
+
+    checkDarkMode();
+
+    // Observer untuk detect perubahan dark mode
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const currentProducts = Object.keys(ptData[selectedPT].products);
   const currentProductName = currentProducts[currentProductIndex];
@@ -65,10 +88,24 @@ export default function MonthlySalesChart() {
         columnWidth: "39%",
         borderRadius: 5,
         borderRadiusApplication: "end",
+        dataLabels: {
+          position: 'top',
+        }
       },
     },
     dataLabels: {
-      enabled: false,
+      enabled: true,
+      formatter: (val: number) => val.toFixed(2),
+      offsetY: -18,
+      style: {
+        fontSize: '11px',
+        fontWeight: 400,
+        colors: [isDarkMode ? '#FFFFFF' : '#000000'], // Dynamic color based on dark mode
+        fontFamily: 'Outfit, sans-serif'
+      },
+      background: {
+        enabled: false,
+      }
     },
     stroke: {
       show: true,
@@ -104,6 +141,7 @@ export default function MonthlySalesChart() {
       fontFamily: "Outfit",
     },
     yaxis: {
+      show: false,
       title: {
         text: undefined,
       },
@@ -223,7 +261,7 @@ export default function MonthlySalesChart() {
 
       <div className="max-w-full overflow-x-auto custom-scrollbar">
         <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
-          <Chart options={options} series={series} type="bar" height={180} />
+          <ApexChart options={options} series={series} type="bar" height={180} />
         </div>
       </div>
     </div>

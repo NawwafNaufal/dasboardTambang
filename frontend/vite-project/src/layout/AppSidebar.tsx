@@ -28,7 +28,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    subItems: [{ name: "Diagram", path: "/", pro: false }],
   },
   {
     icon: <CalenderIcon />,
@@ -45,18 +45,17 @@ const navItems: NavItem[] = [
   icon: <ListIcon />,
   subItems: [
     { name: "Form Elements", path: "/form-elements", pro: false },
-    { name: "Form Elements Produktivity", path: "/form-elements-produktivity", pro: false },
+    { name: "Form Produk Admin", path: "/form-elements-produktivity", pro: false },
+    { name: "Form Produk User", path: "/form-produk-user", pro: false },
   ],
 },
   {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [{ name: "Form Elements", path: "/form-elements-produktivity", pro: false }],
-  },
-  {
     name: "Tables",
     icon: <TableIcon />,
-    subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
+    subItems: [
+      { name: "Basic Tables", path: "/basic-tables", pro: false },
+      { name: "Admin Tables", path: "/admin-tables", pro: false }
+    ],
   },
   {
     name: "Pages",

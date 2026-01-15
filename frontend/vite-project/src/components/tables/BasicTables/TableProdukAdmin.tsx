@@ -11,59 +11,40 @@ import EditModal, { type DynamicFormData } from "../../ui/modal/EditModal";
 import DeleteModal from "../../ui/modal/DeleteModal";
 
 interface TableData {
-  tanggal: string;
-  hari: string;
+  bulan: string;
+  tahun: string;
+  produk: string;
   plan: string;
-  actual: string;
   rkap: string;
-  toppabiring: string;
-  batara: string;
-  utsg: string;
-  annur: string;
 }
 
 const tableData: TableData[] = [
   {
-    tanggal: "1-Jan-25",
-    hari: "Rabu",
+    bulan: "Januari",
+    tahun: "2025",
+    produk: "Loading Hauling",
     plan: "28.287",
-    actual: "19.209",
     rkap: "8.075",
-    toppabiring: "3.611",
-    batara: "3.897",
-    utsg: "9.650",
-    annur: "2.051",
   },
   {
-    tanggal: "2-Jan-25",
-    hari: "Kamis",
+    bulan: "Februari",
+    tahun: "2025",
+    produk: "Loading Hauling",
     plan: "28.287",
-    actual: "22.944",
     rkap: "8.075",
-    toppabiring: "4.419",
-    batara: "6.197",
-    utsg: "8.300",
-    annur: "4.028",
   },
   {
-    tanggal: "3-Jan-25",
-    hari: "Jumat",
+    bulan: "Maret",
+    tahun: "2025",
+    produk: "Loading Hauling",
     plan: "28.287",
-    actual: "17.352",
     rkap: "8.075",
-    toppabiring: "5.558",
-    batara: "5.489",
-    utsg: "3.612",
-    annur: "2.694",
   },
 ];
 
 const editableFields = [
-  { key: "actual", label: "Actual" },
-  { key: "toppabiring", label: "Toppabiring" },
-  { key: "batara", label: "Batara" },
-  { key: "utsg", label: "UTSG" },
-  { key: "annur", label: "Annur" },
+  { key: "plan", label: "Plan" },
+  { key: "rkap", label: "RKAP" },
 ];
 
 export default function BasicTableOne() {
@@ -125,31 +106,19 @@ export default function BasicTableOne() {
                   No
                 </TableCell>
                 <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
-                  Tanggal
+                  Bulan
                 </TableCell>
                 <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
-                  Hari
+                  Tahun
+                </TableCell>
+                <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
+                  Loading Hauling
                 </TableCell>
                 <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
                   Plan
                 </TableCell>
                 <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
-                  Actual
-                </TableCell>
-                <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
                   RKAP
-                </TableCell>
-                <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
-                  Toppabiring
-                </TableCell>
-                <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
-                  Batara
-                </TableCell>
-                <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
-                  UTSG
-                </TableCell>
-                <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
-                  Annur
                 </TableCell>
                 <TableCell isHeader className="px-5 py-3 font-semibold text-gray-900 text-start text-theme-xs dark:text-white">
                   Action
@@ -164,32 +133,20 @@ export default function BasicTableOne() {
                   <TableCell className="px-5 py-4 text-gray-800 text-start text-theme-sm dark:text-white/90">
                     {index + 1}
                   </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-800 text-start text-theme-sm dark:text-white/90">
-                    {data.tanggal}
+                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {data.bulan}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {data.hari}
+                    {data.tahun}
+                  </TableCell>
+                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
+                    {data.produk}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {data.plan}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {data.actual}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
                     {data.rkap}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {data.toppabiring}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {data.batara}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {data.utsg}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {data.annur}
                   </TableCell>
                   <TableCell className="px-5 py-4 text-start">
                     <div className="flex items-center gap-2">
