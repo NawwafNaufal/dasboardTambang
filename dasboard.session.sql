@@ -57,145 +57,180 @@ CREATE TABLE rkpa (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 
-ALTER TABLE produktivity ADD COLUMN rkpa DECIMAL(10,3) AFTER actual_value
-
-ALTER TABLE produktivity ADD COLUMN actual_value DECIMAL(10,3) AFTER plan
-
 SHOW TABLES
 
-DESC produktivity
+DESC users
 
 ALTER TABLE users RENAME COLUMN update_at TO updated_at
 
-SELECT * FROM company
+SELECT * FROM produktivity LIMIT 10 OFFSET
 
-DESC company
+SELECT actual_value,value_input,date,id_plan,id_unit
+FROM produktivity
+ORDER BY id DESC
+LIMIT 10 OFFSET 0;
 
-INSERT INTO company (company_name) VALUES ("Tonas"),("Lamongan Shorbase")
 
+SELECT * FROM produktivity
 
-SELECT * FROM role
+ALTER TABLE produktivity ADD INDEX 
+
+CREATE INDEX idx_date ON produktivity (date);
 
 DESC produktivity
 
-ALTER TABLE produktivity DROP COLUMN id_unit
-
-CREATE TABLE user_produktivity (
-    user_id INT NOT NULL,
-    produktivity_id INT NOT NULL,
-
-    PRIMARY KEY (user_id, produktivity_id),
-
-    CONSTRAINT fk_user_produktivity_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_user_produktivity_produktivity
-        FOREIGN KEY (produktivity_id)
-        REFERENCES produktivity(id)
-        ON DELETE CASCADE
-);
-
-ALTER TABLE produktivity DROP COLUMN id_activity
-
-DESC activity
-DESC unit
-
-ALTER TABLE unit ADD COLUMN id_activity INT 
-
-CREATE TABLE monthly_plan (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    month INT NOT NULL,
-    year INT NOT NULL,
-    plan INT NOT NULL,
-    rkap INT,
-    UNIQUE (month,year)
+SELECT * FROM produktivity
+JOIN unit ON unit.id = produktivity.id_unit
+JOIN activity ON activity.id = unit.id_activity
+GROUP BY activity.id
+WHERE (
+    COUNT(*) 
 )
-
-ALTER TABLE produktivity DROP COLUMN value_input
-
-ALTER TABLE produktivity ADD COLUMN value_input INT AFTER actual_value
-
-ALTER Table produktivity RENAME COLUMN tanggal TO date
-
-ALTER TABLE produktivity ADD COLUMN id_plan INT AFTER date
-
-ALTER TABLE produktivity ADD CONSTRAINT fk_plan FOREIGN KEY (id_plan) REFERENCES monthly_plan(id)
-
-ALTER TABLE produktivity ADD COLUMN id_unit INT AFTER id_plan
-
-ALTER TABLE produktivity ADD CONSTRAINT fk_unit FOREIGN KEY (id_unit) REFERENCES unit(id)
-
-ALTER TABLE activity ADD CONSTRAINT fk_unit FOREIGN KEY (id_unit) REFERENCES unit(id)
-
-DESC unit
-
-ALTER TABLE unit ADD CONSTRAINT fk_activity FOREIGN KEY (id_activity) REFERENCES activity(id)
-
-SHOW TABLES
-
-DESC produktivity
-
-ALTER TABLE monthly_plan DROP COLUMN year
-
-ALTER TABLE monthly_plan ADD COLUMN date DATE NOT NULL
-
-SELECT * FROM monthly_plan
-
-SELECT * FROM produktivity WHERE id = 2
 
 SELECT * FROM unit
 
-SELECT * FROM activity
 
-DELETE FROM activity WHERE id = 2
-
-SELECT 1
-FROM unit
-WHERE id_activity = 2
-LIMIT 1;
-
-SELECT 1
+SELECT 
+    activity.id AS activity_id,
+    activity.activity_name,
+    produktivity.date,
+    mp.plan,
+    SUM(produktivity.value_input) AS total_value_input
 FROM produktivity
-WHERE id_pl = 5
-LIMIT 1;
-
-SELECT * FROM users
-DESC users
-
-CREATE Table users_activity (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_user INT,
-    id_activity INT
-)
-
-ALTER TABLE users_activity ADD CONSTRAINT fk_user_activity FOREIGN KEY (id_user) REFERENCES users(id)
-
-
-DROP TABLE users_activity
-
-CREATE TABLE users_activity (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    id_user INT NOT NULL,
-    id_activity INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    UNIQUE KEY uq_user_activity (id_user, id_activity),
-
-    CONSTRAINT fk_user_activity
-        FOREIGN KEY (id_user)
-        REFERENCES users(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_activity_user
-        FOREIGN KEY (id_activity)
-        REFERENCES activity(id)
-        ON DELETE CASCADE
-);
+JOIN unit ON unit.id = produktivity.id_unit
+JOIN activity ON activity.id = unit.id_activity
+JOIN monthly_plan AS mp ON mp.id = produktivity.id_plan 
+GROUP BY 
+    activity.id,
+    produktivity.date,
+    mp.plan
+ORDER BY 
+    produktivity.date DESC;
 
 SHOW TABLES
 
-SELECT * FROM activity
+DESc monthly_plan
 
-SELECT * FROM users_activity
+SELECT 
+    activity.id AS activity_id,
+    mp.plan,
+    mp.rkap,
+    produktivity.date,
+    activity.activity_name,
+    SUM(produktivity.value_input) AS actual
+FROM produktivity
+JOIN unit 
+    ON unit.id = produktivity.id_unit
+JOIN activity 
+    ON activity.id = unit.id_activity
+JOIN monthly_plan mp 
+    ON mp.id = produktivity.id_plan
+GROUP BY 
+    activity.id,
+    activity.activity_name,
+    produktivity.date,
+    mp.plan,
+    mp.rkap
+ORDER BY 
+    produktivity.date DESC
+LIMIT 10 OFFSET 0;
+
+
+SELECT * FROM produktivity
+JOIN unit ON unit.id = produktivity.id_unit
+GROUP BY
+    produktivity.date
+
+SELECT * FROM produktivity
+
+SELECT
+    produktivity.date,
+    unit.unit_name,
+    SUM(produktivity.value_input) AS value_input
+FROM produktivity
+JOIN unit ON unit.id = produktivity.id_unit
+GROUP BY
+    produktivity.date,
+    unit.id,
+    unit.unit_name
+ORDER BY
+    produktivity.date DESC
+LIMIT 10 OFFSET 0;
+
+
+SELECT  
+    produktivity.date,
+    activity.activity_name,
+    mp.plan,
+    mp.rkap,
+    SUM(produktivity.value_input) AS actual
+FROM produktivity
+JOIN unit 
+    ON unit.id = produktivity.id_unit
+JOIN activity 
+    ON activity.id = unit.id_activity
+JOIN monthly_plan mp 
+    ON mp.id = produktivity.id_plan
+WHERE 
+    MONTH(produktivity.date) = 1
+    AND YEAR(produktivity.date) = 2026
+GROUP BY
+    produktivity.date,
+    activity.id,
+    activity.activity_name,
+    mp.plan,
+    mp.rkap
+ORDER BY produktivity.date ASC;
+
+SELECT id, date, id_plan
+FROM produktivity
+WHERE MONTH(date)=1 AND YEAR(date)=2026;
+
+SELECT id, date, plan, rkap
+FROM monthly_plan;
+
+SELECT * FROM monthly_plan WHERE id = 1;
+
+
+SELECT
+        produktivity.date,
+        unit.unit_name,
+        produktivity.value_input
+    FROM produktivity
+    JOIN unit ON unit.id = produktivity.id_unit
+    WHERE 
+        MONTH(produktivity.date) = 1
+        AND YEAR(produktivity.date) = 2026
+    ORDER BY produktivity.date ASC;
+
+    SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE activity
+
+SELECT * FROM unit
+
+SHOW TABLES
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+SELECT  
+    produktivity.date,
+    activity.activity_name,
+    SUM(produktivity.value_input) AS actual
+FROM produktivity
+JOIN activity 
+    ON activity.id = unit.id_activity
+WHERE 
+    MONTH(produktivity.date) = 1
+    AND YEAR(produktivity.date) = 2026
+GROUP BY
+    produktivity.date,
+    activity.id,
+    activity.activity_name,
+ORDER BY produktivity.date ASC
+
+SELECT p.value_input,u.unit_name, SUM(p.value_input) as total FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY u.unit_name
+
+SELECT unit_name, COUNT(*) FROM unit GROUP BY unit_name

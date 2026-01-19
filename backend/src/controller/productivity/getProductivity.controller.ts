@@ -1,15 +1,38 @@
 import { Request,Response,NextFunction } from "express";
-import { getProductivityService } from "../../service/productivity/getProductivity.service";
+import { getProduktivityByMonthService } from "../../service/productivity/getProductivity.service";
+import { getChartByYearService } from "../../service/productivity/getProductivity.service";
 
-export const getProductivityController = async (req : Request, res : Response, next : NextFunction) => {
-    try {
-        const result = await getProductivityService()
-    
-        res.status(200).json({
-            message : "Data Company",
-            data : result
-        })
-    } catch (error) {
-        return next(error)
-    }
-}
+export const getProduktivityByMonthController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const month = Number(req.query.month);
+    const year = Number(req.query.year);
+
+    const data = await getProduktivityByMonthService(month, year);
+
+    res.json({ data });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getChartByYearController = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const year = Number(req.query.year);
+
+    const data = await getChartByYearService(year);
+
+    res.json({ data });
+
+  } catch (error) {
+    next(error);
+  }
+};
