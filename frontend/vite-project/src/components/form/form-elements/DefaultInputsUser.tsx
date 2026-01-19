@@ -164,7 +164,7 @@ export default function DefaultInputs() {
             <Input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="info@gmail.com"
+              placeholder="Masukkan Nilai"
               type="text"
               className={inputClassName}
             />
@@ -181,7 +181,6 @@ export default function DefaultInputs() {
           />
         </div>
       </div>
-
       <div className="flex justify-end">
         <button 
           onClick={handleSubmit}

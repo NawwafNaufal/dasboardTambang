@@ -157,7 +157,6 @@ ORDER BY
     produktivity.date DESC
 LIMIT 10 OFFSET 0;
 
-
 SELECT  
     produktivity.date,
     activity.activity_name,
@@ -234,3 +233,30 @@ JOIN unit as u ON u.id = p.id_unit
 GROUP BY u.unit_name
 
 SELECT unit_name, COUNT(*) FROM unit GROUP BY unit_name
+
+SELECT u.id,COUNT(*) FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY u.id
+
+SELECT u.id, SUM(p.actual_value) as total FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY u.id
+
+SELECT p.date, SUM(p.value_input) as total FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY p.date
+
+SELECT id_unit,date,SUM(actual_value) FROM produktivity as p
+GROUP BY id_unit,date
+
+SELECT id_unit,SUM(actual_value) FROM produktivity
+WHERE YEAR(date) = 2025
+GROUP BY id_unit
+
+SELECT p.id_unit,SUM(p.actual_value) as total FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY p.id_unit
+HAVING total > 100
+
+
+

@@ -14,12 +14,9 @@ import {error} from "./middleware/errorHandling/error"
 
 import createRole from "./routes/role/role.route"
 import unit from "./routes/unit/unit.route"
-import company from "./routes/company.ts/company"
 import productivity from "./routes/productivity/productivity.route"
 import plan from "./routes/plan/plan.route"
 import company from "./routes/company.ts/company.route"
-import productivity from "./routes/productivity/productivity.route"
-import plan from "./routes/plan/plan.route"
 import activity from "./routes/activity/activity.route"
 import users from "./routes/users/users.route"
 import userActivity from "./routes/userActivity/userActivity.route"
@@ -32,7 +29,7 @@ app.use("/",unit)
 app.use("/",company)
 app.use("/",activity)
 app.use("/",plan)
-app.use("/",productivity)
+// app.use("/",productivity)
 app.use("/",users)
 app.use("/",userActivity)
 

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import ComponentCard from "../../common/ComponentCard.tsx";
-import Label from "../Label.tsx";
+import ComponentCard from "../../common/ComponentCard";
+import Label from "../Label";
 import DatePicker from "../date-picker.tsx";
-import Input from "../input/InputField.tsx";
+
 import {
   Select,
   SelectContent,
@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import TextArea from "../input/TextArea.tsx";
+import TextArea from "../input/TextArea";
 
 /* ===============================
   MOCK DATA (TAMBAHAN)
@@ -69,7 +69,7 @@ export default function DefaultInputs() {
 
   return (
     <ComponentCard title="Default Inputs">
-      <div className="space-y-6 max-w-3xl">
+      <div className="space-y-6">
         {/* DATE PICKER */}
         <div>
           <DatePicker
@@ -140,18 +140,17 @@ export default function DefaultInputs() {
           </div>
         </div>
 
-        <div className="space-y-6">
-          {/* Default TextArea */}
-          <div>
-            <Label>Description</Label>
-            <TextArea
-              value={message}
-              onChange={(value) => setMessage(value)}
-              rows={6}
-            />
-          </div>
+      <div className="space-y-6">
+        {/* Default TextArea */}
+        <div>
+          <Label>Description</Label>
+          <TextArea
+            value={message}
+            onChange={(value) => setMessage(value)}
+            rows={6}
+          />
         </div>
-
+      </div>
         {/* SUBMIT */}
         <div className="flex justify-end ">
           <button className="inline-flex items-center gap-2 h-11 rounded-xl bg-brand-500 px-5 text-sm font-medium text-white hover:bg-brand-600">

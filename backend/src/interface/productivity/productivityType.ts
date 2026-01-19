@@ -15,7 +15,6 @@ export interface PaginationProduktivityResult {
     total: number
 }
 
-
 export interface SummaryRow {
     date: string;
     activity_name: string;
