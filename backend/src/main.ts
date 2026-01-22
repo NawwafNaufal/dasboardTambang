@@ -1,43 +1,56 @@
-import dotenv from "dotenv"
-dotenv.config()
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
-// import { sessionConfig } from "./config/session";
+import { syncDailyOperationJob } from "./jobs/syncMonthlyPlan.job";
+import { error } from "./middleware/errorHandling/error";
+import productivity from "./routes/productivity/productivity.route";
+import { connectMongo } from "./config/mongo";
+import cors from "cors";
 
-const app = express()
-const PORT = process.env.PORT
+const app = express();
+const PORT = process.env.PORT;
 
-app.use(express.json())
-console.log(`ENV : ${process.env.PORT}`)
-// app.use(sessionConfig)
+app.use(cors({
+  origin: ["http://localhost:4000", "http://localhost:5173"], // Sesuaikan dengan port frontend Anda
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-// import login from "./routes/auth/login"
-// import register from "./routes/auth/register"
-import {error} from "./middleware/errorHandling/error"
+app.use(express.json());
+console.log(`ENV : ${process.env.PORT}`);
 
-// import createRole from "./routes/role/role.route"
-// import unit from "./routes/unit/unit.route"
-// import productivity from "./routes/productivity/productivity.route"
-// import plan from "./routes/plan/plan.route"
-// import company from "./routes/company.ts/company.route"
-// import activity from "./routes/activity/activity.route"
-// import users from "./routes/users/users.route"
-// import userActivity from "./routes/userActivity/userActivity.route"
+// Routes
+app.use("/", productivity);
+app.use(error);
 
-// app.use("/auth",login)
-// app.use("/auth",register)
+const startServer = async () => {
+  try {
+    console.log("[STARTUP] Connecting to MongoDB...");
+    await connectMongo();
+    console.log("[STARTUP] ✅ MongoDB Connected");
 
-// app.use("/",createRole)
-// app.use("/",unit)
-// app.use("/",company)
-// app.use("/",activity)
-// app.use("/",plan)
-app.use("/",productivity)
-// app.use("/",users)
-// app.use("/",userActivity)
+    app.listen(PORT, () => {
+      console.log(`[STARTUP] ✅ Server listening on PORT: ${PORT}`);
+    });
 
-app.use(error)
+    console.log("[STARTUP] Starting CRON scheduler...");
+    setInterval(async () => {
+      console.log("[CRON] tick");
+      try {
+        await syncDailyOperationJob();
+      } catch (error) {
+        console.error("[CRON] Job failed:", error);
+      }
+    }, 10_000);
 
-app.listen(PORT, () => {
-    console.log("Server listen in PORT :", PORT)
-})
+    console.log("[STARTUP] ✅ CRON scheduler started (every 10s)");
+    console.log("[STARTUP] 🚀 All systems ready!");
 
+  } catch (error) {
+    console.error("[STARTUP] ❌ Failed to start:", error);
+    process.exit(1);
+  }
+};
+
+startServer();
