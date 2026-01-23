@@ -14,10 +14,10 @@ export const convertDateFormat = (dateStr: string): string | null => {
         const year = `20${yearPart}`;
 
         const monthMap: Record<string, string> = {
-            Januari: "01", Februari: "02", Maret: "03", April: "04",
-            Mei: "05", Juni: "06", Juli: "07", Agustus: "08",
-            September: "09", Oktober: "10", November: "11", Desember: "12"
-        };
+            Jan: "01", Feb: "02", Mar: "03", Apr: "04",
+            Mei: "05", Jun: "06", Jul: "07", Agu: "08",
+            Sep: "09", Okt: "10", Nov: "11", Des: "12"
+    };
 
         const month = monthMap[monthPart];
             if (!month) return null;

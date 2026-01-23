@@ -9,6 +9,7 @@ CREATE Table users (
     update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 
+
 SHOW TABLES
 
 DESC users
@@ -30,11 +31,11 @@ ALTER TABLE users ADD CONSTRAINT fk_role FOREIGN KEY (id_role) REFERENCES role(i
 
 CREATE TABLE produktivity (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    plan DECIMAL(10,2),
+    actual_value DECIMAL(10,2),
+    value_input INT
     tanggal DATETIME DEFAULT CURRENT_TIMESTAMP,
-    id_company INT,
     id_unit INT,
-    id_activity INT,
+    id_plan INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );

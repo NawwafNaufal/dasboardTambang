@@ -6,23 +6,30 @@ export const syncDailyOperationJob = async () => {
   console.log("[JOB] Start Daily Operation Job");
 
   try {
-    // Ambil data dari Google Sheets
-    const rows = await getDataGoogle(); // Sesuaikan range jika perlu
-    console.log("[JOB] rows length:", rows.length);
+    const rows = await getDataGoogle();
+    console.log("[JOB] Rows from Google:", rows.length);
 
-    // Transform data
-    const dailyOps = transformDailyOperation(rows, "JAN");
-    console.log("[JOB] transformed:", dailyOps.length);
+    const dailyOps = transformDailyOperation(rows);
+    console.log("[JOB] Transformed records:", dailyOps.length);
 
-    // Sync ke database
+    let inserted = 0;
+    let updated = 0;
+    let errors = 0;
+
     for (const op of dailyOps) {
-      console.log("[JOB] syncing:", op.date);
-      await syncDailyOperationService(op);
+      try {
+        const result = await syncDailyOperationService(op);
+        if (result.action === "insert") inserted++;
+        if (result.action === "update") updated++;
+      } catch (error) {
+        console.error(`[JOB] Error syncing ${op.date}:`, error);
+        errors++;
+      }
     }
 
-    console.log("[JOB] Finish Daily Operation Job");
+    console.log(`[JOB] Complete: ${inserted} inserted, ${updated} updated, ${errors} errors`);
   } catch (error) {
-    console.error("[JOB] Failed:", error);
+    console.error("[JOB] Fatal error:", error);
     throw error;
   }
 };

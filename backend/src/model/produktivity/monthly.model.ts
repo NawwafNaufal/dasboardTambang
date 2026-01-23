@@ -1,45 +1,40 @@
-import { Schema, model, models, Model } from "mongoose";
+import { Schema, model, models, Model, Document } from "mongoose";
+import { DailyOperationDoc } from "../../interface/productivity/dailyProductionType";
 
-/* =====================
-   1. Interface Document
-===================== */
-export interface DailyOperationDoc {
-  date: string;
-  site: string;
-  activities: Map<string, {
-    unit: string;
-    breakdown: Map<string, number>;
-  }>;
-}
+const ActivitySchema = new Schema(
+  {
+    unit: { type: String, required: true },
+    plan: { type: Number, default: null },
+    actual: { type: Number, default: null },
+    rkap: { type: Number, default: null },
+    reason: {type: String, default: null},
+    breakdown: {
+      type: Map,
+      of: Number,
+    },
+  },
+  { _id: false }
+);
 
-/* =====================
-   2. Schema
-===================== */
 const DailyOperationSchema = new Schema<DailyOperationDoc>(
   {
     date: { type: String, required: true },
     site: { type: String, required: true },
-
+    day: { type: String },
     activities: {
       type: Map,
-      of: new Schema(
-        {
-          unit: { type: String, required: true },
-          breakdown: {
-            type: Map,
-            of: Number,
-          },
-        },
-        { _id: false }
-      ),
+      of: ActivitySchema,
     },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    strict: true
+  }
 );
 
-/* =====================
-   3. Model (CARA 1)
-===================== */
-export const DailyOperation: Model<DailyOperationDoc> =
-  (models.DailyOperation as Model<DailyOperationDoc>) ||
-  model<DailyOperationDoc>("DailyOperation", DailyOperationSchema);
+DailyOperationSchema.index({ date: 1, site: 1 }, { unique: true });
+
+export const DailyOperation = model<DailyOperationDoc>("DailyOperation", DailyOperationSchema);
+
+console.log("📋 DailyOperation Schema Paths:", Object.keys(DailyOperation.schema.paths));
+console.log("📋 Activities Schema:", DailyOperation.schema.path('activities'));
