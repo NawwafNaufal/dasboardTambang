@@ -8,6 +8,7 @@ import { transformPerintisanNew } from "../activities/Tonasa/perintisanNew";
 import { transformBulldozerUsed } from "../activities/Tonasa/bulldozerUsed";
 import { transformBulldozerNew } from "../activities/Tonasa/bulldozerNew";
 import { transformBreaker } from "../activities/Tonasa/breaker";
+import { transformObRehandle } from "../activities/utsg/obRehandle";
 
 import { transformCotonFields } from "../activities/lamonganShorbase/cotonFields";
 
@@ -63,6 +64,9 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
       // Breaker (optional)
       const breaker = transformBreaker(row);
       if (breaker) activities["breaker"] = breaker;
+    } else if (site === "UTSG" ) {
+      const obRehandle = transformObRehandle(row);
+        if (obRehandle) activities["ob_rehandle"] = obRehandle
     }
 
     result.push({

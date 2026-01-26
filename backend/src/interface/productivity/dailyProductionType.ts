@@ -1,3 +1,4 @@
+
 export interface DailyOperationData {
     date: string;
     site: string;
@@ -7,6 +8,8 @@ export interface DailyOperationData {
         plan?: number | null
         actual?: number | null
         rkap?: number | null
+        volume?: number | null
+        ach?: number | null
         reason?: string | null
         breakdown?: Record<string, number | null>;
     }>;
@@ -21,6 +24,8 @@ export interface DailyOperationDoc extends Document {
         plan?: number | null;
         actual?: number | null;
         rkap?: number | null;
+        volume?: number | null
+        ach?: number | null
         reason? : string | null
         breakdown?: Map<string, number | null>;
     }>;

@@ -19,10 +19,19 @@ const SPREADSHEET_CONFIGS = [
     id: "1dwj89xAPQkAzExD9Y4Uu-UUORCG1YKpxaobrCPP-zXQ",
     site: "Lamongan Shorebase",
     range: "Sheet1!A1:Z100"
+  },
+  {
+    id: "14mBKf7HrXPw0mDM_6EdhyoR9XgcZczPYcgTxm_eUfNM",
+    site: "UTSG",
+    range: "Sheet1!A1:Z100"
+  },
+  {
+    id: "1aVuD7t7CtcUOqET0U2lVVvfGwx-AXbLLqjTPx54BK3w",
+    site: "PT Semen Padang",
+    range: "Sheet1!A1:Z100"
   }
 ];
 
-// Fungsi untuk ambil satu spreadsheet
 export const getDataGoogle = async (spreadsheetId: string, range: string = "Sheet1!A1:Z100") => {
   console.log("[GOOGLE] fetching spreadsheet:", spreadsheetId);
   const res = await sheet.spreadsheets.values.get({

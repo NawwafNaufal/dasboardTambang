@@ -7,6 +7,8 @@ const ActivitySchema = new Schema(
     plan: { type: Number, default: null },
     actual: { type: Number, default: null },
     rkap: { type: Number, default: null },
+    volume : {type : Number, default: null},
+    ach: {type: Number, min: 0, max: 100, default:null},
     reason: {type: String, default: null},
     breakdown: {
       type: Map,
