@@ -3,7 +3,7 @@ dotenv.config();
 import express from "express";
 import { syncDailyOperationJob } from "./jobs/syncMonthlyPlan.job";
 import { error } from "./middleware/errorHandling/error";
-import productivity from "./routes/productivity/productivity.route";
+// import productivity from "./routes/productivity/productivity.route";
 import { connectMongo } from "./config/mongo";
 import cors from "cors";
 
@@ -20,7 +20,7 @@ app.use(cors({
 app.use(express.json());
 console.log(`ENV : ${process.env.PORT}`);
 
-app.use("/", productivity);
+// app.use("/", productivity);
 app.use(error);
 
 const startServer = async () => {

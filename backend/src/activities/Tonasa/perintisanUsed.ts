@@ -1,16 +1,14 @@
 import { parseNum } from "../../utils/parseNum";
 
-export const transformDrilling = (row: string[]) => {
-    if (row.length < 16) return null;
+export const transformPerintisanUsed = (row: string[]) => {
+    if (row.length < 22) return null;
 
-    const plan = parseNum(row[12]);
-    const actual = parseNum(row[13]);
-    const reason = row[17]?.trim() || undefined
+    const plan = parseNum(row[18]);
+    const actual = parseNum(row[19]);
+    const reason = row[21]?.trim() || undefined
 
     const breakdown = {
-        epiroc_01: parseNum(row[14]),
-        epiroc_02: parseNum(row[15]),
-        hcr_07: parseNum(row[16]),
+        "PCR-01": parseNum(row[20]),
     };
 
     const filteredBreakdown = Object.fromEntries(
@@ -18,9 +16,10 @@ export const transformDrilling = (row: string[]) => {
     );
 
     return {
-        unit: "meter",
+        unit: "jam",
         plan,
         actual,
+        reason,
         breakdown:
             Object.keys(filteredBreakdown).length > 0
             ? filteredBreakdown

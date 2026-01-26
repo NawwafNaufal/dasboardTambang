@@ -5,12 +5,35 @@ export const parseNum = (str: string | undefined): number | null => {
     return isNaN(num) ? null : num;
 };
 
-// ✅ PERBAIKAN: Tambah check untuk header berulang
-export const isHeaderRow = (row: string[]) =>
-    row[1] === "No" || 
-    row[2] === "Tanggal" || 
-    row[3] === "Hari" ||
-    row.some(cell => cell && cell.includes("PT Semen Tonasa")) || // ← Header bulan baru
-    row.some(cell => cell && cell.includes("Loading Hauling")) || // ← Activity header
-    row.some(cell => cell && cell.includes("Drilling")) ||        // ← Activity header lain
-    row.some(cell => cell === "Plan" || cell === "Actual");       // ← Sub-header kolom
+const ACTIVITY_HEADERS = [
+  "Loading Hauling",
+  "Drilling",
+  "Perintisan Used",
+  "Perintisan New",
+  "Bulldozer Used",
+  "Bulldozer New",
+  "Breaker",
+];
+
+export const isHeaderRow = (row: string[]) => {
+  // Header kolom utama
+  if (row[1] === "No") return true;
+  if (row[2] === "Tanggal") return true;
+  if (row[3] === "Hari") return true;
+
+  // Sub-header Plan / Actual
+  if (row.some(cell => cell === "Plan" || cell === "Actual"))
+    return true;
+
+  // Judul perusahaan / laporan
+  if (row.some(cell => cell?.includes("PT Semen Tonasa")))
+    return true;
+
+  // Header aktivitas
+  return row.some(cell =>
+    ACTIVITY_HEADERS.some(activity =>
+      cell?.includes(activity)
+    )
+  );
+};
+  // ← Sub-header kolom
