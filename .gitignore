@@ -1,0 +1,17 @@
+**/node_modules/
+
+**/dist/
+**/build/
+
+**/.env
+**/.env.*
+
+**/.vite/
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+**/logsDasboard
+**/Keys.json
