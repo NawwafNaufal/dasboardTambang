@@ -28,7 +28,7 @@ export const getMonthlyActualBySite = async (req: Request, res: Response) => {
 
     data.forEach((doc: any) => {
       const site = doc.site;
-      const month = doc.date.substring(5, 7); // Extract month from date
+      const month = doc.date.substring(5, 7); // Extract month from date (format: "2025-01-01" → "01")
 
       if (!bySite[site]) {
         bySite[site] = {};
@@ -41,7 +41,7 @@ export const getMonthlyActualBySite = async (req: Request, res: Response) => {
         Object.keys(activitiesObj).forEach((activityKey) => {
           const activityName = activityKey.replace(/_/g, ' ')
             .replace(/\b\w/g, (l: string) => l.toUpperCase()); // Convert to Title Case
-
+          
           if (!bySite[site][activityName]) {
             bySite[site][activityName] = {};
           }
@@ -51,9 +51,10 @@ export const getMonthlyActualBySite = async (req: Request, res: Response) => {
             bySite[site][activityName][month] = 0;
           }
 
-          // Sum ONLY the doc.actual (document level actual) per month
-          // BUKAN activity.value
-          const actualValue = doc.actual || 0;
+          // ⭐ PERBAIKAN: Ambil actual dari dalam activity, bukan dari doc
+          const activity = activitiesObj[activityKey];
+          const actualValue = activity?.actual || 0;  // ← Ini yang benar!
+          
           bySite[site][activityName][month] += actualValue;
         });
       }

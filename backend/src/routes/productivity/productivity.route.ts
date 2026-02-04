@@ -19,7 +19,6 @@ const routes = express.Router()
 routes.patch("/productivity/:id",validateProductivity, updateProductivityController)
 routes.delete("/productivity/:id", deleteProductivityController)
 // routes.get("/productivity", getDataGoogleController)
-routes.get("/productivity-chart", getChartByYearController)
 routes.get("/monthly-actual/by-site", getMonthlyActualBySite);
 
 export default routes

@@ -1,189 +1,230 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { CalenderIcon } from "../../icons";
 
-/* =========================
-   KETERANGAN PER HARI
-========================= */
-const dayDescriptions: Record<string, string> = {
-  "1": "Produksi awal minggu, alat berat belum optimal.",
-  "2": "Peningkatan produksi dari shift pagi.",
-  "3": "Cuaca kurang mendukung, produksi menurun.",
-  "4": "Operasional normal, target tercapai.",
-  "5": "Alat berat full operasional, hasil meningkat.",
-  "6": "Shift malam berjalan optimal.",
-  "7": "Maintenance ringan, produksi stabil.",
-  "8": "Distribusi lancar, hasil konsisten.",
-  "9": "Permintaan pasar meningkat.",
-  "10": "Produksi stabil dengan performa tim baik.",
-  "11": "Kinerja lapangan optimal.",
-  "12": "Output tinggi sepanjang hari.",
-  "13": "Operasional lancar tanpa kendala.",
-  "14": "Produksi menurun karena logistik.",
-  "15": "Evaluasi tengah bulan.",
-  "16": "Produksi kembali meningkat.",
-  "17": "Shift malam dominan.",
-  "18": "Distribusi cepat dan efisien.",
-  "19": "Permintaan tinggi dari klien.",
-  "20": "Peak produksi mingguan.",
-  "21": "Penyesuaian SDM dan alat.",
-  "22": "Operasional stabil.",
-  "23": "Sedikit kendala teknis.",
-  "24": "Kendala terselesaikan.",
-  "25": "Produksi kembali normal.",
-  "26": "Permintaan mulai naik.",
-  "27": "Output tinggi dan konsisten.",
-  "28": "Persiapan penutupan bulan.",
-  "29": "Produksi tinggi karena permintaan meningkat.",
-  "30": "Penutupan bulan & rekap produksi.",
+// API Configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_ENDPOINTS = {
+  STATISTICS: '/api/static'
 };
 
 /* =========================
-   DATA DETAIL PER HARI & UNIT
+   TYPES & INTERFACES
 ========================= */
-// Unit details untuk setiap kategori
-const unitsByCategory: Record<string, string[]> = {
-  "Loading Hauling": ["DT-10", "DT-15", "DT-20"],
-  "Drilling": ["DR-01", "DR-05", "DR-08"],
-  "Blasting": ["BL-03", "BL-07", "BL-12"],
-  "Perintisan": ["PR-02", "PR-06", "PR-09"],
-  "Bulldozer": ["BD-04", "BD-11", "BD-13"],
-  "Breaker": ["BK-01", "BK-03", "BK-05"],
-  "OB Rehandle": ["RH-02", "RH-07", "RH-10"],
-  "OB Insitu": ["IN-03", "IN-08", "IN-11"],
-};
+interface UnitDetail {
+  unitName: string;
+  plan?: number;
+  actual: number;
+  unit: string;
+}
 
-// Helper function to generate unit details based on category and day
-const generateUnitDetails = (category: string, dayNum: number, totalValue: number): { label: string; value: string }[] => {
-  const units = unitsByCategory[category] || ["UNIT-01", "UNIT-02", "UNIT-03"];
-  
-  // Distribute nilai ke unit dengan variasi yang konsisten berdasarkan seed
-  const baseValue = Math.floor(totalValue / units.length);
-  const remainder = totalValue % units.length;
-  
-  return units.map((unit, index) => {
-    // Gunakan formula deterministik berdasarkan index dan dayNum untuk konsistensi
-    const seed = (dayNum * 7 + index * 3) % 50;
-    const variation = seed - 25; // Variasi antara -25 hingga 24
-    const value = baseValue + (index < remainder ? 1 : 0) + variation;
-    return {
-      label: unit,
-      value: Math.max(0, value).toString()
-    };
-  });
-};
+interface BreakdownDetail {
+  day: number;
+  dayName: string;
+  date: string;
+  units: UnitDetail[];
+}
 
-// Helper function to get day name
-const getDayName = (dayNum: number): string => {
-  const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-  // Asumsikan hari 1 adalah Senin
-  return dayNames[(dayNum % 7)];
-};
+interface DailyData {
+  day: number;
+  dayName: string;
+  date: string;
+  actual: number;
+  plan: number;
+  rkap: number;
+  ach: number;
+  reason: string | null;
+}
 
-// Helper function to get day details with default values
-const getDayDetails = (dayNum: string, category: string, actualValue: number) => {
-  const dayNumber = parseInt(dayNum);
-  return {
-    dayNumber: dayNum,
-    day: getDayName(dayNumber),
-    actual: actualValue,
-    details: generateUnitDetails(category, dayNumber, actualValue),
-  };
-};
+interface Note {
+  day: number;
+  dayName: string;
+  date: string;
+  reason: string;
+}
 
-/* =========================
-   DATA PER PT & KATEGORI
-========================= */
-const ptData: Record<string, Record<string, number[]>> = {
-  "PT Semen Tonasa": {
-    "Loading Hauling": [1000, 3120, 2850, 3250, 3400, 3050, 3180, 3350, 3500, 3200, 3300, 3450, 3250, 3150, 3050, 2950, 3200, 3400, 3550, 3650, 3500, 3400, 3250, 3150, 3050, 2950, 3200, 3400, 3550, 3650],
-    "Drilling": [2500, 2650, 2400, 2800, 2950, 2700, 2850, 3000, 3150, 2900, 3050, 3200, 2950, 2850, 2750, 2650, 2900, 3100, 3250, 3400, 3250, 3100, 2950, 2850, 2750, 2650, 2900, 3100, 3250, 3400],
-    "Blasting": [1800, 1950, 1700, 2100, 2250, 2000, 2150, 2300, 2450, 2200, 2350, 2500, 2250, 2150, 2050, 1950, 2200, 2400, 2550, 2700, 2550, 2400, 2250, 2150, 2050, 1950, 2200, 2400, 2550, 2700],
-  },
-  "PT Semen Padang": {
-    "Loading Hauling": [2200, 2350, 2500, 2650, 2800, 2550, 2400, 2750, 2900, 2650, 2800, 2950, 2850, 2750, 2650, 2450, 2800, 2950, 3100, 3200, 3000, 2850, 2750, 2650, 2550, 2750, 2900, 3050, 3150, 3300],
-    "Drilling": [2000, 2150, 2300, 2450, 2600, 2350, 2200, 2550, 2700, 2450, 2600, 2750, 2650, 2550, 2450, 2250, 2600, 2750, 2900, 3000, 2800, 2650, 2550, 2450, 2350, 2550, 2700, 2850, 2950, 3100],
-    "Perintisan": [1600, 1750, 1900, 2050, 2200, 1950, 1800, 2150, 2300, 2050, 2200, 2350, 2250, 2150, 2050, 1850, 2200, 2350, 2500, 2600, 2400, 2250, 2150, 2050, 1950, 2150, 2300, 2450, 2550, 2700],
-    "Bulldozer": [1900, 2050, 2200, 2350, 2500, 2250, 2100, 2450, 2600, 2350, 2500, 2650, 2550, 2450, 2350, 2150, 2500, 2650, 2800, 2900, 2700, 2550, 2450, 2350, 2250, 2450, 2600, 2750, 2850, 3000],
-  },
-  "Lamongan Shorebase": {
-    "Loading Hauling": [1800, 1900, 2000, 2150, 2300, 2050, 1900, 2250, 2400, 2150, 2300, 2450, 2350, 2250, 2150, 1950, 2300, 2450, 2600, 2700, 2500, 2350, 2250, 2150, 2050, 2250, 2400, 2550, 2650, 2800],
-    "Drilling": [1600, 1700, 1800, 1950, 2100, 1850, 1700, 2050, 2200, 1950, 2100, 2250, 2150, 2050, 1950, 1750, 2100, 2250, 2400, 2500, 2300, 2150, 2050, 1950, 1850, 2050, 2200, 2350, 2450, 2600],
-    "Breaker": [1200, 1300, 1400, 1550, 1700, 1450, 1300, 1650, 1800, 1550, 1700, 1850, 1750, 1650, 1550, 1350, 1700, 1850, 2000, 2100, 1900, 1750, 1650, 1550, 1450, 1650, 1800, 1950, 2050, 2200],
-  },
-  "UTSG": {
-    "Loading Hauling": [3500, 3700, 3900, 4100, 4350, 4000, 3700, 4200, 4400, 4100, 4300, 4500, 4350, 4200, 4000, 3700, 4200, 4400, 4600, 4800, 4600, 4400, 4200, 4000, 3850, 4100, 4300, 4500, 4650, 4850],
-    "Drilling": [3200, 3400, 3600, 3800, 4050, 3700, 3400, 3900, 4100, 3800, 4000, 4200, 4050, 3900, 3700, 3400, 3900, 4100, 4300, 4500, 4300, 4100, 3900, 3700, 3550, 3800, 4000, 4200, 4350, 4550],
-    "OB Rehandle": [2800, 3000, 3200, 3400, 3650, 3300, 3000, 3500, 3700, 3400, 3600, 3800, 3650, 3500, 3300, 3000, 3500, 3700, 3900, 4100, 3900, 3700, 3500, 3300, 3150, 3400, 3600, 3800, 3950, 4150],
-    "OB Insitu": [2900, 3100, 3300, 3500, 3750, 3400, 3100, 3600, 3800, 3500, 3700, 3900, 3750, 3600, 3400, 3100, 3600, 3800, 4000, 4200, 4000, 3800, 3600, 3400, 3250, 3500, 3700, 3900, 4050, 4250],
-  },
-};
+interface ActivityData {
+  activityName: string;
+  plan: number;
+  unit: string;
+  dailyData: DailyData[];
+  notes: Note[];
+  breakdownDetails?: BreakdownDetail[];
+}
+
+interface ApiResponse {
+  success: boolean;
+  site: string;
+  month: number;
+  year: number;
+  monthName: string;
+  data: Record<string, ActivityData>;
+}
 
 interface StatisticsChartProps {
   selectedPT?: string;
 }
 
-export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: StatisticsChartProps) {
+/* =========================
+   HELPER FUNCTIONS
+========================= */
+const getMonthNumber = (monthName: string): number => {
+  const months: Record<string, number> = {
+    "Januari": 1, "Februari": 2, "Maret": 3, "April": 4,
+    "Mei": 5, "Juni": 6, "Juli": 7, "Agustus": 8,
+    "September": 9, "Oktober": 10, "November": 11, "Desember": 12
+  };
+  return months[monthName] || 1;
+};
+
+const getDaysInMonth = (month: number, year: number): number => {
+  return new Date(year, month, 0).getDate();
+};
+
+/* =========================
+   MAIN COMPONENT
+========================= */
+export default function StatisticsChart({ 
+  selectedPT = "PT Semen Tonasa" 
+}: StatisticsChartProps) {
   const [selectedDay, setSelectedDay] = useState<{ day: string; description: string; } | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("Januari");
-  
-  const currentPT = selectedPT && ptData[selectedPT] ? selectedPT : "PT Semen Tonasa";
-  const categories = Object.keys(ptData[currentPT]);
-  const [selectedCategory, setSelectedCategory] = useState(categories[0]);
+  const [selectedYear] = useState(2025);
+  const [apiData, setApiData] = useState<ApiResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  // Reset category ketika PT berubah
-  useEffect(() => {
-    const newCategories = Object.keys(ptData[currentPT]);
-    setSelectedCategory(newCategories[0]);
-    setSelectedDay(null);
-    setIsZoomed(false);
-  }, [currentPT]);
+  /* =========================
+     FETCH DATA FROM API
+  ========================= */
+  const fetchStatisticsData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
-  const days = Array.from({ length: 30 }, (_, i) => `${i + 1}`);
+      const monthNumber = getMonthNumber(selectedMonth);
+      const params = new URLSearchParams({
+        site: selectedPT,
+        month: monthNumber.toString(),
+        year: selectedYear.toString()
+      });
 
-  // Target/Plan value for each PT and category
-  const targetValues: Record<string, Record<string, number>> = {
-    "PT Semen Tonasa": {
-      "Loading Hauling": 3300,
-      "Drilling": 2900,
-      "Blasting": 2200,
-    },
-    "PT Semen Padang": {
-      "Loading Hauling": 2800,
-      "Drilling": 2600,
-      "Perintisan": 2200,
-      "Bulldozer": 2500,
-    },
-    "Lamongan Shorebase": {
-      "Loading Hauling": 2300,
-      "Drilling": 2100,
-      "Breaker": 1700,
-    },
-    "UTSG": {
-      "Loading Hauling": 4200,
-      "Drilling": 4000,
-      "OB Rehandle": 3600,
-      "OB Insitu": 3700,
-    },
+      const url = `${API_BASE_URL}${API_ENDPOINTS.STATISTICS}?${params}`;
+      console.log('Fetching statistics from:', url);
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch statistics data: ${response.status} ${response.statusText}`);
+      }
+
+      const data: ApiResponse = await response.json();
+      console.log('API Response:', data);
+      
+      if (!data.success) {
+        throw new Error('API returned unsuccessful response');
+      }
+
+      setApiData(data);
+
+      if (data.data && Object.keys(data.data).length > 0) {
+        if (!selectedCategory || !data.data[selectedCategory]) {
+          const firstCategory = Object.keys(data.data)[0];
+          setSelectedCategory(firstCategory);
+          console.log('Selected category:', firstCategory);
+        }
+      } else {
+        console.warn('No activity data available for this period');
+      }
+
+    } catch (err) {
+      console.error('Error fetching statistics:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const targetValue = targetValues[currentPT]?.[selectedCategory] || 3000;
-  const targetData = Array(30).fill(targetValue);
+  useEffect(() => {
+    fetchStatisticsData();
+  }, [selectedPT, selectedMonth, selectedYear]);
 
-  const series = [
+  useEffect(() => {
+    if (apiData && selectedCategory && apiData.data[selectedCategory]) {
+      const activity = apiData.data[selectedCategory];
+      console.log('=== API Data Debug ===');
+      console.log('Selected Category:', selectedCategory);
+      console.log('Activity Data:', activity);
+      console.log('Has breakdownDetails:', !!activity.breakdownDetails);
+      if (activity.breakdownDetails) {
+        console.log('Breakdown Details Length:', activity.breakdownDetails.length);
+        console.log('First Breakdown Detail:', activity.breakdownDetails[0]);
+      }
+      console.log('====================');
+    }
+  }, [apiData, selectedCategory]);
+
+  useEffect(() => {
+    if (apiData && apiData.data) {
+      const categories = Object.keys(apiData.data);
+      if (categories.length > 0 && !categories.includes(selectedCategory)) {
+        setSelectedCategory(categories[0]);
+      }
+    }
+    setSelectedDay(null);
+    setIsZoomed(false);
+  }, [selectedPT]);
+
+  /* =========================
+     PREPARE CHART DATA
+  ========================= */
+  const prepareChartData = () => {
+    if (!apiData || !apiData.data || !selectedCategory || !apiData.data[selectedCategory]) {
+      return { days: [], targetData: [], actualData: [], targetValue: 0 };
+    }
+
+    const activity = apiData.data[selectedCategory];
+    const monthNumber = getMonthNumber(selectedMonth);
+    const daysInMonth = getDaysInMonth(monthNumber, selectedYear);
+    
+    const days = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
+    
+    const targetValue = activity.plan || 0;
+    const targetData = Array(daysInMonth).fill(targetValue);
+    
+    const actualData = Array(daysInMonth).fill(null);
+    activity.dailyData.forEach((dailyItem) => {
+      const index = dailyItem.day - 1;
+      if (index >= 0 && index < daysInMonth) {
+        actualData[index] = dailyItem.actual;
+      }
+    });
+
+    return { days, targetData, actualData, targetValue };
+  };
+
+  const { days, targetData, actualData, targetValue } = prepareChartData();
+
+  /* =========================
+     CHART CONFIGURATION
+  ========================= */
+  const series = useMemo(() => [
     {
       name: 'Target Plan',
       data: targetData,
     },
     {
-      name: selectedCategory,
-      data: ptData[currentPT][selectedCategory],
+      name: selectedCategory.split('_').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' '),
+      data: actualData,
     },
-  ];
+  ], [targetData, actualData, selectedCategory]);
 
-  const options: ApexOptions = {
+  const options: ApexOptions = useMemo(() => ({
     chart: {
       type: "area",
       height: 310,
@@ -196,21 +237,37 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
       events: {
         markerClick: (_event, _ctx, { dataPointIndex }) => {
           const day = days[dataPointIndex];
-          setSelectedDay({
-            day,
-            description: dayDescriptions[day] ?? "Tidak ada keterangan untuk hari ini.",
-          });
+          const activity = apiData?.data[selectedCategory];
+          
+          if (activity) {
+            const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
+            
+            if (dailyItem) {
+              // Cek apakah ada reason yang tidak kosong
+              if (dailyItem.reason && dailyItem.reason.trim() !== '') {
+                setSelectedDay({
+                  day,
+                  description: dailyItem.reason
+                });
+              } else {
+                // Jika tidak ada reason, tampilkan "Tidak ada keterangan"
+                setSelectedDay({
+                  day,
+                  description: "Tidak ada keterangan"
+                });
+              }
+            } else {
+              // Jika tidak ada data untuk hari tersebut
+              setSelectedDay({
+                day,
+                description: "Tidak ada keterangan"
+              });
+            }
+          }
         },
         zoomed: (chartContext, { xaxis }) => {
-          // Deteksi zoom berdasarkan range yang ditampilkan
           const range = xaxis.max - xaxis.min;
-          
-          // Jika menampilkan kurang dari 25 hari, aktifkan data labels
-          if (range < 25) {
-            setIsZoomed(true);
-          } else {
-            setIsZoomed(false);
-          }
+          setIsZoomed(range < 25);
         },
         beforeResetZoom: () => {
           setIsZoomed(false);
@@ -229,10 +286,10 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
         opacityFrom: 0.5, 
         opacityTo: 0 
       },
-      opacity: [0, 0.5] // No fill for target line, gradient fill for actual data
+      opacity: [0, 0.5]
     },
     markers: { 
-      size: [0, 6], // No markers for target line, markers for actual data
+      size: [0, 6],
       strokeWidth: 2, 
       strokeColors: "#fff", 
       colors: ["#ec6765", "#60A5FA"],
@@ -240,7 +297,7 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
     },
     dataLabels: { 
       enabled: isZoomed,
-      enabledOnSeries: [1], // Hanya untuk series actual (index 1)
+      enabledOnSeries: [1],
       background: {
         enabled: true,
         foreColor: '#60A5FA',
@@ -256,47 +313,77 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
       },
       offsetY: -10,
       formatter: function(value) {
-        return value.toString();
+        return value ? value.toString() : '';
       }
     },
     tooltip: { 
       enabled: true,
-      custom: function({ seriesIndex, dataPointIndex, w }) {
-        // seriesIndex 0 is target line, seriesIndex 1 is actual data
-        if (seriesIndex === 1) {
-          const day = days[dataPointIndex];
-          const actualValue = w.globals.series[seriesIndex][dataPointIndex];
-          const dayDetails = getDayDetails(day, selectedCategory, actualValue);
+      intersect: false,
+      shared: false,
+      followCursor: false,
+      custom: function({ series, seriesIndex, dataPointIndex, w }) {
+        const day = days[dataPointIndex];
+        const seriesName = w.globals.seriesNames[seriesIndex];
+        const value = series[seriesIndex][dataPointIndex];
+        
+        if (seriesIndex === 0) {
+          const activity = apiData?.data[selectedCategory];
+          const unit = activity?.unit || '';
           
-          return `
-            <div style="background: white; padding: 8px 10px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); min-width: 140px;">
-              <div style="font-weight: 600; color: #29b4f4; margin-bottom: 6px; font-size: 12px;">
-                ${dayDetails.day}, ${dayDetails.dayNumber} ${selectedMonth}
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 3px;">
-                ${dayDetails.details.map(detail => `
-                  <div style="display: flex; font-size: 12px;">
-                    <span style="color: #374151; font-weight: 500;">${detail.label}</span>
-                    <span style="color: #29b4f4; font-weight: 600;">${detail.value}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          `;
-        } else {
-          // Simple tooltip for target line
-          const targetValue = w.globals.series[seriesIndex][dataPointIndex];
-          return `
-            <div style="background: white; padding: 8px 12px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-              <div style="font-weight: 600; color: #ec6765; font-size: 13px;">
-                Target Plan: ${targetValue}
-              </div>
-            </div>
-          `;
+          return '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 160px;">' +
+            '<div style="font-weight: 600; color: #ec6765; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">Target Plan</div>' +
+            '<div style="display: flex; justify-content: space-between;">' +
+            '<span style="color: #ec6765; font-weight: 600; font-size: 12px;">' + value.toLocaleString() + ' ' + unit + '</span>' +
+            '</div>' +
+            '</div>';
         }
+        
+        const activity = apiData?.data[selectedCategory];
+        if (!activity) return '';
+        
+        const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
+        if (!dailyItem) return '';
+        
+        const breakdownItem = activity.breakdownDetails?.find(b => b.day === parseInt(day));
+        
+        let html = '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 180px;">';
+        html += '<div style="font-weight: 600; color: #60A5FA; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">';
+        html += dailyItem.dayName + ', ' + day + ' ' + selectedMonth;
+        html += '</div>';
+        
+        if (breakdownItem && breakdownItem.units && breakdownItem.units.length > 0) {
+          html += '<div style="display: flex; flex-direction: column; gap: 4px;">';
+          breakdownItem.units.forEach(unit => {
+            html += '<div style="display: flex; justify-content: space-between; gap: 16px;">';
+            html += '<span style="color: #6b7280; font-size: 12px;">' + unit.unitName + ':</span>';
+            html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + unit.actual.toLocaleString() + ' ' + unit.unit + '</span>';
+            html += '</div>';
+          });
+          html += '</div>';
+        } else {
+          html += '<div style="display: flex; justify-content: space-between;">';
+          html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
+          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + value + ' ' + activity.unit + '</span>';
+          html += '</div>';
+        }
+        
+        // Tambahkan keterangan jika ada reason
+        if (dailyItem.reason && dailyItem.reason.trim() !== '') {
+          html += '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">';
+          html += '<div style="font-size: 11px; color: #6b7280; margin-bottom: 2px;">Keterangan:</div>';
+          html += '<div style="font-size: 12px; color: #374151;">' + dailyItem.reason + '</div>';
+          html += '</div>';
+        }
+        
+        html += '</div>';
+        return html;
       }
     },
-    xaxis: { categories: days, axisBorder: { show: false }, axisTicks: { show: false } },
+    xaxis: { 
+      categories: days, 
+      axisBorder: { show: false }, 
+      axisTicks: { show: false } 
+    },
     yaxis: { 
       min: 0,
       tickAmount: 5,
@@ -307,7 +394,6 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
           fontSize: '12px',
         },
         formatter: function(value) {
-          // Return value as-is, ApexCharts will handle the intervals
           return value.toFixed(0);
         }
       } 
@@ -323,54 +409,126 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
         radius: 2,
       },
     },
-  };
+  }), [days, isZoomed, apiData, selectedCategory, selectedMonth]);
 
-  // Handler untuk mengganti kategori tanpa scroll ke atas
+  /* =========================
+     HANDLERS
+  ========================= */
   const handleCategoryChange = (cat: string) => {
     const currentScrollY = window.scrollY;
     setSelectedCategory(cat);
+    setSelectedDay(null);
     
-    // Restore scroll position setelah render
     requestAnimationFrame(() => {
       window.scrollTo(0, currentScrollY);
     });
   };
+
+  const handleMonthChange = (month: string) => {
+    setSelectedMonth(month);
+    setSelectedDay(null);
+  };
+
+  /* =========================
+     RENDER
+  ========================= */
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="flex items-center justify-center h-80">
+          <div className="text-gray-500 dark:text-gray-400">Loading statistics...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="flex items-center justify-center h-80">
+          <div className="text-red-500">Error: {error}</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!apiData || !apiData.data || Object.keys(apiData.data).length === 0) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+            Statistics - {selectedPT}
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {selectedMonth} {selectedYear}
+          </p>
+        </div>
+        
+        <div className="flex flex-col items-center justify-center h-80 gap-4">
+          <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Tidak Ada Data
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Belum ada data operasional untuk {selectedPT} di bulan {selectedMonth} {selectedYear}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Silakan tambahkan data melalui form input terlebih dahulu
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const categories = Object.keys(apiData.data);
+  const currentActivity = apiData.data[selectedCategory];
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Statistics - {currentPT}
+            Statistics - {apiData.site}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {selectedCategory} - {selectedMonth}
+            {selectedCategory.split('_').map(word => 
+              word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ')} - {selectedMonth}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* Category Tabs */}
-          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg dark:bg-gray-800">
+          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 overflow-x-auto">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
                   selectedCategory === cat
                     ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
                     : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
                 }`}
               >
-                {cat}
+                {cat.split('_').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ')}
               </button>
             ))}
           </div>
 
+          {/* Month Selector */}
           <div className="relative">
             <CalenderIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-500" />
             <select
               value={selectedMonth}
-              onChange={(e) => setSelectedMonth(e.target.value)}
+              onChange={(e) => handleMonthChange(e.target.value)}
               className="h-9 w-32 rounded-lg border border-gray-200 bg-white pl-10 pr-3 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer"
             >
               <option value="Januari">Januari</option>
@@ -390,6 +548,7 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
         </div>
       </div>
 
+      {/* Chart */}
       <Chart 
         options={options} 
         series={series} 
@@ -397,12 +556,22 @@ export default function StatisticsChart({ selectedPT = "PT Semen Tonasa" }: Stat
         height={310} 
       />
 
+      {/* Display selected day info when marker is clicked */}
       {selectedDay && (
-        <div className="mt-6 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
-          <p className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-            Keterangan Hari ke-{selectedDay.day}
+        <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/20">
+          <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
+            Keterangan {(() => {
+              const activity = apiData?.data[selectedCategory];
+              if (activity) {
+                const dailyItem = activity.dailyData.find(d => d.day === parseInt(selectedDay.day));
+                if (dailyItem) {
+                  return `${dailyItem.dayName}, ${selectedDay.day} ${selectedMonth}`;
+                }
+              }
+              return `Hari ke-${selectedDay.day}`;
+            })()}
           </p>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="text-sm text-gray-700 dark:text-gray-200">
             {selectedDay.description}
           </p>
         </div>

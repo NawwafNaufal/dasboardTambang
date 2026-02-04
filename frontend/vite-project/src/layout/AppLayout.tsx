@@ -8,6 +8,7 @@ import AppSidebar from "./AppSidebar";
 const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const [selectedPT, setSelectedPT] = useState("PT Semen Tonasa"); 
+  const [currentActivity, setCurrentActivity] = useState<string>(""); // ✅ Tambahkan state untuk aktivitas
 
   return (
     <div className="min-h-screen xl:flex">
@@ -23,9 +24,11 @@ const LayoutContent: React.FC = () => {
         <AppHeader 
           selectedPT={selectedPT}
           onPTChange={setSelectedPT}
+          currentActivity={currentActivity} // ✅ Pass currentActivity ke header
+          onActivityChange={setCurrentActivity} // ✅ Pass callback untuk update aktivitas
         />
         <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-          <Outlet context={{ selectedPT }} />
+          <Outlet context={{ selectedPT, currentActivity }} /> {/* ✅ Pass currentActivity ke child routes */}
         </div>
       </div>
     </div>

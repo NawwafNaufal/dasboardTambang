@@ -8,12 +8,97 @@ import UserDropdown from "../components/header/UserDropdown";
 interface AppHeaderProps {
   selectedPT: string;
   onPTChange: (pt: string) => void;
+  currentActivity?: string;
+  onActivityChange?: (activity: string) => void;
+  apiUrl?: string;
+  year?: number;
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({ selectedPT, onPTChange }) => {
+interface MonthlyData {
+  month: string;
+  value: number;
+}
+
+interface ActivityData {
+  [activityName: string]: MonthlyData[];
+}
+
+interface SiteData {
+  [siteName: string]: ActivityData;
+}
+
+interface ApiResponse {
+  success: boolean;
+  year: number;
+  data: SiteData;
+}
+
+const AppHeader: React.FC<AppHeaderProps> = ({ 
+  selectedPT, 
+  onPTChange,
+  currentActivity,
+  onActivityChange,
+  apiUrl = "http://localhost:4000/api/monthly-actual/by-site",
+  year = 2025
+}) => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(0);
+  const [activities, setActivities] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
+
+  // ✅ Fungsi untuk format nama aktivitas (snake_case → Title Case)
+  const formatActivityName = (name: string) => {
+    return name
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Fetch activities from API based on selected PT
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        setLoading(true);
+        console.log('🔍 [AppHeader] Fetching activities for PT:', selectedPT, 'Year:', year);
+        
+        const response = await fetch(`${apiUrl}?year=${year}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result: ApiResponse = await response.json();
+        console.log('📊 [AppHeader] Monthly Actual API Response:', result);
+        
+        if (result.success && result.data[selectedPT]) {
+          // Extract activity names (product names) from the data
+          const activityNames = Object.keys(result.data[selectedPT]);
+          setActivities(activityNames);
+          
+          console.log('📋 [AppHeader] Raw activities:', activityNames);
+          
+          // ✅ Set aktivitas pertama sebagai default dengan format Title Case
+          if (activityNames.length > 0 && onActivityChange && !currentActivity) {
+            const formattedActivity = formatActivityName(activityNames[0]);
+            onActivityChange(formattedActivity);
+            console.log('🎯 [AppHeader] Initial activity set to:', formattedActivity);
+          }
+        } else {
+          console.warn(`⚠️ [AppHeader] No activities found for ${selectedPT}`);
+          setActivities([]);
+        }
+      } catch (err) {
+        console.error("❌ [AppHeader] Error fetching activities:", err);
+        setActivities([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, [selectedPT, apiUrl, year]);
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -27,22 +112,27 @@ const AppHeader: React.FC<AppHeaderProps> = ({ selectedPT, onPTChange }) => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
   };
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const goToNext = () => {
+    const nextIndex = selectedCategory < activities.length - 1 ? selectedCategory + 1 : 0;
+    setSelectedCategory(nextIndex);
+    
+    // ✅ Panggil callback dengan format Title Case
+    if (onActivityChange && activities[nextIndex]) {
+      const formattedActivity = formatActivityName(activities[nextIndex]);
+      onActivityChange(formattedActivity);
+      console.log('🎯 [AppHeader] Activity changed to:', formattedActivity);
+    }
+  };
 
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === "k") {
-        event.preventDefault();
-        inputRef.current?.focus();
-      }
-    };
+    // Reset selected category when PT changes or year changes
+    setSelectedCategory(0);
+  }, [selectedPT, year]);
 
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  // ✅ Format nama aktivitas untuk ditampilkan
+  const currentActivityDisplay = activities[selectedCategory] 
+    ? formatActivityName(activities[selectedCategory])
+    : "Loading...";
 
   return (
     <header className="sticky top-0 flex w-full bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
@@ -119,39 +209,56 @@ const AppHeader: React.FC<AppHeaderProps> = ({ selectedPT, onPTChange }) => {
             </svg>
           </button>
 
+          {/* Category Selector - Hidden on mobile, visible on desktop */}
           <div className="hidden lg:block">
-            <form>
-              <div className="relative">
-                <span className="absolute -translate-y-1/2 pointer-events-none left-4 top-1/2">
+            <div className="relative flex items-center gap-2">
+              {/* Category display (activity name from API) */}
+              <div className="flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm text-black bg-white border border-gray-200 rounded-lg w-64">
+                {/* Factory Icon */}
+                <svg 
+                  className="w-5 h-5 flex-shrink-0" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M2 20h20v2H2z"/>
+                  <path d="M7 3v5l5-3v5l5-3v12H7V7"/>
+                  <path d="M7 7H2v12h5"/>
+                </svg>
+                
+                <span className="tracking-wide truncate">
+                  {loading ? "Loading..." : activities.length > 0 ? currentActivityDisplay : "No activities"}
+                </span>
+              </div>
+
+              {/* Right arrow button */}
+              {!loading && activities.length > 0 && (
+                <button
+                  onClick={goToNext}
+                  className="flex items-center justify-center flex-shrink-0 w-11 h-11 bg-transparent border-2 border-gray-200 rounded-lg text-black transition-all hover:bg-gray-100"
+                  aria-label="Next activity"
+                >
                   <svg
-                    className="fill-gray-500 dark:fill-gray-400"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 20 20"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fillRule="evenodd"
-                      clipRule="evenodd"
-                      d="M3.04175 9.37363C3.04175 5.87693 5.87711 3.04199 9.37508 3.04199C12.8731 3.04199 15.7084 5.87693 15.7084 9.37363C15.7084 12.8703 12.8731 15.7053 9.37508 15.7053C5.87711 15.7053 3.04175 12.8703 3.04175 9.37363ZM9.37508 1.54199C5.04902 1.54199 1.54175 5.04817 1.54175 9.37363C1.54175 13.6991 5.04902 17.2053 9.37508 17.2053C11.2674 17.2053 13.003 16.5344 14.357 15.4176L17.177 18.238C17.4699 18.5309 17.9448 18.5309 18.2377 18.238C18.5306 17.9451 18.5306 17.4703 18.2377 17.1774L15.418 14.3573C16.5365 13.0033 17.2084 11.2669 17.2084 9.37363C17.2084 5.04817 13.7011 1.54199 9.37508 1.54199Z"
-                      fill=""
+                      d="M6 12L10 8L6 4"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </svg>
-                </span>
-                <input
-                  ref={inputRef}
-                  type="text"
-                  placeholder="Search or type command..."
-                  className="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 xl:w-[430px]"
-                />
-
-                <button className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400">
-                  <span> ⌘ </span>
-                  <span> K </span>
                 </button>
-              </div>
-            </form>
+              )}
+            </div>
           </div>
         </div>
         <div

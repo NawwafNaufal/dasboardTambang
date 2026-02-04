@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 
-const years = ["2024", "2023", "2022", "2021", "2020"];
+const years = ["2025", "2023", "2022", "2021", "2020"];
 
 export default function YearDropdown() {
   const [isOpen, setIsOpen] = useState(false);
