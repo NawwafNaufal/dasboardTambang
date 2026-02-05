@@ -1,6 +1,6 @@
 // src/service/productivity/planRkpaService.ts
 import { Request, Response } from 'express';
-import { DailyOperation } from "../../model/produktivity/monthly.model";
+import { DailyOperation } from "../../model/monthly.model";
 
 
 export const getPlanRkpaByYear = async (req: Request, res: Response) => {

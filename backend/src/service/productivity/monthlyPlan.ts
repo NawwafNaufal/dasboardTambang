@@ -1,5 +1,5 @@
 import { DailyOperationData } from "../../interface/productivity/dailyProductionType";
-import { DailyOperation } from "../../model/produktivity/monthly.model";
+import { DailyOperation } from "../../model/monthly.model";
 import mongoose from "mongoose";
 
 export const syncDailyOperationService = async (data: DailyOperationData) => {

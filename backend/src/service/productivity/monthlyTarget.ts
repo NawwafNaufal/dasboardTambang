@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { DailyOperation } from "../../model/produktivity/monthly.model";
+import { DailyOperation } from "../../model/monthly.model";
 
 function getMonthName(month: number): string {
   const months = [
