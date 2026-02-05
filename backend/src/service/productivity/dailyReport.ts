@@ -41,7 +41,6 @@ export const getMonthlyActualBySite = async (req: Request, res: Response) => {
         Object.keys(activitiesObj).forEach((activityKey) => {
           const activityName = activityKey.replace(/_/g, ' ')
             .replace(/\b\w/g, (l: string) => l.toUpperCase()); // Convert to Title Case
-
           if (!bySite[site][activityName]) {
             bySite[site][activityName] = {};
           }
