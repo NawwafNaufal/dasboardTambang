@@ -5,13 +5,18 @@
   "main": "main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+<<<<<<< HEAD
     "dev": "nodemon --legacy-watch ./src/main.ts",
     "z": "nodemon src/main.ts"
+=======
+    "dev": "nodemon --legacy-watch ./src/main.ts"
+>>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
   },
   "author": "M Nawwaf Naufal",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^6.0.0",
+<<<<<<< HEAD
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
@@ -21,6 +26,13 @@
     "mongoose": "^9.1.4",
     "mysql2": "^3.16.0",
     "node-cron": "^4.2.1",
+=======
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "express-session": "^1.18.2",
+    "joi": "^18.0.2",
+    "mysql2": "^3.16.0",
+>>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
     "winston": "^3.19.0"
   },
   "devDependencies": {

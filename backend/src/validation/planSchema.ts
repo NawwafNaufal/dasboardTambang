@@ -17,6 +17,10 @@ export const createPlanSchema = Joi.object({
                                     "number.positive": "RKAP harus lebih dari 0",
                                     "any.required": "RKAP wajib diisi"
 }),
+<<<<<<< HEAD
+=======
+
+>>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
                         date: Joi.date()
                                 .required()
                                 .messages({

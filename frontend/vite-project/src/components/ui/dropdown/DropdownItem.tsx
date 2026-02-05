@@ -23,6 +23,7 @@ export const DropdownItem: React.FC<DropdownItemProps> = ({
   const combinedClasses = `${baseClassName} ${className}`.trim();
 
   const handleClick = (event: React.MouseEvent) => {
+<<<<<<< HEAD
     // ✅ PERBAIKAN: Panggil onClick DULU sebelum preventDefault
     if (onClick) onClick();
     if (onItemClick) onItemClick();
@@ -31,6 +32,13 @@ export const DropdownItem: React.FC<DropdownItemProps> = ({
     if (tag === "button") {
       event.preventDefault();
     }
+=======
+    if (tag === "button") {
+      event.preventDefault();
+    }
+    if (onClick) onClick();
+    if (onItemClick) onItemClick();
+>>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
   };
 
   if (tag === "a" && to) {
@@ -42,8 +50,16 @@ export const DropdownItem: React.FC<DropdownItemProps> = ({
   }
 
   return (
+<<<<<<< HEAD
     <button type="button" onClick={handleClick} className={combinedClasses}>
       {children}
     </button>
   );
 };
+=======
+    <button onClick={handleClick} className={combinedClasses}>
+      {children}
+    </button>
+  );
+};
+>>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
