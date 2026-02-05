@@ -1,15 +1,8 @@
 import { useState } from "react";
-<<<<<<< HEAD
 import ComponentCard from "../../common/ComponentCard";
 import Label from "../Label";
 import DatePicker from "../date-picker.tsx";
 
-=======
-import ComponentCard from "../../common/ComponentCard.tsx";
-import Label from "../Label.tsx";
-import DatePicker from "../date-picker.tsx";
-import Input from "../input/InputField.tsx";
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
 import {
   Select,
   SelectContent,
@@ -17,11 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-<<<<<<< HEAD
 import TextArea from "../input/TextArea";
-=======
-import TextArea from "../input/TextArea.tsx";
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
 
 /* ===============================
   MOCK DATA (TAMBAHAN)
@@ -80,11 +69,7 @@ export default function DefaultInputs() {
 
   return (
     <ComponentCard title="Default Inputs">
-<<<<<<< HEAD
       <div className="space-y-6">
-=======
-      <div className="space-y-6 max-w-3xl">
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
         {/* DATE PICKER */}
         <div>
           <DatePicker
@@ -155,7 +140,6 @@ export default function DefaultInputs() {
           </div>
         </div>
 
-<<<<<<< HEAD
       <div className="space-y-6">
         {/* Default TextArea */}
         <div>
@@ -167,20 +151,6 @@ export default function DefaultInputs() {
           />
         </div>
       </div>
-=======
-        <div className="space-y-6">
-          {/* Default TextArea */}
-          <div>
-            <Label>Description</Label>
-            <TextArea
-              value={message}
-              onChange={(value) => setMessage(value)}
-              rows={6}
-            />
-          </div>
-        </div>
-
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
         {/* SUBMIT */}
         <div className="flex justify-end ">
           <button className="inline-flex items-center gap-2 h-11 rounded-xl bg-brand-500 px-5 text-sm font-medium text-white hover:bg-brand-600">
@@ -190,8 +160,4 @@ export default function DefaultInputs() {
       </div>
     </ComponentCard>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9

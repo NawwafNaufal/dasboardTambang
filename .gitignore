@@ -12,10 +12,6 @@
 .idea/
 .DS_Store
 Thumbs.db
-<<<<<<< HEAD
 
 **/logsDasboard
 **/Keys.json
-=======
-**/logsDasboard
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
