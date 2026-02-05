@@ -5,7 +5,7 @@ import { syncDailyOperationJob } from "./jobs/syncMonthlyPlan.job";
 import { error } from "./middleware/errorHandling/error";
 import { connectMongo } from "./config/mongo";
 import cors from "cors";
-import productivity from "./routes/productivity/productivity.route";
+import productivity from "./routes/productivity/productivity";
 import planRkpa from "./routes/productivity/planRkpa"
 import staticD from "./routes/productivity/dailyStatic"
 import monthlyTarget from "./routes/productivity/monthlyTarget"

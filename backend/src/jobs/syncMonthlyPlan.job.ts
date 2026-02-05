@@ -1,5 +1,5 @@
 import { transformDailyOperation } from "../utils/transformMonthlyPlan";
-import { syncDailyOperationService } from "../service/productivity/syncMonthlyPlan.service";
+import { syncDailyOperationService } from "../service/productivity/monthlyPlan";
 import { getAllSpreadsheetsData } from "../config/googleCredentials";
 
 export const syncDailyOperationJob = async () => {
