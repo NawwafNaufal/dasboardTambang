@@ -213,10 +213,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           <div className="hidden lg:block">
             <div className="relative flex items-center gap-2">
               {/* Category display (activity name from API) */}
-              <div className="flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm text-black bg-white border border-gray-200 rounded-lg w-64">
+              <div className="flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg w-64 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
                 {/* Factory Icon */}
                 <svg 
-                  className="w-5 h-5 flex-shrink-0" 
+                  className="w-5 h-5 flex-shrink-0 text-gray-700 dark:text-gray-300" 
                   viewBox="0 0 24 24" 
                   fill="none" 
                   stroke="currentColor" 
@@ -238,7 +238,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
               {!loading && activities.length > 0 && (
                 <button
                   onClick={goToNext}
-                  className="flex items-center justify-center flex-shrink-0 w-11 h-11 bg-transparent border-2 border-gray-200 rounded-lg text-black transition-all hover:bg-gray-100"
+                  className="flex items-center justify-center flex-shrink-0 w-11 h-11 bg-white border-2 border-gray-200 rounded-lg text-gray-900 transition-all hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700"
                   aria-label="Next activity"
                 >
                   <svg

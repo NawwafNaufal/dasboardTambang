@@ -154,8 +154,18 @@ export default function MonthlySalesChart({
   if (loading) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Actual - {selectedPT} ({year})
+          </h3>
+        </div>
         <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">Loading data...</div>
+          <div className="text-center">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+              <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+            </div>
+            <p className="mt-4 text-gray-500 dark:text-gray-400">Loading data...</p>
+          </div>
         </div>
       </div>
     );
@@ -165,9 +175,27 @@ export default function MonthlySalesChart({
   if (error || !apiData) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-red-500 dark:text-red-400">
-            Error: {error || "No data available"}
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Actual - {selectedPT} ({year})
+          </h3>
+        </div>
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Tidak Ada Data
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Belum ada data aktual untuk tahun {year}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Silakan tambahkan data melalui form input
+            </p>
           </div>
         </div>
       </div>
@@ -181,9 +209,27 @@ export default function MonthlySalesChart({
   if (!currentPT || !apiData[currentPT]) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">
-            No data available for {selectedPT} in year {year}
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Actual - {selectedPT} ({year})
+          </h3>
+        </div>
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Tidak Ada Data
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Belum ada data untuk {selectedPT} di tahun {year}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Silakan tambahkan data melalui form input
+            </p>
           </div>
         </div>
       </div>
@@ -195,9 +241,27 @@ export default function MonthlySalesChart({
   if (currentProducts.length === 0) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">
-            No products available for {currentPT} in year {year}
+        <div className="mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Actual - {currentPT} ({year})
+          </h3>
+        </div>
+        <div className="flex flex-col items-center justify-center h-64 gap-4">
+          <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Tidak Ada Data
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Belum ada produk untuk {currentPT} di tahun {year}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Silakan tambahkan data melalui form input
+            </p>
           </div>
         </div>
       </div>
