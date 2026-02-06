@@ -29,8 +29,8 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
 
   // Logging khusus untuk PT Semen Padang
   if (site === "PT Semen Padang") {
-    console.log(`\n========== TRANSFORM PT SEMEN PADANG ==========`);
-    console.log(`[TRANSFORM] Total rows to process: ${rows.length}`);
+    // console.log(`\n========== TRANSFORM PT SEMEN PADANG ==========`);
+    // console.log(`[TRANSFORM] Total rows to process: ${rows.length}`);
   }
 
   let rowsProcessed = 0;
@@ -43,7 +43,7 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     // Check 1: Row valid
     if (!row || row.length < 7) {
       if (site === "PT Semen Padang") {
-        console.log(`[SKIP-${i}] Length < 7 (actual: ${row?.length})`);
+        // console.log(`[SKIP-${i}] Length < 7 (actual: ${row?.length})`);
       }
       rowsSkipped++;
       skipReasons["length < 7"] = (skipReasons["length < 7"] || 0) + 1;
@@ -54,7 +54,7 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     const isHeader = isHeaderRow(row);
     if (isHeader) {
       if (site === "PT Semen Padang") {
-        console.log(`[SKIP-${i}] Header row:`, row.slice(0, 8));
+        // console.log(`[SKIP-${i}] Header row:`, row.slice(0, 8));
       }
       rowsSkipped++;
       skipReasons["header"] = (skipReasons["header"] || 0) + 1;
@@ -66,14 +66,14 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     const hari = row[3]?.trim();
     
     if (site === "PT Semen Padang") {
-      console.log(`\n[ROW-${i}] Processing...`);
-      console.log(`  - Tanggal (row[2]): "${tanggal}"`);
-      console.log(`  - Hari (row[3]): "${hari}"`);
+      // console.log(`\n[ROW-${i}] Processing...`);
+      // console.log(`  - Tanggal (row[2]): "${tanggal}"`);
+      // console.log(`  - Hari (row[3]): "${hari}"`);
     }
     
     if (!tanggal) {
       if (site === "PT Semen Padang") {
-        console.log(`[SKIP-${i}] No tanggal`);
+        // console.log(`[SKIP-${i}] No tanggal`);
       }
       rowsSkipped++;
       skipReasons["no tanggal"] = (skipReasons["no tanggal"] || 0) + 1;
@@ -84,12 +84,12 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     const dateFormatted = convertDateFormat(tanggal);
     
     if (site === "PT Semen Padang") {
-      console.log(`  - Date formatted: "${dateFormatted}"`);
+      // console.log(`  - Date formatted: "${dateFormatted}"`);
     }
     
     if (!dateFormatted) {
       if (site === "PT Semen Padang") {
-        console.log(`[SKIP-${i}] Invalid date format`);
+        // console.log(`[SKIP-${i}] Invalid date format`);
       }
       rowsSkipped++;
       skipReasons["invalid date"] = (skipReasons["invalid date"] || 0) + 1;
@@ -155,7 +155,7 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     };
 
     if (site === "PT Semen Padang") {
-      console.log(`[ROW-${i}] ✅ Record created:`, JSON.stringify(record, null, 2));
+      // console.log(`[ROW-${i}] ✅ Record created:`, JSON.stringify(record, null, 2));
     }
 
     result.push(record);
@@ -163,13 +163,13 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
   }
 
   if (site === "PT Semen Padang") {
-    console.log(`\n========== TRANSFORM SUMMARY ==========`);
-    console.log(`Total rows: ${rows.length}`);
-    console.log(`Processed: ${rowsProcessed}`);
-    console.log(`Skipped: ${rowsSkipped}`);
-    console.log(`Skip reasons:`, skipReasons);
-    console.log(`Result length: ${result.length}`);
-    console.log(`=======================================\n`);
+    // console.log(`\n========== TRANSFORM SUMMARY ==========`);
+    // console.log(`Total rows: ${rows.length}`);
+    // console.log(`Processed: ${rowsProcessed}`);
+    // console.log(`Skipped: ${rowsSkipped}`);
+    // console.log(`Skip reasons:`, skipReasons);
+    // console.log(`Result length: ${result.length}`);
+    // console.log(`=======================================\n`);
   }
 
   return result;

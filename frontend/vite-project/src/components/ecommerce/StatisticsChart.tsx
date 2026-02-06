@@ -452,78 +452,52 @@ export default function StatisticsChart({
     );
   }
 
-  if (!apiData || !apiData.data || Object.keys(apiData.data).length === 0) {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Statistics - {selectedPT}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {selectedMonth} {selectedYear}
-          </p>
-        </div>
-        
-        <div className="flex flex-col items-center justify-center h-80 gap-4">
-          <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-          </div>
-          <div className="text-center">
-            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
-              Tidak Ada Data
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Belum ada data operasional untuk {selectedPT} di bulan {selectedMonth} {selectedYear}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              Silakan tambahkan data melalui form input terlebih dahulu
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const categories = Object.keys(apiData.data);
-  const currentActivity = apiData.data[selectedCategory];
+  // Cek apakah ada data
+  const hasData = apiData && apiData.data && Object.keys(apiData.data).length > 0;
+  const categories = hasData ? Object.keys(apiData.data) : [];
+  const currentActivity = hasData ? apiData.data[selectedCategory] : null;
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Statistics - {apiData.site}
+            Statistics - {apiData?.site || selectedPT}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            {selectedCategory.split('_').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ')} - {selectedMonth}
+            {hasData ? (
+              `${selectedCategory.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+              ).join(' ')} - ${selectedMonth}`
+            ) : (
+              `${selectedMonth} ${selectedYear}`
+            )}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 overflow-x-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => handleCategoryChange(cat)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
-                  selectedCategory === cat
-                    ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
-                    : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-                }`}
-              >
-                {cat.split('_').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')}
-              </button>
-            ))}
-          </div>
+          {/* Category Tabs - hanya tampil jika ada data */}
+          {hasData && (
+            <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 overflow-x-auto">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => handleCategoryChange(cat)}
+                  className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
+                    selectedCategory === cat
+                      ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
+                      : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                  }`}
+                >
+                  {cat.split('_').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1)
+                  ).join(' ')}
+                </button>
+              ))}
+            </div>
+          )}
 
-          {/* Month Selector */}
+          {/* Month Selector - SELALU tampil */}
           <div className="relative">
             <CalenderIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-500" />
             <select
@@ -548,33 +522,57 @@ export default function StatisticsChart({
         </div>
       </div>
 
-      {/* Chart */}
-      <Chart 
-        options={options} 
-        series={series} 
-        type="area" 
-        height={310} 
-      />
-
-      {/* Display selected day info when marker is clicked */}
-      {selectedDay && (
-        <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/20">
-          <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
-            Keterangan {(() => {
-              const activity = apiData?.data[selectedCategory];
-              if (activity) {
-                const dailyItem = activity.dailyData.find(d => d.day === parseInt(selectedDay.day));
-                if (dailyItem) {
-                  return `${dailyItem.dayName}, ${selectedDay.day} ${selectedMonth}`;
-                }
-              }
-              return `Hari ke-${selectedDay.day}`;
-            })()}
-          </p>
-          <p className="text-sm text-gray-700 dark:text-gray-200">
-            {selectedDay.description}
-          </p>
+      {/* Konten - Chart atau No Data */}
+      {!hasData ? (
+        <div className="flex flex-col items-center justify-center h-80 gap-4">
+          <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
+              Tidak Ada Data
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Belum ada data operasional untuk {apiData?.site || selectedPT} di bulan {selectedMonth} {selectedYear}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+              Silakan pilih bulan lain atau tambahkan data melalui form input
+            </p>
+          </div>
         </div>
+      ) : (
+        <>
+          {/* Chart */}
+          <Chart 
+            options={options} 
+            series={series} 
+            type="area" 
+            height={310} 
+          />
+
+          {/* Display selected day info when marker is clicked */}
+          {selectedDay && (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/20">
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
+                Keterangan {(() => {
+                  const activity = apiData?.data[selectedCategory];
+                  if (activity) {
+                    const dailyItem = activity.dailyData.find(d => d.day === parseInt(selectedDay.day));
+                    if (dailyItem) {
+                      return `${dailyItem.dayName}, ${selectedDay.day} ${selectedMonth}`;
+                    }
+                  }
+                  return `Hari ke-${selectedDay.day}`;
+                })()}
+              </p>
+              <p className="text-sm text-gray-700 dark:text-gray-200">
+                {selectedDay.description}
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
