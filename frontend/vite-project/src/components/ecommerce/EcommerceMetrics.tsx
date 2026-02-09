@@ -72,7 +72,7 @@ export default function EcommerceMetrics({
   selectedPT = "PT Semen Tonasa",
   currentActivity,
   apiUrl = "http://localhost:4000/api/plan-rkpa",
-  year = 2025
+  year = 2026  // ✅ Default ke 2026
 }: EcommerceMetricsProps) {
   const [apiData, setApiData] = useState<{ [siteName: string]: SiteActivities } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -113,7 +113,7 @@ export default function EcommerceMetrics({
 
   // ✅ Log perubahan currentActivity untuk debugging
   useEffect(() => {
-    console.log('🎯 [EcommerceMetrics] currentActivity changed to:', currentActivity);
+    console.log('🎯 [EcommerceMetrics] currentActivity received (snake_case):', currentActivity);
   }, [currentActivity]);
 
   // Show loading state
@@ -190,11 +190,8 @@ export default function EcommerceMetrics({
     );
   }
 
-  // Check if selected PT exists in data
-  const availableSites = Object.keys(apiData);
-  const currentPT = availableSites.includes(selectedPT) ? selectedPT : availableSites[0];
-  
-  if (!currentPT || !apiData[currentPT]) {
+  // ✅ Tidak fallback ke PT lain - langsung cek selectedPT
+  if (!apiData[selectedPT]) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
@@ -236,7 +233,7 @@ export default function EcommerceMetrics({
     );
   }
 
-  const ptActivities = apiData[currentPT].activities;
+  const ptActivities = apiData[selectedPT].activities;
 
   if (ptActivities.length === 0) {
     return (
@@ -280,26 +277,21 @@ export default function EcommerceMetrics({
     );
   }
 
-  // ✅ Fungsi normalisasi nama aktivitas
-  const normalizeActivityName = (name: string) => {
-    return name.toLowerCase().replace(/\s+/g, '_');
-  };
-
-  // ✅ Cari aktivitas yang sesuai dengan currentActivity dari navbar
-  console.log('🔎 [EcommerceMetrics] Looking for activity:', currentActivity);
+  // ✅ LANGSUNG MATCH dengan snake_case (tidak perlu normalisasi)
+  console.log('🔎 [EcommerceMetrics] Looking for activity (snake_case):', currentActivity);
   console.log('📋 [EcommerceMetrics] Available activities:', ptActivities.map(a => a.activityName));
   
+  // ✅ currentActivity sudah dalam snake_case dari AppHeader
+  // ✅ API juga return dalam snake_case
+  // ✅ Langsung match tanpa konversi
   const activityData = currentActivity 
-    ? ptActivities.find(act => 
-        normalizeActivityName(act.activityName) === normalizeActivityName(currentActivity)
-      )
+    ? ptActivities.find(act => act.activityName === currentActivity)
     : ptActivities[0];
 
   // Fallback jika aktivitas tidak ditemukan
   const displayActivity = activityData || ptActivities[0];
   
-  console.log('🔍 [EcommerceMetrics] Normalized search:', currentActivity ? normalizeActivityName(currentActivity) : 'none');
-  console.log('✅ [EcommerceMetrics] Displaying activity:', displayActivity.activityName);
+  console.log('✅ [EcommerceMetrics] Matched activity:', displayActivity.activityName);
 
   return (
     <div className="space-y-4">
