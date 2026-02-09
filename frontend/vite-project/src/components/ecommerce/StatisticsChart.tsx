@@ -91,7 +91,7 @@ export default function StatisticsChart({
   const [selectedDay, setSelectedDay] = useState<{ day: string; description: string; } | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("Januari");
-  const [selectedYear] = useState(2025);
+  const [selectedYear] = useState(2026);
   const [apiData, setApiData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
