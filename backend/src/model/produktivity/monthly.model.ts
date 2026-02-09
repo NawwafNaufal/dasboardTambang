@@ -38,5 +38,5 @@ DailyOperationSchema.index({ date: 1, site: 1 }, { unique: true });
 
 export const DailyOperation = model<DailyOperationDoc>("DailyOperation", DailyOperationSchema);
 
-console.log("📋 DailyOperation Schema Paths:", Object.keys(DailyOperation.schema.paths));
-console.log("📋 Activities Schema:", DailyOperation.schema.path('activities'));
+// console.log("📋 DailyOperation Schema Paths:", Object.keys(DailyOperation.schema.paths));
+// console.log("📋 Activities Schema:", DailyOperation.schema.path('activities'));

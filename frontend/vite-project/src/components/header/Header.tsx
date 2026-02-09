@@ -6,7 +6,6 @@ import { Link } from "react-router";
 
 // Define the interface for the props
 interface HeaderProps {
-<<<<<<< HEAD
   onClick?: () => void;
   onToggle: () => void;
   selectedPT: string;
@@ -14,12 +13,6 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onClick, onToggle, selectedPT, onPTChange }) => {
-=======
-  onClick?: () => void; // Optional function that takes no arguments and returns void
-  onToggle: () => void;
-}
-const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
 
   const toggleApplicationMenu = () => {
@@ -65,13 +58,8 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
                 fill="currentColor"
               />
             </svg>
-<<<<<<< HEAD
           </button>
           
-=======
-            {/* Cross Icon */}
-          </button>
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
           <button
             onClick={onClick}
             className="items-center justify-center hidden w-10 h-10 text-gray-500 border-gray-200 rounded-lg z-99999 dark:border-gray-800 lg:flex dark:text-gray-400 lg:h-11 lg:w-11 lg:border"
@@ -160,17 +148,13 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             </form>
           </div>
         </div>
-<<<<<<< HEAD
         
-=======
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
         <div
           className={`${
             isApplicationMenuOpen ? "flex" : "hidden"
           } items-center justify-between w-full gap-4 px-5 py-4 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
-<<<<<<< HEAD
             <ThemeToggleButton />
             <NotificationDropdown />
           </div>
@@ -178,24 +162,10 @@ const Header: React.FC<HeaderProps> = ({ onClick, onToggle }) => {
             selectedPT={selectedPT}
             onPTChange={onPTChange}
           />
-=======
-            {/* <!-- Dark Mode Toggler --> */}
-            <ThemeToggleButton />
-            {/* <!-- Dark Mode Toggler --> */}
-            <NotificationDropdown />
-            {/* <!-- Notification Menu Area --> */}
-          </div>
-          {/* <!-- User Area --> */}
-          <UserDropdown />
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
         </div>
       </div>
     </header>
   );
 };
 
-<<<<<<< HEAD
 export default Header;
-=======
-export default Header;
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9

@@ -9,10 +9,7 @@ CREATE Table users (
     update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 
-<<<<<<< HEAD
 
-=======
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
 SHOW TABLES
 
 DESC users
@@ -34,19 +31,11 @@ ALTER TABLE users ADD CONSTRAINT fk_role FOREIGN KEY (id_role) REFERENCES role(i
 
 CREATE TABLE produktivity (
     id INT AUTO_INCREMENT PRIMARY KEY,
-<<<<<<< HEAD
     actual_value DECIMAL(10,2),
     value_input INT
     tanggal DATETIME DEFAULT CURRENT_TIMESTAMP,
     id_unit INT,
     id_plan INT,
-=======
-    plan DECIMAL(10,2),
-    tanggal DATETIME DEFAULT CURRENT_TIMESTAMP,
-    id_company INT,
-    id_unit INT,
-    id_activity INT,
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -169,10 +158,6 @@ ORDER BY
     produktivity.date DESC
 LIMIT 10 OFFSET 0;
 
-<<<<<<< HEAD
-=======
-
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9
 SELECT  
     produktivity.date,
     activity.activity_name,
@@ -249,7 +234,6 @@ JOIN unit as u ON u.id = p.id_unit
 GROUP BY u.unit_name
 
 SELECT unit_name, COUNT(*) FROM unit GROUP BY unit_name
-<<<<<<< HEAD
 
 SELECT u.id,COUNT(*) FROM produktivity as p
 JOIN unit as u ON u.id = p.id_unit
@@ -277,5 +261,3 @@ HAVING total > 100
 
 
 
-=======
->>>>>>> f734bc196743bbce448ea7b7d360b032d26ce8a9

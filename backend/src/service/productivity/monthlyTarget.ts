@@ -9,13 +9,24 @@ function getMonthName(month: number): string {
   return months[month - 1] || "Unknown";
 }
 
+// Helper function untuk extract string dari params
+function getParamAsString(param: string | string[] | undefined): string {
+  if (Array.isArray(param)) {
+    return param[0];
+  }
+  return param || "";
+}
+
 /**
  * GET Monthly Target - Total Plan & Actual per bulan + Today Actual
  * Endpoint: GET /api/monthly-target/:site/:year/:month
  */
 export const getMonthlyTarget = async (req: Request, res: Response) => {
   try {
-    const { site, year, month } = req.params;
+    // Extract params as strings using helper function
+    const site = getParamAsString(req.params.site);
+    const year = getParamAsString(req.params.year);
+    const month = getParamAsString(req.params.month);
 
     // Validasi params tidak undefined
     if (!site || !year || !month) {

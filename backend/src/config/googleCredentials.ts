@@ -6,6 +6,7 @@ const auth = new google.auth.GoogleAuth({
   credentials: dataCredentials,
   scopes: "https://www.googleapis.com/auth/spreadsheets.readonly",
 });
+
 const sheet = google.sheets({ version: "v4", auth });
 
 // Konfigurasi spreadsheet dengan site mapping
@@ -33,22 +34,58 @@ const SPREADSHEET_CONFIGS = [
 ];
 
 export const getDataGoogle = async (spreadsheetId: string, range: string = "Sheet1!A1:Z100") => {
-  console.log("[GOOGLE] fetching spreadsheet:", spreadsheetId);
   const res = await sheet.spreadsheets.values.get({
     spreadsheetId: spreadsheetId,
     range: range,
   });
-  console.log("[GOOGLE] rows:", res.data.values?.length);
   return res.data.values ?? [];
 };
 
 // Fungsi untuk ambil SEMUA spreadsheet dengan info site
 export const getAllSpreadsheetsData = async () => {
-  console.log("[GOOGLE] fetching multiple spreadsheets:", SPREADSHEET_CONFIGS.length);
-  
   const promises = SPREADSHEET_CONFIGS.map(async (config) => {
     try {
       const data = await getDataGoogle(config.id, config.range);
+      
+      console.log(`[GOOGLE] ${config.site} - fetching spreadsheet:`, config.id);
+      console.log(`[GOOGLE] ${config.site} - rows:`, data.length);
+      
+      // TAMBAHKAN LOG INI untuk PT Semen Padang
+      if (config.site === "PT Semen Padang") {
+        console.log(`\n========== PT SEMEN PADANG RAW DATA ==========`);
+        console.log(`[GOOGLE] Total rows fetched: ${data.length}`);
+        console.log(`\n[GOOGLE] First 10 rows:\n`);
+        
+        data.slice(0, 10).forEach((row, index) => {
+          console.log(`Row ${index}:`, row);
+        });
+        
+        console.log(`\n[GOOGLE] Last 3 rows:\n`);
+        data.slice(-3).forEach((row, index) => {
+          console.log(`Row ${data.length - 3 + index}:`, row);
+        });
+        
+        console.log(`\n[GOOGLE] Checking each row structure:`);
+        data.forEach((row, index) => {
+          if (index < 15) { // Check first 15 rows in detail
+            const rowInfo = {
+              index: index,
+              length: row.length,
+              col0: row[0],
+              col1: row[1],
+              col2: row[2],
+              col3: row[3],
+              col4: row[4],
+              col5: row[5],
+              col6: row[6],
+            };
+            console.log(`  Row ${index}:`, rowInfo);
+          }
+        });
+        
+        console.log(`=============================================\n`);
+      }
+      
       return {
         spreadsheetId: config.id,
         site: config.site,
@@ -66,21 +103,16 @@ export const getAllSpreadsheetsData = async () => {
       };
     }
   });
-  
+
   const results = await Promise.all(promises);
-  console.log("[GOOGLE] Total fetched:", results.filter(r => r.success).length);
-  
   return results;
 };
 
 // Fungsi untuk merge semua data jadi satu array (jika diperlukan)
 export const getMergedSpreadsheetData = async () => {
   const allData = await getAllSpreadsheetsData();
-  
   const mergedData = allData
     .filter(item => item.success)
     .flatMap(item => item.data);
-  
-  console.log("[GOOGLE] Total merged rows:", mergedData.length);
   return mergedData;
 };

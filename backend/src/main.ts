@@ -3,16 +3,12 @@ dotenv.config();
 import express from "express";
 import { syncDailyOperationJob } from "./jobs/syncMonthlyPlan.job";
 import { error } from "./middleware/errorHandling/error";
+// import productivity from "./routes/productivity/productivity.route";
 import { connectMongo } from "./config/mongo";
 import cors from "cors";
-import productivity from "./routes/productivity/productivity.route";
-import planRkpa from "./routes/productivity/planRkpa"
-import staticD from "./routes/productivity/dailyStatic"
-import monthlyTarget from "./routes/productivity/monthlyTarget"
 
 const app = express();
 const PORT = process.env.PORT;
-
 
 app.use(cors({
   origin: ["http://localhost:4000", "http://localhost:5173"],
@@ -24,14 +20,7 @@ app.use(cors({
 app.use(express.json());
 console.log(`ENV : ${process.env.PORT}`);
 
-app.get("/h",(req,res) => {
-  res.send("Hello World")
-})
-
-app.use("/api", productivity);
-app.use("/api",planRkpa)
-app.use("/api", staticD)
-app.use("/api",monthlyTarget)
+// app.use("/", productivity);
 app.use(error);
 
 const startServer = async () => {
