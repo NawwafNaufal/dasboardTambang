@@ -39,7 +39,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   currentActivity,
   onActivityChange,
   apiUrl = "http://localhost:4000/api/monthly-actual/by-site",
-  year = 2026  // ✅ DEFAULT 2026
+  year = 2026
 }) => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -48,7 +48,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
-  // ✅ Fungsi untuk format snake_case ke Title Case (HANYA UNTUK DISPLAY)
+  // ✅ Helper function untuk format display saja
   const formatActivityName = (name: string) => {
     return name
       .split('_')
@@ -56,11 +56,18 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       .join(' ');
   };
 
+  // ✅ Helper function untuk convert Title Case ke snake_case (jika API kirim Title Case)
+  const toSnakeCase = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, '_');
+  };
+  
   useEffect(() => {
     const fetchActivities = async () => {
       try {
         setLoading(true);
-        console.log('🔍 [AppHeader] Fetching for PT:', selectedPT, 'Year:', year);
+        console.log('🔍 [AppHeader] Fetching activities for PT:', selectedPT, 'Year:', year);
         
         const response = await fetch(`${apiUrl}?year=${year}`);
         
@@ -69,27 +76,36 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         }
         
         const result: ApiResponse = await response.json();
-        console.log('📊 [AppHeader] API Response:', result);
+        console.log('📊 [AppHeader] Monthly Actual API Response:', result);
         
         if (result.success && result.data[selectedPT]) {
-          // ✅ SIMPAN DALAM FORMAT ASLI (snake_case)
+          // Extract activity names (product names) from the data
           const activityNames = Object.keys(result.data[selectedPT]);
-          setActivities(activityNames);
           
-          console.log('📋 [AppHeader] Activities (snake_case):', activityNames);
+          // ✅ Convert ke snake_case jika API kirim Title Case
+          const normalizedActivities = activityNames.map(name => {
+            // Cek apakah sudah snake_case atau Title Case
+            const isSnakeCase = name.includes('_') && name === name.toLowerCase();
+            const normalized = isSnakeCase ? name : toSnakeCase(name);
+            console.log(`🔄 [AppHeader] Converting: "${name}" → "${normalized}"`);
+            return normalized;
+          });
           
-          // ✅ SET DEFAULT DALAM FORMAT snake_case
-          if (activityNames.length > 0 && onActivityChange && !currentActivity) {
-            const firstActivity = activityNames[0]; // TETAP snake_case!
-            onActivityChange(firstActivity); // KIRIM snake_case!
-            console.log('🎯 [AppHeader] Set default activity:', firstActivity, '(snake_case)');
+          setActivities(normalizedActivities);
+          
+          console.log('📋 [AppHeader] Normalized activities (snake_case):', normalizedActivities);
+          
+          // ✅ Set aktivitas pertama sebagai default (KIRIM SNAKE_CASE ke parent)
+          if (normalizedActivities.length > 0 && onActivityChange) {
+            onActivityChange(normalizedActivities[0]); // Always send raw snake_case
+            console.log('🎯 [AppHeader] Initial activity set to (snake_case):', normalizedActivities[0]);
           }
         } else {
-          console.warn(`⚠️ [AppHeader] No data for ${selectedPT}`);
+          console.warn(`⚠️ [AppHeader] No activities found for ${selectedPT}`);
           setActivities([]);
         }
       } catch (err) {
-        console.error("❌ [AppHeader] Error:", err);
+        console.error("❌ [AppHeader] Error fetching activities:", err);
         setActivities([]);
       } finally {
         setLoading(false);
@@ -97,7 +113,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     };
 
     fetchActivities();
-  }, [selectedPT, apiUrl, year]);
+  }, [selectedPT, apiUrl, year, onActivityChange]);
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -115,19 +131,19 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     const nextIndex = selectedCategory < activities.length - 1 ? selectedCategory + 1 : 0;
     setSelectedCategory(nextIndex);
     
-    // ✅ KIRIM DALAM FORMAT snake_case
+    // ✅ KIRIM SNAKE_CASE ke parent
     if (onActivityChange && activities[nextIndex]) {
-      const nextActivity = activities[nextIndex]; // TETAP snake_case!
-      onActivityChange(nextActivity); // KIRIM snake_case!
-      console.log('➡️ [AppHeader] Next activity:', nextActivity, '(snake_case)');
+      onActivityChange(activities[nextIndex]); // Send raw snake_case
+      console.log('🎯 [AppHeader] Activity changed to (snake_case):', activities[nextIndex]);
     }
   };
 
   useEffect(() => {
+    // Reset selected category when PT changes or year changes
     setSelectedCategory(0);
   }, [selectedPT, year]);
 
-  // ✅ FORMAT HANYA UNTUK DISPLAY
+  // ✅ Format nama aktivitas HANYA untuk display di UI
   const currentActivityDisplay = activities[selectedCategory] 
     ? formatActivityName(activities[selectedCategory])
     : "Loading...";

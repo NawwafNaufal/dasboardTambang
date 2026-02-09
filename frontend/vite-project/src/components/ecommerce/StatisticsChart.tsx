@@ -113,7 +113,6 @@ export default function StatisticsChart({
       });
 
       const url = `${API_BASE_URL}${API_ENDPOINTS.STATISTICS}?${params}`;
-      console.log('Fetching statistics from:', url);
       
       const response = await fetch(url);
       
@@ -122,7 +121,6 @@ export default function StatisticsChart({
       }
 
       const data: ApiResponse = await response.json();
-      console.log('API Response:', data);
       
       if (!data.success) {
         throw new Error('API returned unsuccessful response');
@@ -134,7 +132,6 @@ export default function StatisticsChart({
         if (!selectedCategory || !data.data[selectedCategory]) {
           const firstCategory = Object.keys(data.data)[0];
           setSelectedCategory(firstCategory);
-          console.log('Selected category:', firstCategory);
         }
       } else {
         console.warn('No activity data available for this period');

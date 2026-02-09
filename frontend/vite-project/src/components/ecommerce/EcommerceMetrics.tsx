@@ -4,9 +4,6 @@ import {
 } from "../../icons";
 import { useState, useEffect } from "react";
 
-/* =========================
-   CUSTOM ICONS
-========================= */
 const PlanIcon = ({ className }: { className?: string }) => (
   <svg
     className={className}
@@ -72,11 +69,12 @@ export default function EcommerceMetrics({
   selectedPT = "PT Semen Tonasa",
   currentActivity,
   apiUrl = "http://localhost:4000/api/plan-rkpa",
-  year = 2026  // ✅ Default ke 2026
+  year = 2026
 }: EcommerceMetricsProps) {
   const [apiData, setApiData] = useState<{ [siteName: string]: SiteActivities } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [displayActivity, setDisplayActivity] = useState<ActivityData | null>(null);
 
   // Fetch data from API
   useEffect(() => {
@@ -85,7 +83,6 @@ export default function EcommerceMetrics({
         setLoading(true);
         setError(null);
         
-        console.log('🔍 [EcommerceMetrics] Fetching Plan-RKPA data for year:', year);
         const response = await fetch(`${apiUrl}?year=${year}`);
         
         if (!response.ok) {
@@ -93,7 +90,6 @@ export default function EcommerceMetrics({
         }
         
         const result: ApiResponse = await response.json();
-        console.log('📊 [EcommerceMetrics] Plan-RKPA API Response:', result);
         
         if (result.success) {
           setApiData(result.data);
@@ -101,7 +97,6 @@ export default function EcommerceMetrics({
           throw new Error("API returned success: false");
         }
       } catch (err) {
-        console.error("❌ [EcommerceMetrics] Error fetching Plan-RKPA data:", err);
         setError(err instanceof Error ? err.message : "Failed to fetch data");
       } finally {
         setLoading(false);
@@ -111,10 +106,29 @@ export default function EcommerceMetrics({
     fetchData();
   }, [apiUrl, year]);
 
-  // ✅ Log perubahan currentActivity untuk debugging
+  // Update displayActivity when currentActivity changes
   useEffect(() => {
-    console.log('🎯 [EcommerceMetrics] currentActivity received (snake_case):', currentActivity);
-  }, [currentActivity]);
+    if (!apiData || !apiData[selectedPT]) {
+      setDisplayActivity(null);
+      return;
+    }
+
+    const ptActivities = apiData[selectedPT].activities;
+    
+    if (ptActivities.length === 0) {
+      setDisplayActivity(null);
+      return;
+    }
+
+    // Match activity (currentActivity should be in snake_case)
+    const matchedActivity = currentActivity 
+      ? ptActivities.find(act => act.activityName === currentActivity)
+      : ptActivities[0];
+
+    const finalActivity = matchedActivity || ptActivities[0];
+    
+    setDisplayActivity(finalActivity);
+  }, [currentActivity, apiData, selectedPT]);
 
   // Show loading state
   if (loading) {
@@ -190,7 +204,6 @@ export default function EcommerceMetrics({
     );
   }
 
-  // ✅ Tidak fallback ke PT lain - langsung cek selectedPT
   if (!apiData[selectedPT]) {
     return (
       <div className="space-y-4">
@@ -277,21 +290,25 @@ export default function EcommerceMetrics({
     );
   }
 
-  // ✅ LANGSUNG MATCH dengan snake_case (tidak perlu normalisasi)
-  console.log('🔎 [EcommerceMetrics] Looking for activity (snake_case):', currentActivity);
-  console.log('📋 [EcommerceMetrics] Available activities:', ptActivities.map(a => a.activityName));
-  
-  // ✅ currentActivity sudah dalam snake_case dari AppHeader
-  // ✅ API juga return dalam snake_case
-  // ✅ Langsung match tanpa konversi
-  const activityData = currentActivity 
-    ? ptActivities.find(act => act.activityName === currentActivity)
-    : ptActivities[0];
-
-  // Fallback jika aktivitas tidak ditemukan
-  const displayActivity = activityData || ptActivities[0];
-  
-  console.log('✅ [EcommerceMetrics] Matched activity:', displayActivity.activityName);
+  // ✅ Use displayActivity from state (updated by useEffect)
+  if (!displayActivity) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex items-center justify-center h-32">
+              <p className="text-gray-500">Loading activity data...</p>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex items-center justify-center h-32">
+              <p className="text-gray-500">Loading activity data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">

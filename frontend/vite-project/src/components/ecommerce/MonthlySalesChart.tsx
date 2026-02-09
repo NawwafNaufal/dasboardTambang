@@ -26,6 +26,13 @@ export default function MonthlySalesChart({
       .join(' ');
   };
 
+  // ✅ Fungsi untuk convert Title Case ke snake_case (handle API yang kirim Title Case)
+  const toSnakeCase = (name: string) => {
+    return name
+      .toLowerCase()
+      .replace(/\s+/g, '_');
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,7 +87,7 @@ export default function MonthlySalesChart({
 
     if (containerRef.current) {
       resizeObserver.observe(containerRef.current);
-    }
+    };
 
     const mutationObserver = new MutationObserver(() => {
       setTimeout(updateChartWidth, 300);
@@ -208,13 +215,19 @@ export default function MonthlySalesChart({
     );
   }
 
-  const currentProducts = Object.keys(apiData[selectedPT]);
+  // ✅ Normalize product names ke snake_case
+  const rawProductNames = Object.keys(apiData[selectedPT]);
+  const normalizedProducts = rawProductNames.map(name => {
+    const isSnakeCase = name.includes('_') && name === name.toLowerCase();
+    return isSnakeCase ? name : toSnakeCase(name);
+  });
   
   console.log('🔍 [Chart] Current PT:', selectedPT);
-  console.log('📦 [Chart] Available products (snake_case):', currentProducts);
-  console.log('🎯 [Chart] Current activity from props (snake_case):', currentActivity);
+  console.log('📦 [Chart] Raw products from API:', rawProductNames);
+  console.log('🔄 [Chart] Normalized products (snake_case):', normalizedProducts);
+  console.log('🎯 [Chart] Current activity from props:', currentActivity);
   
-  if (currentProducts.length === 0) {
+  if (normalizedProducts.length === 0) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
         <div className="mb-4">
@@ -244,14 +257,20 @@ export default function MonthlySalesChart({
     );
   }
 
-  // ✅ Langsung gunakan currentActivity untuk matching (sudah dalam format snake_case)
-  const currentProductName = currentActivity && currentProducts.includes(currentActivity)
+  // ✅ Match menggunakan normalized snake_case
+  const currentProductName = currentActivity && normalizedProducts.includes(currentActivity)
     ? currentActivity
-    : currentProducts[0];
+    : normalizedProducts[0];
   
-  console.log('✅ [Chart] Selected product:', currentProductName);
+  console.log('✅ [Chart] Selected product (snake_case):', currentProductName);
   
-  const currentProductData = apiData[selectedPT][currentProductName];
+  // ✅ Find the raw product name from API to access data
+  const rawProductIndex = normalizedProducts.indexOf(currentProductName);
+  const rawProductName = rawProductNames[rawProductIndex];
+  
+  console.log('🔑 [Chart] Raw product name for data access:', rawProductName);
+  
+  const currentProductData = apiData[selectedPT][rawProductName];
 
   // Convert month data to values array
   const monthlyValues = currentProductData.map(item => item.value);
@@ -340,7 +359,7 @@ export default function MonthlySalesChart({
 
   const series = [
     {
-      name: currentProductName,
+      name: formatActivityName(currentProductName),
       data: monthlyValues,
     },
   ];
