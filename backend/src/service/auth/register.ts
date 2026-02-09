@@ -14,7 +14,6 @@ export const registerService = async (payload : registerType ): Promise<number> 
     
     } catch (error : any) {
         logger.warn(`Register failed ${error.code}`)
-        
         if (error.code === "ER_DUP_ENTRY") {
                 throw new responseError("Username id already axist", 400)
         }

@@ -13,7 +13,6 @@ export const registerUser = async ( payload : registerType ) : Promise<number> =
                     VALUES
                     (?,?,?,?)`
     
-    
     const data = [username,hashingPassword,id_company,id_role]
 
 

@@ -12,4 +12,6 @@
 .idea/
 .DS_Store
 Thumbs.db
+
 **/logsDasboard
+**/Keys.json

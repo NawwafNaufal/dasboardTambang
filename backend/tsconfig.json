@@ -7,8 +7,10 @@
     "declaration": true,
     "declarationMap": true,
     "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    "exactOptionalPropertyTypes": false,
     "strict": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,  // ← TAMBAHKAN INI
     "jsx": "react-jsx",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,

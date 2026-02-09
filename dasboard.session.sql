@@ -9,6 +9,7 @@ CREATE Table users (
     update_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 )
 
+
 SHOW TABLES
 
 DESC users
@@ -30,11 +31,11 @@ ALTER TABLE users ADD CONSTRAINT fk_role FOREIGN KEY (id_role) REFERENCES role(i
 
 CREATE TABLE produktivity (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    plan DECIMAL(10,2),
+    actual_value DECIMAL(10,2),
+    value_input INT
     tanggal DATETIME DEFAULT CURRENT_TIMESTAMP,
-    id_company INT,
     id_unit INT,
-    id_activity INT,
+    id_plan INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -157,7 +158,6 @@ ORDER BY
     produktivity.date DESC
 LIMIT 10 OFFSET 0;
 
-
 SELECT  
     produktivity.date,
     activity.activity_name,
@@ -234,3 +234,30 @@ JOIN unit as u ON u.id = p.id_unit
 GROUP BY u.unit_name
 
 SELECT unit_name, COUNT(*) FROM unit GROUP BY unit_name
+
+SELECT u.id,COUNT(*) FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY u.id
+
+SELECT u.id, SUM(p.actual_value) as total FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY u.id
+
+SELECT p.date, SUM(p.value_input) as total FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY p.date
+
+SELECT id_unit,date,SUM(actual_value) FROM produktivity as p
+GROUP BY id_unit,date
+
+SELECT id_unit,SUM(actual_value) FROM produktivity
+WHERE YEAR(date) = 2025
+GROUP BY id_unit
+
+SELECT p.id_unit,SUM(p.actual_value) as total FROM produktivity as p
+JOIN unit as u ON u.id = p.id_unit
+GROUP BY p.id_unit
+HAVING total > 100
+
+
+
