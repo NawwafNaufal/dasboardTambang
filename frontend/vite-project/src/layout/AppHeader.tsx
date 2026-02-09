@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
-import NotificationDropdown from "../components/header/NotificationDropdown";
+// import NotificationDropdown from "../components/header/NotificationDropdown";
 import UserDropdown from "../components/header/UserDropdown";
 
 interface AppHeaderProps {
@@ -39,7 +39,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   currentActivity,
   onActivityChange,
   apiUrl = "http://localhost:4000/api/monthly-actual/by-site",
-  year = 2025
+  year = 2026  // ✅ DEFAULT 2026
 }) => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(0);
@@ -48,7 +48,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
-  // ✅ Fungsi untuk format nama aktivitas (snake_case → Title Case)
+  // ✅ Fungsi untuk format snake_case ke Title Case (HANYA UNTUK DISPLAY)
   const formatActivityName = (name: string) => {
     return name
       .split('_')
@@ -56,12 +56,11 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       .join(' ');
   };
 
-  // Fetch activities from API based on selected PT
   useEffect(() => {
     const fetchActivities = async () => {
       try {
         setLoading(true);
-        console.log('🔍 [AppHeader] Fetching activities for PT:', selectedPT, 'Year:', year);
+        console.log('🔍 [AppHeader] Fetching for PT:', selectedPT, 'Year:', year);
         
         const response = await fetch(`${apiUrl}?year=${year}`);
         
@@ -70,27 +69,27 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         }
         
         const result: ApiResponse = await response.json();
-        console.log('📊 [AppHeader] Monthly Actual API Response:', result);
+        console.log('📊 [AppHeader] API Response:', result);
         
         if (result.success && result.data[selectedPT]) {
-          // Extract activity names (product names) from the data
+          // ✅ SIMPAN DALAM FORMAT ASLI (snake_case)
           const activityNames = Object.keys(result.data[selectedPT]);
           setActivities(activityNames);
           
-          console.log('📋 [AppHeader] Raw activities:', activityNames);
+          console.log('📋 [AppHeader] Activities (snake_case):', activityNames);
           
-          // ✅ Set aktivitas pertama sebagai default dengan format Title Case
+          // ✅ SET DEFAULT DALAM FORMAT snake_case
           if (activityNames.length > 0 && onActivityChange && !currentActivity) {
-            const formattedActivity = formatActivityName(activityNames[0]);
-            onActivityChange(formattedActivity);
-            console.log('🎯 [AppHeader] Initial activity set to:', formattedActivity);
+            const firstActivity = activityNames[0]; // TETAP snake_case!
+            onActivityChange(firstActivity); // KIRIM snake_case!
+            console.log('🎯 [AppHeader] Set default activity:', firstActivity, '(snake_case)');
           }
         } else {
-          console.warn(`⚠️ [AppHeader] No activities found for ${selectedPT}`);
+          console.warn(`⚠️ [AppHeader] No data for ${selectedPT}`);
           setActivities([]);
         }
       } catch (err) {
-        console.error("❌ [AppHeader] Error fetching activities:", err);
+        console.error("❌ [AppHeader] Error:", err);
         setActivities([]);
       } finally {
         setLoading(false);
@@ -116,20 +115,19 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     const nextIndex = selectedCategory < activities.length - 1 ? selectedCategory + 1 : 0;
     setSelectedCategory(nextIndex);
     
-    // ✅ Panggil callback dengan format Title Case
+    // ✅ KIRIM DALAM FORMAT snake_case
     if (onActivityChange && activities[nextIndex]) {
-      const formattedActivity = formatActivityName(activities[nextIndex]);
-      onActivityChange(formattedActivity);
-      console.log('🎯 [AppHeader] Activity changed to:', formattedActivity);
+      const nextActivity = activities[nextIndex]; // TETAP snake_case!
+      onActivityChange(nextActivity); // KIRIM snake_case!
+      console.log('➡️ [AppHeader] Next activity:', nextActivity, '(snake_case)');
     }
   };
 
   useEffect(() => {
-    // Reset selected category when PT changes or year changes
     setSelectedCategory(0);
   }, [selectedPT, year]);
 
-  // ✅ Format nama aktivitas untuk ditampilkan
+  // ✅ FORMAT HANYA UNTUK DISPLAY
   const currentActivityDisplay = activities[selectedCategory] 
     ? formatActivityName(activities[selectedCategory])
     : "Loading...";
@@ -213,10 +211,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           <div className="hidden lg:block">
             <div className="relative flex items-center gap-2">
               {/* Category display (activity name from API) */}
-              <div className="flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm text-black bg-white border border-gray-200 rounded-lg w-64">
+              <div className="flex items-center justify-center gap-2.5 px-4 py-2.5 text-sm text-gray-900 bg-white border border-gray-200 rounded-lg w-64 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
                 {/* Factory Icon */}
                 <svg 
-                  className="w-5 h-5 flex-shrink-0" 
+                  className="w-5 h-5 flex-shrink-0 text-gray-700 dark:text-gray-300" 
                   viewBox="0 0 24 24" 
                   fill="none" 
                   stroke="currentColor" 
@@ -238,7 +236,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
               {!loading && activities.length > 0 && (
                 <button
                   onClick={goToNext}
-                  className="flex items-center justify-center flex-shrink-0 w-11 h-11 bg-transparent border-2 border-gray-200 rounded-lg text-black transition-all hover:bg-gray-100"
+                  className="flex items-center justify-center flex-shrink-0 w-11 h-11 bg-white border-2 border-gray-200 rounded-lg text-gray-900 transition-all hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700"
                   aria-label="Next activity"
                 >
                   <svg
@@ -268,7 +266,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         >
           <div className="flex items-center gap-2 2xsm:gap-3">
             <ThemeToggleButton />
-            <NotificationDropdown />
+            {/* <NotificationDropdown /> */}
           </div>
           <UserDropdown 
             selectedPT={selectedPT}

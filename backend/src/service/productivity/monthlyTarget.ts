@@ -1,163 +1,135 @@
-import { Request, Response } from "express";
-import { DailyOperation } from "../../model/produktivity/monthly.model";
+import { DailyOperation } from "../../model/monthly.model";
+import { getMonthDateRange, getMonthName } from "../../utils/data";
+import { Params } from "../../interface/productivity/monthlyActualType";
 
-function getMonthName(month: number): string {
-  const months = [
-    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
-  ];
-  return months[month - 1] || "Unknown";
-}
+export async function getMonthlyTargetService(params: Params) {
+  const { site, year, month } = params;
 
-// Helper function untuk extract string dari params
-function getParamAsString(param: string | string[] | undefined): string {
-  if (Array.isArray(param)) {
-    return param[0];
+  if (!site || !year || !month) {
+    throw new Error("Missing required parameters");
   }
-  return param || "";
-}
 
-/**
- * GET Monthly Target - Total Plan & Actual per bulan + Today Actual
- * Endpoint: GET /api/monthly-target/:site/:year/:month
- */
-export const getMonthlyTarget = async (req: Request, res: Response) => {
-  try {
-    // Extract params as strings using helper function
-    const site = getParamAsString(req.params.site);
-    const year = getParamAsString(req.params.year);
-    const month = getParamAsString(req.params.month);
+  const yearNum = Number(year);
+  const monthNum = Number(month);
 
-    // Validasi params tidak undefined
-    if (!site || !year || !month) {
-      return res.status(400).json({
-        success: false,
-        message: "Missing required parameters",
-      });
-    }
+  if (Number.isNaN(yearNum) || Number.isNaN(monthNum)) {
+    throw new Error("Year or month must be a number");
+  }
 
-    const yearNum = parseInt(year);
-    const monthNum = parseInt(month);
+  if (monthNum < 1 || monthNum > 12) {
+    throw new Error("Month must be between 1 and 12");
+  }
 
-    if (isNaN(yearNum) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid year or month parameter",
-      });
-    }
+  const { startDate, endDate } = getMonthDateRange(yearNum, monthNum);
 
-    // Date range untuk bulan ini
-    const startDate = `${yearNum}-${String(monthNum).padStart(2, '0')}-01`;
-    const endDate = `${yearNum}-${String(monthNum).padStart(2, '0')}-31`;
-    const today = new Date().toISOString().split("T")[0];
+  const records = await DailyOperation.find({
+    site,
+    date: { $gte: startDate, $lte: endDate },
+  })
+    .select("date activities")
+    .lean();
 
-    // Query data
-    const data = await DailyOperation.find({
-      site: site,
-      date: { $gte: startDate, $lte: endDate },
-    }).lean();
+  if (records.length === 0) {
+    throw new Error("DATA_NOT_FOUND");
+  }
 
-    if (!data || data.length === 0) {
-      return res.status(404).json({
-        success: false,
-        message: "No data found",
-      });
-    }
+  let totalPlan = 0;
+  let totalActual = 0;
 
-    // Hitung total dan breakdown per activity
-    let totalPlan = 0;
-    let totalActual = 0;
-    let todayActual = 0;
-    const activityBreakdown: {
-      [key: string]: { plan: number; actual: number; todayActual: number };
-    } = {};
+  const activityBreakdown: Record<
+    string,
+    { plan: number; actual: number; dailyActuals: number[] }
+  > = {};
 
-    // First pass: initialize all activities and calculate cumulative totals
-    data.forEach((doc: any) => {
-      const activities = doc.activities;
+  // ✅ Collect all data WITHOUT rounding
+  for (const doc of records) {
+    const activities = doc.activities ?? {};
+
+    for (const [name, activity] of Object.entries<any>(activities)) {
+      const plan = activity.plan || 0;
+      const actual = activity.actual || 0;
+
+      // ✅ Sum raw values (no rounding)
+      totalPlan += plan;
+      totalActual += actual;
+
+      activityBreakdown[name] ??= { plan: 0, actual: 0, dailyActuals: [] };
+      activityBreakdown[name].plan += plan;
+      activityBreakdown[name].actual += actual;
       
-      if (activities) {
-        // Convert Map to object if needed
-        const activitiesObj =
-          activities instanceof Map ? Object.fromEntries(activities) : activities;
+      // ✅ Push ALL values (including zeros) for accurate average
+      activityBreakdown[name].dailyActuals.push(actual);
+    }
+  }
 
-        Object.entries(activitiesObj).forEach(([activityName, activity]: [string, any]) => {
-          const plan = activity.plan || 0;
-          const actual = activity.actual || 0;
+  // ✅ Calculate total average - INCLUDING days with 0
+  const dailyTotals: number[] = [];
 
-          // Add to totals
-          totalPlan += plan;
-          totalActual += actual;
+  for (const doc of records) {
+    const activities = doc.activities ?? {};
+    let dayTotal = 0;
 
-          // Initialize activity breakdown if not exists
-          if (!activityBreakdown[activityName]) {
-            activityBreakdown[activityName] = { plan: 0, actual: 0, todayActual: 0 };
-          }
-          activityBreakdown[activityName].plan += plan;
-          activityBreakdown[activityName].actual += actual;
-        });
-      }
-    });
-
-    // Second pass: get today's actual values only (overwrite, not accumulate)
-    const todayDoc = data.find((doc: any) => doc.date === today);
-    if (todayDoc && todayDoc.activities) {
-      const todayActivities =
-        todayDoc.activities instanceof Map 
-          ? Object.fromEntries(todayDoc.activities) 
-          : todayDoc.activities;
-
-      Object.entries(todayActivities).forEach(([activityName, activity]: [string, any]) => {
-        const actual = activity.actual || 0;
-        
-        // Set today's actual for this specific activity (not cumulative)
-        if (activityBreakdown[activityName]) {
-          activityBreakdown[activityName].todayActual = actual;
-        }
-        
-        // Add to total today actual
-        todayActual += actual;
-      });
+    for (const activity of Object.values<any>(activities)) {
+      dayTotal += activity.actual || 0;
     }
 
-    // Calculate percentage
-    const percentage = totalPlan > 0 ? (totalActual / totalPlan) * 100 : 0;
-    const deviation = percentage - 100;
-
-    // Format activity breakdown with percentage
-    const formattedActivityBreakdown: {
-      [key: string]: { plan: number; actual: number; todayActual: number; percentage: number };
-    } = {};
-
-    Object.entries(activityBreakdown).forEach(([name, data]) => {
-      formattedActivityBreakdown[name] = {
-        plan: Math.round(data.plan),
-        actual: Math.round(data.actual),
-        todayActual: Math.round(data.todayActual),
-        percentage: data.plan > 0 ? parseFloat(((data.actual / data.plan) * 100).toFixed(2)) : 0,
-      };
-    });
-
-    res.status(200).json({
-      success: true,
-      data: {
-        site: site,
-        month: getMonthName(monthNum),
-        year: yearNum,
-        totalPlan: Math.round(totalPlan),
-        totalActual: Math.round(totalActual),
-        todayActual: Math.round(todayActual),
-        percentage: parseFloat(percentage.toFixed(2)),
-        deviation: parseFloat(deviation.toFixed(2)),
-        activityBreakdown: formattedActivityBreakdown,
-      },
-    });
-  } catch (error) {
-    console.error("Error getting monthly target:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to get monthly target",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
+    // ✅ OPTION A: Include ALL days (even zeros) - matches Excel AVERAGE()
+    dailyTotals.push(dayTotal);
+    
+    // ✅ OPTION B: Exclude zero days (uncomment to use)
+    // if (dayTotal > 0) {
+    //   dailyTotals.push(dayTotal);
+    // }
   }
-};
+
+  const averageDaily =
+    dailyTotals.length > 0
+      ? dailyTotals.reduce((sum, val) => sum + val, 0) / dailyTotals.length
+      : 0;
+
+  const percentage = totalPlan > 0 ? (totalActual / totalPlan) * 100 : 0;
+
+  return {
+    site,
+    year: yearNum,
+    month: getMonthName(monthNum),
+
+    // ✅ Round ONLY at the end for display
+    totalPlan: Number(totalPlan.toFixed(2)),
+    totalActual: Number(totalActual.toFixed(2)),
+    todayActual: Number(averageDaily.toFixed(2)),
+
+    percentage: Number(percentage.toFixed(2)),
+    deviation: Number((percentage - 100).toFixed(2)),
+
+    activityBreakdown: Object.fromEntries(
+      Object.entries(activityBreakdown).map(([k, v]) => {
+        // ✅ OPTION A: Average INCLUDING all days (even zeros)
+        const activityAverage =
+          v.dailyActuals.length > 0
+            ? v.dailyActuals.reduce((sum, val) => sum + val, 0) / v.dailyActuals.length
+            : 0;
+
+        // ✅ OPTION B: Average EXCLUDING zero days (uncomment to use)
+        // const nonZeroDays = v.dailyActuals.filter((val) => val > 0);
+        // const activityAverage =
+        //   nonZeroDays.length > 0
+        //     ? nonZeroDays.reduce((sum, val) => sum + val, 0) / nonZeroDays.length
+        //     : 0;
+
+        return [
+          k,
+          {
+            // ✅ Round ONLY for display
+            plan: Number(v.plan.toFixed(2)),
+            actual: Number(v.actual.toFixed(2)),
+            todayActual: Number(activityAverage.toFixed(2)),
+
+            percentage:
+              v.plan > 0 ? Number(((v.actual / v.plan) * 100).toFixed(2)) : 0,
+          },
+        ];
+      })
+    ),
+  };
+}
