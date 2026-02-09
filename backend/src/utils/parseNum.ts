@@ -7,7 +7,7 @@ export const parseNum = (str: string | undefined): number | null => {
 
 const ACTIVITY_HEADERS = [
   "Loading Hauling",
-  "Loading Haulinggs",  // Typo di PT Semen Padang
+  "Loading Haulinggs",  
   "Drilling",
   "Perintisan Used",
   "Perintisan New",
@@ -17,24 +17,19 @@ const ACTIVITY_HEADERS = [
 ];
 
 export const isHeaderRow = (row: string[]) => {
-  // Baris kosong atau semua cell kosong
   if (!row || row.length === 0) return true;
   if (row.every(cell => !cell || cell.trim() === "")) return true;
   
-  // Header kolom utama
   if (row[1] === "No") return true;
   if (row[2] === "Tanggal") return true;
   if (row[3] === "Hari") return true;
   
-  // Sub-header Plan / Actual / RKAP
   if (row.some(cell => cell === "Plan" || cell === "Actual" || cell === "RKAP")) 
     return true;
   
-  // Sub-header kolom unit [ton], [bcm], dll
   if (row.some(cell => cell === "[ton]" || cell === "[bcm]" || cell === "[m3]")) 
     return true;
   
-  // Judul perusahaan / laporan (SEMUA SITE)
   const companyHeaders = [
     "PT Semen Tonasa",
     "PT Semen Padang",
@@ -48,7 +43,6 @@ export const isHeaderRow = (row: string[]) => {
     return true;
   }
   
-  // Header aktivitas
   return row.some(cell =>
     ACTIVITY_HEADERS.some(activity =>
       cell?.includes(activity)

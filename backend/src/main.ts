@@ -1,14 +1,21 @@
 import dotenv from "dotenv";
 dotenv.config();
+
 import express from "express";
+import cors from "cors";
 import { syncDailyOperationJob } from "./jobs/syncMonthlyPlan.job";
 import { error } from "./middleware/errorHandling/error";
-// import productivity from "./routes/productivity/productivity.route";
 import { connectMongo } from "./config/mongo";
-import cors from "cors";
+
+import productivity from "./routes/productivity/productivity";
+import planRkpa from "./routes/productivity/planRkpa";
+import staticD from "./routes/productivity/dailyStatic";
+import monthlyTarget from "./routes/productivity/monthlyTarget";
+
+import { logger } from "./log/winston";
 
 const app = express();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 app.use(cors({
   origin: ["http://localhost:4000", "http://localhost:5173"],
@@ -16,38 +23,43 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-
 app.use(express.json());
-console.log(`ENV : ${process.env.PORT}`);
 
-// app.use("/", productivity);
+app.get("/h", (req, res) => {
+  logger.info("[HTTP] GET /h accessed");
+  res.send("Hello World");
+});
+
+app.use("/api", productivity);
+app.use("/api", planRkpa);
+app.use("/api", staticD);
+app.use("/api", monthlyTarget);
+
 app.use(error);
 
 const startServer = async () => {
   try {
-    console.log("[STARTUP] Connecting to MongoDB...");
+    logger.info("[STARTUP] Connecting to MongoDB...");
     await connectMongo();
-    console.log("[STARTUP] ✅ MongoDB Connected");
+    logger.info("[STARTUP] ✅ MongoDB Connected");
 
     app.listen(PORT, () => {
-      console.log(`[STARTUP] ✅ Server listening on PORT: ${PORT}`);
+      logger.info(`[STARTUP] ✅ Server listening on PORT: ${PORT}`);
     });
 
-    console.log("[STARTUP] Starting CRON scheduler...");
+    logger.info("[STARTUP] Starting CRON scheduler...");
     setInterval(async () => {
-      console.log("[CRON] tick");
+      logger.debug("[CRON] Tick - syncDailyOperationJob running");
       try {
         await syncDailyOperationJob();
       } catch (error) {
-        console.error("[CRON] Job failed:", error);
+        logger.error("[CRON] Job failed:", error);
       }
     }, 10_000);
 
-    console.log("[STARTUP] ✅ CRON scheduler started (every 10s)");
-    console.log("[STARTUP] 🚀 All systems ready!");
-
+    logger.info("[STARTUP] 🚀 All systems ready!");
   } catch (error) {
-    console.error("[STARTUP] ❌ Failed to start:", error);
+    logger.error("[STARTUP] ❌ Failed to start:", error);
     process.exit(1);
   }
 };
