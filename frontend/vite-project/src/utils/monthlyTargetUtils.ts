@@ -68,6 +68,6 @@ export const getPerformanceMessage = (currentData: CurrentData): string => {
   } else if (currentData.deviation >= -10) {
     return `Average ${averageFormatted} per day. Almost there, keep pushing!`;
   } else {
-    return `Average ${averageFormatted} per day. Let's improve together!`;
+    return `Rata-Rata ${averageFormatted} per day.`;
   }
 };
