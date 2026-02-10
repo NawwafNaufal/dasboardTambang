@@ -113,6 +113,7 @@ export default function StatisticsChart({
       });
 
       const url = `${API_BASE_URL}${API_ENDPOINTS.STATISTICS}?${params}`;
+      console.log('Fetching statistics from:', url);
       
       const response = await fetch(url);
       
@@ -121,6 +122,7 @@ export default function StatisticsChart({
       }
 
       const data: ApiResponse = await response.json();
+      console.log('API Response:', data);
       
       if (!data.success) {
         throw new Error('API returned unsuccessful response');
@@ -132,6 +134,7 @@ export default function StatisticsChart({
         if (!selectedCategory || !data.data[selectedCategory]) {
           const firstCategory = Object.keys(data.data)[0];
           setSelectedCategory(firstCategory);
+          console.log('Selected category:', firstCategory);
         }
       } else {
         console.warn('No activity data available for this period');
@@ -189,16 +192,26 @@ export default function StatisticsChart({
     
     const days = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
     
-    const targetValue = activity.plan || 0;
-    const targetData = Array(daysInMonth).fill(targetValue);
-    
+    // Ambil plan dari dailyData per hari
+    const tempTargetData = Array(daysInMonth).fill(0);
     const actualData = Array(daysInMonth).fill(null);
+    
     activity.dailyData.forEach((dailyItem) => {
       const index = dailyItem.day - 1;
       if (index >= 0 && index < daysInMonth) {
         actualData[index] = dailyItem.actual;
+        tempTargetData[index] = dailyItem.plan || 0;
       }
     });
+
+    // Cari plan yang bukan 0 untuk dijadikan referensi (plan hari kerja)
+    const validPlan = tempTargetData.find(plan => plan > 0) || 0;
+    
+    // Isi semua hari dengan validPlan (garis merah flat)
+    const targetData = Array(daysInMonth).fill(validPlan);
+
+    // targetValue untuk scaling chart
+    const targetValue = validPlan;
 
     return { days, targetData, actualData, targetValue };
   };
@@ -225,7 +238,9 @@ export default function StatisticsChart({
     chart: {
       type: "area",
       height: 310,
-      toolbar: { show: false },
+      toolbar: { 
+        show: false 
+      },
       zoom: {
         enabled: true,
         type: 'x',
@@ -240,21 +255,18 @@ export default function StatisticsChart({
             const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
             
             if (dailyItem) {
-              // Cek apakah ada reason yang tidak kosong
               if (dailyItem.reason && dailyItem.reason.trim() !== '') {
                 setSelectedDay({
                   day,
                   description: dailyItem.reason
                 });
               } else {
-                // Jika tidak ada reason, tampilkan "Tidak ada keterangan"
                 setSelectedDay({
                   day,
                   description: "Tidak ada keterangan"
                 });
               }
             } else {
-              // Jika tidak ada data untuk hari tersebut
               setSelectedDay({
                 day,
                 description: "Tidak ada keterangan"
@@ -364,7 +376,6 @@ export default function StatisticsChart({
           html += '</div>';
         }
         
-        // Tambahkan keterangan jika ada reason
         if (dailyItem.reason && dailyItem.reason.trim() !== '') {
           html += '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">';
           html += '<div style="font-size: 11px; color: #6b7280; margin-bottom: 2px;">Keterangan:</div>';
@@ -449,7 +460,6 @@ export default function StatisticsChart({
     );
   }
 
-  // Cek apakah ada data
   const hasData = apiData && apiData.data && Object.keys(apiData.data).length > 0;
   const categories = hasData ? Object.keys(apiData.data) : [];
   const currentActivity = hasData ? apiData.data[selectedCategory] : null;
@@ -473,7 +483,6 @@ export default function StatisticsChart({
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Category Tabs - hanya tampil jika ada data */}
           {hasData && (
             <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 overflow-x-auto">
               {categories.map((cat) => (
@@ -494,7 +503,6 @@ export default function StatisticsChart({
             </div>
           )}
 
-          {/* Month Selector - SELALU tampil */}
           <div className="relative">
             <CalenderIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-500" />
             <select
@@ -519,7 +527,6 @@ export default function StatisticsChart({
         </div>
       </div>
 
-      {/* Konten - Chart atau No Data */}
       {!hasData ? (
         <div className="flex flex-col items-center justify-center h-80 gap-4">
           <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
@@ -541,7 +548,6 @@ export default function StatisticsChart({
         </div>
       ) : (
         <>
-          {/* Chart */}
           <Chart 
             options={options} 
             series={series} 
@@ -549,7 +555,6 @@ export default function StatisticsChart({
             height={310} 
           />
 
-          {/* Display selected day info when marker is clicked */}
           {selectedDay && (
             <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/20">
               <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
