@@ -1,43 +1,39 @@
 export const parseNum = (str: string | undefined): number | null => {
-  if (!str || str === "" || str === "-") return null;
+  if (!str || str.trim() === "" || str === "-") return null;
 
-  const trimmed = str.trim();
-  
-  if (trimmed.includes(',')) {
-    const cleaned = trimmed
-      .replace(/\./g, '')    
-      .replace(',', '.');     
-    
-    const num = Number(cleaned);
-    return isNaN(num) ? null : num;
-  }
-  
-  if (trimmed.includes('.')) {
-    const parts = trimmed.split('.');
-    
-    if (parts.length > 2) {
-      const cleaned = trimmed.replace(/\./g, '');
-      const num = Number(cleaned);
-      return isNaN(num) ? null : num;
+  let cleaned = str.trim();
+
+  // Deteksi format ribuan/desimal
+  // Kasus: "1,234.56" -> format US
+  // Kasus: "1.234,56" -> format EU
+  const hasDot = cleaned.includes('.');
+  const hasComma = cleaned.includes(',');
+
+  if (hasDot && hasComma) {
+    // Tentukan mana desimal, mana ribuan
+    if (cleaned.indexOf(',') > cleaned.indexOf('.')) {
+      // Misal "1.234,56" -> EU format
+      cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+    } else {
+      // Misal "1,234.56" -> US format
+      cleaned = cleaned.replace(/,/g, '');
     }
-    
-    const beforeDot = parseInt(parts[0]);
-    
-    if (beforeDot < 100) {
-      const num = Number(trimmed);
-      return isNaN(num) ? null : num;
-    }
-    
-    else {
-      const cleaned = trimmed.replace(/\./g, '');
-      const num = Number(cleaned);
-      return isNaN(num) ? null : num;
+  } else if (hasComma) {
+    // Koma tunggal, anggap sebagai desimal
+    cleaned = cleaned.replace(',', '.');
+  } else if (hasDot) {
+    // Titik tunggal, anggap desimal
+    // Titik lebih dari satu? hapus titik ribuan
+    const dotCount = (cleaned.match(/\./g) || []).length;
+    if (dotCount > 1) {
+      cleaned = cleaned.replace(/\./g, '');
     }
   }
-  
-  const num = Number(trimmed);
+
+  const num = Number(cleaned);
   return isNaN(num) ? null : num;
 };
+
 
 export function testParseNum() {
   const testCases = [
