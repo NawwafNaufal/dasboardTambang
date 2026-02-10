@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=10.0, user-scalable=yes">
+    <title>Touch Gesture Test - Diagnostic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+            /* PENTING: Ini memungkinkan touch gestures */
+            touch-action: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+        
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .test-area {
+            border: 3px dashed #60A5FA;
+            padding: 40px;
+            margin: 20px 0;
+            background: #EFF6FF;
+            border-radius: 12px;
+            min-height: 300px;
+            text-align: center;
+            /* KUNCI: Area ini harus bisa menerima touch */
+            touch-action: manipulation;
+            user-select: none;
+        }
+        
+        .test-area h2 {
+            color: #1e40af;
+            margin-bottom: 20px;
+        }
+        
+        .log {
+            background: #1e293b;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #10b981;
+            padding-left: 10px;
+        }
+        
+        .instruction {
+            background: #FEF3C7;
+            border: 2px solid #F59E0B;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .instruction h3 {
+            color: #92400E;
+            margin-bottom: 10px;
+        }
+        
+        .instruction ul {
+            margin-left: 20px;
+            color: #78350F;
+        }
+        
+        .instruction li {
+            margin: 8px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .info-box {
+            background: #F3F4F6;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .info-box strong {
+            color: #374151;
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .info-box span {
+            color: #6B7280;
+            font-size: 14px;
+        }
+        
+        .clear-btn {
+            background: #EF4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .clear-btn:hover {
+            background: #DC2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Touch Gesture Diagnostic Tool</h1>
+        <p style="color: #6B7280; margin-top: 10px;">Test apakah browser Anda bisa mendeteksi pinch-to-zoom gesture</p>
+        
+        <div id="browserStatus" class="status"></div>
+        
+        <div class="instruction">
+            <h3>📋 Cara Testing:</h3>
+            <ul>
+                <li><strong>Di Laptop:</strong> Gunakan 2 jari di touchpad, lalu regangkan (pinch out) atau rapatkan (pinch in)</li>
+                <li><strong>Di Mobile:</strong> Touch dengan 2 jari di area biru, lalu regangkan atau rapatkan</li>
+                <li><strong>Alternatif:</strong> Gunakan Ctrl + scroll mouse untuk zoom</li>
+            </ul>
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-box">
+                <strong>Browser:</strong>
+                <span id="browserInfo">Detecting...</span>
+            </div>
+            <div class="info-box">
+                <strong>Touch Support:</strong>
+                <span id="touchSupport">Detecting...</span>
+            </div>
+            <div class="info-box">
+                <strong>Viewport Meta:</strong>
+                <span id="viewportMeta">Checking...</span>
+            </div>
+            <div class="info-box">
+                <strong>Touch Action CSS:</strong>
+                <span id="touchActionCSS">Checking...</span>
+            </div>
+        </div>
+        
+        <div class="test-area" id="testArea">
+            <h2>🎯 Area Testing</h2>
+            <p style="color: #1e40af; font-size: 18px; margin: 20px 0;">
+                Gunakan 2 JARI di area ini untuk test pinch-to-zoom
+            </p>
+            <div style="font-size: 48px; margin: 20px 0;" id="gestureIndicator">
+                ✋
+            </div>
+            <p style="color: #64748b; font-size: 14px;">
+                Jika berhasil, icon di atas akan berubah dan log akan muncul di bawah
+            </p>
+        </div>
+        
+        <div>
+            <h3 style="margin-bottom: 10px;">📊 Event Log:</h3>
+            <button class="clear-btn" onclick="clearLog()">Clear Log</button>
+            <div class="log" id="log">
+                <div class="log-entry">Waiting for touch events...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const log = document.getElementById('log');
+        const testArea = document.getElementById('testArea');
+        const gestureIndicator = document.getElementById('gestureIndicator');
+        const browserStatus = document.getElementById('browserStatus');
+        
+        let touchStartDistance = null;
+        let logCount = 0;
+        
+        // Detect browser capabilities
+        function detectCapabilities() {
+            // Browser info
+            const userAgent = navigator.userAgent;
+            let browserName = 'Unknown';
+            if (userAgent.includes('Chrome')) browserName = 'Chrome/Edge';
+            else if (userAgent.includes('Firefox')) browserName = 'Firefox';
+            else if (userAgent.includes('Safari')) browserName = 'Safari';
+            document.getElementById('browserInfo').textContent = browserName;
+            
+            // Touch support
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            document.getElementById('touchSupport').textContent = hasTouch ? '✅ Supported' : '❌ Not Supported';
+            
+            // Viewport meta
+            const viewport = document.querySelector('meta[name="viewport"]');
+            const viewportContent = viewport ? viewport.getAttribute('content') : 'Not found';
+            const userScalable = viewportContent.includes('user-scalable=yes') || !viewportContent.includes('user-scalable=no');
+            document.getElementById('viewportMeta').textContent = userScalable ? '✅ Scalable enabled' : '❌ Scalable disabled';
+            
+            // Touch action
+            const touchAction = getComputedStyle(document.body).touchAction;
+            document.getElementById('touchActionCSS').textContent = touchAction || 'auto';
+            
+            // Overall status
+            if (hasTouch && userScalable) {
+                browserStatus.className = 'status success';
+                browserStatus.innerHTML = '✅ <strong>Browser Anda SUPPORT pinch-to-zoom!</strong> Silakan test di area biru.';
+            } else if (!hasTouch) {
+                browserStatus.className = 'status error';
+                browserStatus.innerHTML = '⚠️ <strong>Touch tidak terdeteksi.</strong> Ini normal di desktop. Gunakan Ctrl + Mouse Scroll untuk test.';
+            } else {
+                browserStatus.className = 'status error';
+                browserStatus.innerHTML = '❌ <strong>Viewport meta tag memblokir zoom!</strong> Perlu perbaikan di index.html';
+            }
+        }
+        
+        function addLog(message, type = 'info') {
+            logCount++;
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.style.borderLeftColor = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#60a5fa';
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `[${time}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+            
+            // Keep only last 20 logs
+            if (logCount > 20) {
+                log.removeChild(log.lastChild);
+                logCount--;
+            }
+        }
+        
+        function getTouchDistance(touches) {
+            if (touches.length < 2) return null;
+            const dx = touches[1].clientX - touches[0].clientX;
+            const dy = touches[1].clientY - touches[0].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+        
+        function clearLog() {
+            log.innerHTML = '<div class="log-entry">Log cleared. Ready for new events...</div>';
+            logCount = 1;
+        }
+        
+        // Touch event handlers
+        testArea.addEventListener('touchstart', (e) => {
+            addLog(`Touch start: ${e.touches.length} finger(s)`, 'info');
+            
+            if (e.touches.length === 2) {
+                // Prevent default browser zoom
+                e.preventDefault();
+                touchStartDistance = getTouchDistance(e.touches);
+                gestureIndicator.textContent = '👐';
+                addLog(`Pinch gesture started! Distance: ${touchStartDistance.toFixed(2)}px`, 'success');
+            }
+        }, { passive: false });
+        
+        testArea.addEventListener('touchmove', (e) => {
+            if (e.touches.length === 2 && touchStartDistance) {
+                e.preventDefault();
+                
+                const currentDistance = getTouchDistance(e.touches);
+                const scale = currentDistance / touchStartDistance;
+                
+                if (scale > 1.1) {
+                    gestureIndicator.textContent = '🔍➕';
+                    addLog(`ZOOM IN detected! Scale: ${scale.toFixed(2)}x`, 'success');
+                } else if (scale < 0.9) {
+                    gestureIndicator.textContent = '🔍➖';
+                    addLog(`ZOOM OUT detected! Scale: ${scale.toFixed(2)}x`, 'success');
+                }
+            }
+        }, { passive: false });
+        
+        testArea.addEventListener('touchend', (e) => {
+            addLog(`Touch end: ${e.touches.length} finger(s) remaining`, 'info');
+            
+            if (e.touches.length < 2) {
+                touchStartDistance = null;
+                gestureIndicator.textContent = '✋';
+            }
+        }, { passive: false });
+        
+        // Wheel event for mouse scroll zoom test
+        testArea.addEventListener('wheel', (e) => {
+            if (e.ctrlKey) {
+                e.preventDefault();
+                if (e.deltaY < 0) {
+                    addLog('Mouse zoom IN detected (Ctrl + Scroll)', 'success');
+                    gestureIndicator.textContent = '🖱️➕';
+                } else {
+                    addLog('Mouse zoom OUT detected (Ctrl + Scroll)', 'success');
+                    gestureIndicator.textContent = '🖱️➖';
+                }
+                
+                setTimeout(() => {
+                    gestureIndicator.textContent = '✋';
+                }, 500);
+            }
+        }, { passive: false });
+        
+        // Run detection on load
+        detectCapabilities();
+        addLog('Diagnostic tool loaded. Ready to test!', 'success');
+    </script>
+</body>
+</html>

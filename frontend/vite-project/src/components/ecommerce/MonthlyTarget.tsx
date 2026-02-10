@@ -22,7 +22,6 @@ export default function MonthlyTarget({
   const { data, loading, error } = useMonthlyTargetData(selectedPT, selectedMonth, currentYear);
 
   useEffect(() => {
-    console.log('🎯 [MonthlyTarget] currentActivity changed to:', currentActivity);
   }, [currentActivity]);
   
   useEffect(() => {
