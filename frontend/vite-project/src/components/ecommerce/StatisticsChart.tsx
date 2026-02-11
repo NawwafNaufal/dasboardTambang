@@ -157,9 +157,6 @@ export default function StatisticsChart({
     };
   }, []);
 
-  /* =========================
-     FETCH DATA FROM API
-  ========================= */
   const fetchStatisticsData = async () => {
     try {
       setLoading(true);
@@ -173,7 +170,6 @@ export default function StatisticsChart({
       });
 
       const url = `${API_BASE_URL}${API_ENDPOINTS.STATISTICS}?${params}`;
-      console.log('Fetching statistics from:', url);
       
       const response = await fetch(url);
       
@@ -182,7 +178,6 @@ export default function StatisticsChart({
       }
 
       const data: ApiResponse = await response.json();
-      console.log('API Response:', data);
       
       if (!data.success) {
         throw new Error('API returned unsuccessful response');
@@ -194,7 +189,6 @@ export default function StatisticsChart({
         if (!selectedCategory || !data.data[selectedCategory]) {
           const firstCategory = Object.keys(data.data)[0];
           setSelectedCategory(firstCategory);
-          console.log('Selected category:', firstCategory);
         }
       } else {
         console.warn('No activity data available for this period');
@@ -215,15 +209,8 @@ export default function StatisticsChart({
   useEffect(() => {
     if (apiData && selectedCategory && apiData.data[selectedCategory]) {
       const activity = apiData.data[selectedCategory];
-      console.log('=== API Data Debug ===');
-      console.log('Selected Category:', selectedCategory);
-      console.log('Activity Data:', activity);
-      console.log('Has breakdownDetails:', !!activity.breakdownDetails);
       if (activity.breakdownDetails) {
-        console.log('Breakdown Details Length:', activity.breakdownDetails.length);
-        console.log('First Breakdown Detail:', activity.breakdownDetails[0]);
       }
-      console.log('====================');
     }
   }, [apiData, selectedCategory]);
 
@@ -238,9 +225,7 @@ export default function StatisticsChart({
     setIsZoomed(false);
   }, [selectedPT]);
 
-  /* =========================
-     PREPARE CHART DATA
-  ========================= */
+
   const prepareChartData = () => {
     if (!apiData || !apiData.data || !selectedCategory || !apiData.data[selectedCategory]) {
       return { days: [], targetData: [], actualData: [], targetValue: 0 };
@@ -272,9 +257,7 @@ export default function StatisticsChart({
 
   const { days, targetData, actualData, targetValue } = prepareChartData();
 
-  /* =========================
-     CHART CONFIGURATION
-  ========================= */
+
   const series = useMemo(() => [
     {
       name: 'Target Plan',
@@ -553,26 +536,30 @@ export default function StatisticsChart({
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
             {/* Category Tabs */}
             {hasData && (
-              <div className="overflow-x-auto pb-1 -mx-1 px-1">
-                <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 min-w-max">
-                  {categories.map((cat) => (
-                   <button
-  key={cat}
-  onClick={() => handleCategoryChange(cat)}
-  className={`h-9 px-3 flex items-center justify-center text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap ${
-    selectedCategory === cat
-      ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
-      : "text-gray-600 hover:text-gray-800 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
-  }`}
->
-                      {cat.split('_').map(word => 
-                        word.charAt(0).toUpperCase() + word.slice(1)
-                      ).join(' ')}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+  <div className="overflow-x-auto -mx-1 px-1">
+    <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg px-1 py-0.5 min-w-max">
+      {categories.map((cat) => (
+        <button
+          key={cat}
+          onClick={() => handleCategoryChange(cat)}
+          className={`h-7 px-3 flex items-center justify-center text-xs font-medium rounded-md leading-none whitespace-nowrap transition-colors ${
+            selectedCategory === cat
+              ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
+              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+          }`}
+        >
+          {cat
+            .split("_")
+            .map(
+              (word) => word.charAt(0).toUpperCase() + word.slice(1)
+            )
+            .join(" ")}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
 
             {/* Month Selector */}
             <div className="relative flex-shrink-0 w-full sm:w-auto">
@@ -580,7 +567,7 @@ export default function StatisticsChart({
               <select
                 value={selectedMonth}
                 onChange={(e) => handleMonthChange(e.target.value)}
-                className="h-10 w-full sm:w-32 rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="h-8 w-full sm:w-32 rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="Januari">Januari</option>
                 <option value="Februari">Februari</option>

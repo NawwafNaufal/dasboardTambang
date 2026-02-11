@@ -17,13 +17,15 @@ export default function MonthlyTarget({
   const [chartKey, setChartKey] = useState(0);
   const chartRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
+  
   const currentYear = new Date().getFullYear();
   const { data, loading, error } = useMonthlyTargetData(selectedPT, selectedMonth, currentYear);
 
   useEffect(() => {
+    // Force chart re-render when activity changes
+    setChartKey(prev => prev + 1);
   }, [currentActivity]);
-  
+
   useEffect(() => {
     const handleResize = () => {
       if (resizeTimeoutRef.current) {
@@ -69,7 +71,7 @@ export default function MonthlyTarget({
 
   const currentData = getCurrentActivityData(data, currentActivity);
   const series = [currentData.percentage];
-  
+
   const options: ApexOptions = {
     colors: ["#F87171"],
     chart: {
@@ -139,17 +141,19 @@ export default function MonthlyTarget({
           selectedMonth={selectedMonth}
           onMonthChange={setSelectedMonth}
         />
-
-        <MonthlyTargetChart
-          options={options}
-          series={series}
-          currentData={currentData}
-          selectedPT={selectedPT}
-          currentActivity={currentActivity}
-          chartKey={chartKey}
-        />
+        
+        <div className="flex justify-center items-center flex-1 w-full">
+          <MonthlyTargetChart
+            options={options}
+            series={series}
+            currentData={currentData}
+            selectedPT={selectedPT}
+            currentActivity={currentActivity}
+            chartKey={chartKey}
+          />
+        </div>
       </div>
-
+      
       <MonthlyTargetStats currentData={currentData} />
     </div>
   );

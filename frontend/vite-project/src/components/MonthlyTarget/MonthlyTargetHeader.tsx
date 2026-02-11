@@ -21,7 +21,7 @@ export default function MonthlyTargetHeader({
           Monthly Target - {siteName}
         </h3>
         <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-          {currentActivity || "All Activities"}
+          {/* {currentActivity || "All Activities"} */}
         </p>
       </div>
       <div className="flex gap-2">
