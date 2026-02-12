@@ -41,7 +41,6 @@ export async function getMonthlyTargetService(params: Params) {
     { plan: number; actual: number; dailyActuals: number[] }
   > = {};
 
-  // ✅ Collect all data WITHOUT rounding
   for (const doc of records) {
     const activities = doc.activities ?? {};
 
@@ -49,7 +48,6 @@ export async function getMonthlyTargetService(params: Params) {
       const plan = activity.plan || 0;
       const actual = activity.actual || 0;
 
-      // ✅ Sum raw values (no rounding)
       totalPlan += plan;
       totalActual += actual;
 
@@ -57,12 +55,10 @@ export async function getMonthlyTargetService(params: Params) {
       activityBreakdown[name].plan += plan;
       activityBreakdown[name].actual += actual;
       
-      // ✅ Push ALL values (including zeros) for accurate average
       activityBreakdown[name].dailyActuals.push(actual);
     }
   }
 
-  // ✅ Calculate total average - INCLUDING days with 0
   const dailyTotals: number[] = [];
 
   for (const doc of records) {
@@ -73,13 +69,7 @@ export async function getMonthlyTargetService(params: Params) {
       dayTotal += activity.actual || 0;
     }
 
-    // ✅ OPTION A: Include ALL days (even zeros) - matches Excel AVERAGE()
     dailyTotals.push(dayTotal);
-    
-    // ✅ OPTION B: Exclude zero days (uncomment to use)
-    // if (dayTotal > 0) {
-    //   dailyTotals.push(dayTotal);
-    // }
   }
 
   const averageDaily =
@@ -94,7 +84,6 @@ export async function getMonthlyTargetService(params: Params) {
     year: yearNum,
     month: getMonthName(monthNum),
 
-    // ✅ Round ONLY at the end for display
     totalPlan: Number(totalPlan.toFixed(2)),
     totalActual: Number(totalActual.toFixed(2)),
     todayActual: Number(averageDaily.toFixed(2)),
@@ -104,23 +93,14 @@ export async function getMonthlyTargetService(params: Params) {
 
     activityBreakdown: Object.fromEntries(
       Object.entries(activityBreakdown).map(([k, v]) => {
-        // ✅ OPTION A: Average INCLUDING all days (even zeros)
         const activityAverage =
           v.dailyActuals.length > 0
             ? v.dailyActuals.reduce((sum, val) => sum + val, 0) / v.dailyActuals.length
             : 0;
 
-        // ✅ OPTION B: Average EXCLUDING zero days (uncomment to use)
-        // const nonZeroDays = v.dailyActuals.filter((val) => val > 0);
-        // const activityAverage =
-        //   nonZeroDays.length > 0
-        //     ? nonZeroDays.reduce((sum, val) => sum + val, 0) / nonZeroDays.length
-        //     : 0;
-
         return [
           k,
           {
-            // ✅ Round ONLY for display
             plan: Number(v.plan.toFixed(2)),
             actual: Number(v.actual.toFixed(2)),
             todayActual: Number(activityAverage.toFixed(2)),

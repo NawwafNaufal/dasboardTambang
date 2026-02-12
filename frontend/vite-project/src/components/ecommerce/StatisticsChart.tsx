@@ -3,7 +3,6 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { CalenderIcon } from "../../icons";
 
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 const API_ENDPOINTS = {
   STATISTICS: '/api/static'
@@ -63,9 +62,6 @@ interface StatisticsChartProps {
   selectedPT?: string;
 }
 
-/* =========================
-   HELPER FUNCTIONS
-========================= */
 const getMonthNumber = (monthName: string): number => {
   const months: Record<string, number> = {
     "Januari": 1, "Februari": 2, "Maret": 3, "April": 4,
@@ -79,9 +75,6 @@ const getDaysInMonth = (month: number, year: number): number => {
   return new Date(year, month, 0).getDate();
 };
 
-/* =========================
-   MAIN COMPONENT
-========================= */
 export default function StatisticsChart({ 
   selectedPT = "PT Semen Tonasa" 
 }: StatisticsChartProps) {
@@ -94,63 +87,29 @@ export default function StatisticsChart({
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [chartKey, setChartKey] = useState(0);
-  const [chartWidth, setChartWidth] = useState<number | string>("100%");
   
-  const containerRef = useRef<HTMLDivElement>(null);
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  /* =========================
-     FIX CHART WIDTH - Mencegah melar
-  ========================= */
   useEffect(() => {
-    const updateChartWidth = () => {
-      if (chartContainerRef.current) {
-        const width = chartContainerRef.current.offsetWidth;
-        setChartWidth(width);
-        setChartKey(prev => prev + 1);
+    const handleResize = () => {
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
       }
+      
+      resizeTimeoutRef.current = setTimeout(() => {
+        setChartKey(prev => prev + 1);
+      }, 350);
     };
 
-    // Initial width
-    const timer = setTimeout(updateChartWidth, 100);
-
-    // Resize observer
-    let resizeObserver: ResizeObserver | null = null;
+    const resizeObserver = new ResizeObserver(handleResize);
     
     if (chartContainerRef.current) {
-      resizeObserver = new ResizeObserver(() => {
-        if (resizeTimeoutRef.current) {
-          clearTimeout(resizeTimeoutRef.current);
-        }
-        
-        resizeTimeoutRef.current = setTimeout(() => {
-          updateChartWidth();
-        }, 400);
-      });
-      
       resizeObserver.observe(chartContainerRef.current);
     }
 
-    // Window resize
-    window.addEventListener('resize', updateChartWidth);
-
-    // Transition end listener
-    const handleTransitionEnd = (e: TransitionEvent) => {
-      if (e.propertyName === 'margin-left' || e.propertyName === 'width') {
-        setTimeout(updateChartWidth, 50);
-      }
-    };
-    
-    document.addEventListener('transitionend', handleTransitionEnd);
-
     return () => {
-      clearTimeout(timer);
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
-      window.removeEventListener('resize', updateChartWidth);
-      document.removeEventListener('transitionend', handleTransitionEnd);
+      resizeObserver.disconnect();
       if (resizeTimeoutRef.current) {
         clearTimeout(resizeTimeoutRef.current);
       }
@@ -170,7 +129,6 @@ export default function StatisticsChart({
       });
 
       const url = `${API_BASE_URL}${API_ENDPOINTS.STATISTICS}?${params}`;
-      
       const response = await fetch(url);
       
       if (!response.ok) {
@@ -187,13 +145,9 @@ export default function StatisticsChart({
 
       if (data.data && Object.keys(data.data).length > 0) {
         if (!selectedCategory || !data.data[selectedCategory]) {
-          const firstCategory = Object.keys(data.data)[0];
-          setSelectedCategory(firstCategory);
+          setSelectedCategory(Object.keys(data.data)[0]);
         }
-      } else {
-        console.warn('No activity data available for this period');
       }
-
     } catch (err) {
       console.error('Error fetching statistics:', err);
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
@@ -207,14 +161,6 @@ export default function StatisticsChart({
   }, [selectedPT, selectedMonth, selectedYear]);
 
   useEffect(() => {
-    if (apiData && selectedCategory && apiData.data[selectedCategory]) {
-      const activity = apiData.data[selectedCategory];
-      if (activity.breakdownDetails) {
-      }
-    }
-  }, [apiData, selectedCategory]);
-
-  useEffect(() => {
     if (apiData && apiData.data) {
       const categories = Object.keys(apiData.data);
       if (categories.length > 0 && !categories.includes(selectedCategory)) {
@@ -225,10 +171,9 @@ export default function StatisticsChart({
     setIsZoomed(false);
   }, [selectedPT]);
 
-
   const prepareChartData = () => {
     if (!apiData || !apiData.data || !selectedCategory || !apiData.data[selectedCategory]) {
-      return { days: [], targetData: [], actualData: [], targetValue: 0 };
+      return { days: [], targetData: [], actualData: [] };
     }
 
     const activity = apiData.data[selectedCategory];
@@ -236,13 +181,13 @@ export default function StatisticsChart({
     const daysInMonth = getDaysInMonth(monthNumber, selectedYear);
     
     const days = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
-    
     const tempTargetData = Array(daysInMonth).fill(0);
-    const actualData = Array(daysInMonth).fill(null);
+    const actualData = Array(daysInMonth).fill(0); // Changed from null to 0
     
     activity.dailyData.forEach((dailyItem) => {
       const index = dailyItem.day - 1;
       if (index >= 0 && index < daysInMonth) {
+        // If actual is explicitly 0, keep it as 0 (don't use null)
         actualData[index] = dailyItem.actual;
         tempTargetData[index] = dailyItem.plan || 0;
       }
@@ -250,13 +195,11 @@ export default function StatisticsChart({
 
     const validPlan = tempTargetData.find(plan => plan > 0) || 0;
     const targetData = Array(daysInMonth).fill(validPlan);
-    const targetValue = validPlan;
 
-    return { days, targetData, actualData, targetValue };
+    return { days, targetData, actualData };
   };
 
-  const { days, targetData, actualData, targetValue } = prepareChartData();
-
+  const { days, targetData, actualData } = prepareChartData();
 
   const series = useMemo(() => [
     {
@@ -275,9 +218,7 @@ export default function StatisticsChart({
     chart: {
       type: "area",
       height: 310,
-      toolbar: { 
-        show: false 
-      },
+      toolbar: { show: false },
       zoom: {
         enabled: true,
         type: 'x',
@@ -298,18 +239,11 @@ export default function StatisticsChart({
           if (activity) {
             const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
             
-            if (dailyItem) {
-              if (dailyItem.reason && dailyItem.reason.trim() !== '') {
-                setSelectedDay({
-                  day,
-                  description: dailyItem.reason
-                });
-              } else {
-                setSelectedDay({
-                  day,
-                  description: "Tidak ada keterangan"
-                });
-              }
+            if (dailyItem && dailyItem.reason?.trim()) {
+              setSelectedDay({
+                day,
+                description: dailyItem.reason
+              });
             } else {
               setSelectedDay({
                 day,
@@ -376,7 +310,6 @@ export default function StatisticsChart({
       followCursor: false,
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
         const day = days[dataPointIndex];
-        const seriesName = w.globals.seriesNames[seriesIndex];
         const value = series[seriesIndex][dataPointIndex];
         
         if (seriesIndex === 0) {
@@ -395,7 +328,19 @@ export default function StatisticsChart({
         if (!activity) return '';
         
         const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
-        if (!dailyItem) return '';
+        
+        if (!dailyItem) {
+          let html = '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 180px;">';
+          html += '<div style="font-weight: 600; color: #60A5FA; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">';
+          html += 'Hari ' + day + ' ' + selectedMonth;
+          html += '</div>';
+          html += '<div style="display: flex; justify-content: space-between;">';
+          html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
+          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">0 ' + activity.unit + '</span>';
+          html += '</div>';
+          html += '</div>';
+          return html;
+        }
         
         const breakdownItem = activity.breakdownDetails?.find(b => b.day === parseInt(day));
         
@@ -404,7 +349,7 @@ export default function StatisticsChart({
         html += dailyItem.dayName + ', ' + day + ' ' + selectedMonth;
         html += '</div>';
         
-        if (breakdownItem && breakdownItem.units && breakdownItem.units.length > 0) {
+        if (breakdownItem?.units?.length) {
           html += '<div style="display: flex; flex-direction: column; gap: 4px;">';
           breakdownItem.units.forEach(unit => {
             html += '<div style="display: flex; justify-content: space-between; gap: 16px;">';
@@ -416,11 +361,11 @@ export default function StatisticsChart({
         } else {
           html += '<div style="display: flex; justify-content: space-between;">';
           html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
-          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + value + ' ' + activity.unit + '</span>';
+          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + (dailyItem.actual || 0).toLocaleString() + ' ' + activity.unit + '</span>';
           html += '</div>';
         }
         
-        if (dailyItem.reason && dailyItem.reason.trim() !== '') {
+        if (dailyItem.reason?.trim()) {
           html += '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">';
           html += '<div style="font-size: 11px; color: #6b7280; margin-bottom: 2px;">Keterangan:</div>';
           html += '<div style="font-size: 12px; color: #374151;">' + dailyItem.reason + '</div>';
@@ -472,9 +417,6 @@ export default function StatisticsChart({
     }]
   }), [days, isZoomed, apiData, selectedCategory, selectedMonth]);
 
-  /* =========================
-     HANDLERS
-  ========================= */
   const handleCategoryChange = (cat: string) => {
     setSelectedCategory(cat);
     setSelectedDay(null);
@@ -485,9 +427,6 @@ export default function StatisticsChart({
     setSelectedDay(null);
   };
 
-  /* =========================
-     RENDER
-  ========================= */
   if (loading) {
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
@@ -512,11 +451,10 @@ export default function StatisticsChart({
   const categories = hasData ? Object.keys(apiData.data) : [];
 
   return (
-    <div ref={containerRef} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="mb-6">
-        {/* Header, Category Tabs, and Month Selector in one row */}
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          {/* Left: Header */}
+          {/* Header */}
           <div className="flex-shrink-0">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
               Statistics - {apiData?.site || selectedPT}
@@ -532,34 +470,30 @@ export default function StatisticsChart({
             </p>
           </div>
 
-          {/* Right: Category Tabs and Month Selector */}
+          {/* Category Tabs and Month Selector */}
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
             {/* Category Tabs */}
             {hasData && (
-  <div className="overflow-x-auto -mx-1 px-1">
-    <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg px-1 py-0.5 min-w-max">
-      {categories.map((cat) => (
-        <button
-          key={cat}
-          onClick={() => handleCategoryChange(cat)}
-          className={`h-7 px-3 flex items-center justify-center text-xs font-medium rounded-md leading-none whitespace-nowrap transition-colors ${
-            selectedCategory === cat
-              ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
-              : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-          }`}
-        >
-          {cat
-            .split("_")
-            .map(
-              (word) => word.charAt(0).toUpperCase() + word.slice(1)
-            )
-            .join(" ")}
-        </button>
-      ))}
-    </div>
-  </div>
-)}
-
+              <div className="overflow-x-auto -mx-1 px-1">
+                <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg px-1 py-0.5 min-w-max">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => handleCategoryChange(cat)}
+                      className={`h-7 px-3 flex items-center justify-center text-xs font-medium rounded-md leading-none whitespace-nowrap transition-colors ${
+                        selectedCategory === cat
+                          ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
+                          : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+                      }`}
+                    >
+                      {cat.split("_").map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(" ")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Month Selector */}
             <div className="relative flex-shrink-0 w-full sm:w-auto">
@@ -613,18 +547,18 @@ export default function StatisticsChart({
         </div>
       ) : (
         <>
-          {/* ✅ Chart container tanpa overflow-hidden agar legend tidak terpotong */}
-          <div ref={chartContainerRef} className="w-full max-w-full">
+          {/* Chart */}
+          <div ref={chartContainerRef} className="w-full">
             <Chart 
               key={chartKey}
               options={options} 
               series={series} 
               type="area" 
               height={310}
-              width={chartWidth}
             />
           </div>
 
+          {/* Selected Day Info */}
           {selectedDay && (
             <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/20">
               <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
