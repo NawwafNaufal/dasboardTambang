@@ -18,6 +18,7 @@ import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
+import HomeProduk from "./pages/Dashboard/HomeProduk";
 import FormElementsProduktivity from "./pages/Forms/FormElementsProduktivity";
 import FormProdukUser from "./pages/Forms/FormProdukUser";
 import TablesAdmin from "./pages/Tables/TablesAdmin";
@@ -31,6 +32,7 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
+            <Route index path="/produksi-2" element={<HomeProduk />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />

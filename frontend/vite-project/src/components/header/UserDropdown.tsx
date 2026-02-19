@@ -20,7 +20,7 @@ export default function UserDropdown({
     "PT Semen Tonasa",
     "PT Semen Padang", 
     "Lamongan Shorebase",
-    "UTSG"
+    "Site Sale"
   ];
 
   return (

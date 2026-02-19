@@ -127,7 +127,7 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
       const breaker = transformBreaker(row);
       if (breaker) activities["breaker"] = breaker;
 
-    } else if (site === "UTSG") {
+    } else if (site === "Site Sale") {
       const obRehandle = transformObRehandle(row);
       if (obRehandle) activities["ob_rehandle"] = obRehandle;
 

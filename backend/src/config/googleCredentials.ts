@@ -23,7 +23,7 @@ const SPREADSHEET_CONFIGS = [
   },
   {
     id: process.env.ID_SPREADSHEETS_UTSG,
-    site: "UTSG",
+    site: "Site Sale",
     range: "Sheet1!A1:Z100"
   },
   {

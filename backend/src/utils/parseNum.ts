@@ -113,7 +113,7 @@ export const isHeaderRow = (row: string[]) => {
     "PT Semen Tonasa",
     "PT Semen Padang",
     "Lamongan Shorebase",
-    "UTSG"
+    "Site Sale"
   ];
   
   if (row.some(cell => 

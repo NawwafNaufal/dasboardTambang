@@ -25,6 +25,7 @@ export const getAllSpreadsheetsData = async () => {
           data,
           success: true,
         };
+        
       } catch (error: any) {
         return {
           spreadsheetId: config.id,
