@@ -253,12 +253,14 @@ export default function StatisticsChart({
     const days = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
     
     const tempTargetData = Array(daysInMonth).fill(0);
-    const actualData = Array(daysInMonth).fill(null);
+    // ✅ FIX: Inisialisasi dengan 0 bukan null agar hari tanpa data tetap tampil di grafik
+    const actualData = Array(daysInMonth).fill(0);
     
     activity.dailyData.forEach((dailyItem) => {
       const index = dailyItem.day - 1;
       if (index >= 0 && index < daysInMonth) {
-        actualData[index] = dailyItem.actual;
+        // ✅ FIX: Gunakan ?? 0 untuk handle nilai null/undefined dari API
+        actualData[index] = dailyItem.actual ?? 0;
         tempTargetData[index] = dailyItem.plan || 0;
       }
     });
@@ -412,13 +414,13 @@ export default function StatisticsChart({
         if (!activity) return '';
         
         const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
-        if (!dailyItem) return '';
         
+        // ✅ FIX: Jika tidak ada dailyItem (hari tanpa data), tampilkan tooltip dengan nilai 0
         const breakdownItem = activity.breakdownDetails?.find(b => b.day === parseInt(day));
         
         let html = '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 180px;">';
         html += '<div style="font-weight: 600; color: #60A5FA; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">';
-        html += dailyItem.dayName + ', ' + day + ' ' + selectedMonth;
+        html += (dailyItem?.dayName ?? '-') + ', ' + day + ' ' + selectedMonth;
         html += '</div>';
         
         if (breakdownItem && breakdownItem.units && breakdownItem.units.length > 0) {
@@ -433,11 +435,11 @@ export default function StatisticsChart({
         } else {
           html += '<div style="display: flex; justify-content: space-between;">';
           html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
-          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + value + ' ' + activity.unit + '</span>';
+          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + (value ?? 0) + ' ' + activity.unit + '</span>';
           html += '</div>';
         }
         
-        if (dailyItem.reason && dailyItem.reason.trim() !== '') {
+        if (dailyItem?.reason && dailyItem.reason.trim() !== '') {
           html += '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">';
           html += '<div style="font-size: 11px; color: #6b7280; margin-bottom: 2px;">Keterangan:</div>';
           html += '<div style="font-size: 12px; color: #374151;">' + dailyItem.reason + '</div>';
@@ -626,7 +628,7 @@ export default function StatisticsChart({
         </div>
       ) : (
         <>
-          {/* ✅ Chart container tanpa overflow-hidden agar legend tidak terpotong */}
+          {/* Chart container */}
           <div ref={chartContainerRef} className="w-full max-w-full">
             <Chart 
               key={chartKey}
