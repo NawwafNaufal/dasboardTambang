@@ -52,19 +52,19 @@ const toSnakeCase = (str: string): string => {
   return str.toLowerCase().replace(/\s+/g, "_");
 };
 
-// ✅ Format angka dengan 3 desimal → 18 → "18,000", 24.007 → "24,007"
+// ✅ Tampilkan apa adanya tanpa paksa 3 desimal
 const formatNumber = (num: number): string => {
-  return num.toLocaleString('id-ID', {
-    minimumFractionDigits: 3,
+  return num.toLocaleString("id-ID", {
+    minimumFractionDigits: 0,
     maximumFractionDigits: 3,
   });
 };
 
-export default function EcommerceMetrics({ 
+export default function EcommerceMetrics({
   selectedPT = "PT Semen Tonasa",
   currentActivity,
   apiUrl = "http://76.13.198.60:4000/api/plan-rkpa",
-  year = 2026
+  year = 2026,
 }: EcommerceMetricsProps) {
   const [apiData, setApiData] = useState<{ [siteName: string]: SiteActivities } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -134,7 +134,7 @@ export default function EcommerceMetrics({
   const normalizedCurrent = toSnakeCase(currentActivity || "");
 
   const activityData = normalizedCurrent
-    ? ptActivities.find(act => toSnakeCase(act.activityName) === normalizedCurrent)
+    ? ptActivities.find((act) => toSnakeCase(act.activityName) === normalizedCurrent)
     : ptActivities[0];
 
   const displayActivity = activityData || ptActivities[0];
@@ -155,9 +155,9 @@ export default function EcommerceMetrics({
               </h4>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
-              displayActivity.planRevenueChange >= 0 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+              displayActivity.planRevenueChange >= 0
+                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
             }`}>
               {displayActivity.planRevenueChange >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />}
               {Math.abs(displayActivity.planRevenueChange)}%
@@ -178,9 +178,9 @@ export default function EcommerceMetrics({
               </h4>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
-              displayActivity.rkpaRevenueChange >= 0 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' 
-                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+              displayActivity.rkpaRevenueChange >= 0
+                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
             }`}>
               {displayActivity.rkpaRevenueChange >= 0 ? <ArrowUpIcon /> : <ArrowDownIcon />}
               {Math.abs(displayActivity.rkpaRevenueChange)}%
