@@ -38,7 +38,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   onPTChange,
   currentActivity,
   onActivityChange,
-  apiUrl = "http://localhost:4000/api/monthly-actual/by-site",
+  apiUrl = "http://76.13.198.60:4000/api/monthly-actual/by-site",
   year = 2026  // ✅ DEFAULT 2026
 }) => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
