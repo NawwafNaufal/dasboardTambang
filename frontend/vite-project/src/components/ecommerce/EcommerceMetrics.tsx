@@ -5,7 +5,15 @@ import {
 import { useState, useEffect } from "react";
 
 const PlanIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <circle cx="12" cy="12" r="10" />
     <circle cx="12" cy="12" r="6" />
     <circle cx="12" cy="12" r="2" />
@@ -13,12 +21,23 @@ const PlanIcon = ({ className }: { className?: string }) => (
 );
 
 const RkpaIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <line x1="12" y1="1" x2="12" y2="23" />
     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
   </svg>
 );
 
+/* =========================
+   INTERFACE
+========================= */
 interface ActivityData {
   activityName: string;
   planRevenue: number;
@@ -46,38 +65,32 @@ interface EcommerceMetricsProps {
   year?: number;
 }
 
-const toSnakeCase = (str: string): string => {
-  if (!str) return "";
-  if (str.includes("_") && !str.includes(" ")) return str.toLowerCase();
-  return str.toLowerCase().replace(/\s+/g, "_");
-};
-
-// ✅ Format angka dengan 3 desimal → 18 → "18,000", 24.007 → "24,007"
-const formatNumber = (num: number): string => {
-  return num.toLocaleString('id-ID', {
-    minimumFractionDigits: 3,
-    maximumFractionDigits: 3,
-  });
-};
-
 export default function EcommerceMetrics({ 
   selectedPT = "PT Semen Tonasa",
   currentActivity,
-  apiUrl = "http://76.13.198.60:4000/api/plan-rkpa",
+  apiUrl = "http://localhost:4000/api/plan-rkpa",
   year = 2026
 }: EcommerceMetricsProps) {
   const [apiData, setApiData] = useState<{ [siteName: string]: SiteActivities } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [displayActivity, setDisplayActivity] = useState<ActivityData | null>(null);
 
+  // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
+        
         const response = await fetch(`${apiUrl}?year=${year}`);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const result: ApiResponse = await response.json();
+        
         if (result.success) {
           setApiData(result.data);
         } else {
@@ -89,58 +102,217 @@ export default function EcommerceMetrics({
         setLoading(false);
       }
     };
+
     fetchData();
   }, [apiUrl, year]);
 
+  // Update displayActivity when currentActivity changes
+  useEffect(() => {
+    if (!apiData || !apiData[selectedPT]) {
+      setDisplayActivity(null);
+      return;
+    }
+
+    const ptActivities = apiData[selectedPT].activities;
+    
+    if (ptActivities.length === 0) {
+      setDisplayActivity(null);
+      return;
+    }
+
+    // Match activity (currentActivity should be in snake_case)
+    const matchedActivity = currentActivity 
+      ? ptActivities.find(act => act.activityName === currentActivity)
+      : ptActivities[0];
+
+    const finalActivity = matchedActivity || ptActivities[0];
+    
+    setDisplayActivity(finalActivity);
+  }, [currentActivity, apiData, selectedPT]);
+
+  // Show loading state
   if (loading) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {[PlanIcon, RkpaIcon].map((Icon, i) => (
-            <div key={i} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-              <div className="flex items-center justify-center h-32">
-                <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" role="status" />
+          {/* Plan Loading Skeleton */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex items-center justify-center h-32">
+              <div className="text-center">
+                <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+                  <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+                </div>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* RKPA Loading Skeleton */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex items-center justify-center h-32">
+              <div className="text-center">
+                <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
+                  <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  if (error || !apiData || !apiData[selectedPT]) {
+  // Show error state
+  if (error || !apiData) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {[{ Icon: PlanIcon, label: "Plan" }, { Icon: RkpaIcon, label: "RKPA" }].map(({ Icon, label }) => (
-            <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-              <div className="flex flex-col items-center justify-center h-48 gap-3">
-                <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                  <Icon className="w-8 h-8 text-gray-400" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Tidak ada data</p>
-                </div>
+          {/* Plan Error Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex flex-col items-center justify-center h-48 gap-3">
+              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                <PlanIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Plan
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Tidak ada data
+                </p>
               </div>
             </div>
-          ))}
+          </div>
+
+          {/* RKPA Error Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex flex-col items-center justify-center h-48 gap-3">
+              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                <RkpaIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  RKPA
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Tidak ada data
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!apiData[selectedPT]) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+          {/* Plan No Data Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex flex-col items-center justify-center h-48 gap-3">
+              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                <PlanIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Plan
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Tidak ada data untuk {selectedPT}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* RKPA No Data Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex flex-col items-center justify-center h-48 gap-3">
+              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                <RkpaIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  RKPA
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Tidak ada data untuk {selectedPT}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   const ptActivities = apiData[selectedPT].activities;
-  const normalizedCurrent = toSnakeCase(currentActivity || "");
 
-  const activityData = normalizedCurrent
-    ? ptActivities.find(act => toSnakeCase(act.activityName) === normalizedCurrent)
-    : ptActivities[0];
+  if (ptActivities.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+          {/* Plan No Activities Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex flex-col items-center justify-center h-48 gap-3">
+              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                <PlanIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Plan
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Belum ada aktivitas
+                </p>
+              </div>
+            </div>
+          </div>
 
-  const displayActivity = activityData || ptActivities[0];
+          {/* RKPA No Activities Card */}
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex flex-col items-center justify-center h-48 gap-3">
+              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                <RkpaIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  RKPA
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Belum ada aktivitas
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ✅ Use displayActivity from state (updated by useEffect)
+  if (!displayActivity) {
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex items-center justify-center h-32">
+              <p className="text-gray-500">Loading activity data...</p>
+            </div>
+          </div>
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+            <div className="flex items-center justify-center h-32">
+              <p className="text-gray-500">Loading activity data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
+      {/* Metrics Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
         {/* Plan Metric */}
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
@@ -149,9 +321,11 @@ export default function EcommerceMetrics({
           </div>
           <div className="flex items-end justify-between mt-5">
             <div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Plan</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                Plan
+              </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {formatNumber(displayActivity.planRevenue)}
+                {displayActivity.planRevenue.toLocaleString()}
               </h4>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
@@ -172,9 +346,11 @@ export default function EcommerceMetrics({
           </div>
           <div className="flex items-end justify-between mt-5">
             <div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">RKPA</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                RKPA
+              </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {formatNumber(displayActivity.rkpaRevenue)}
+                {displayActivity.rkpaRevenue.toLocaleString()}
               </h4>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
