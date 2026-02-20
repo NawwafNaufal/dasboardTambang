@@ -4,7 +4,7 @@ import { ApexOptions } from "apexcharts";
 import { CalenderIcon } from "../../icons";
 
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://IP-VPS:4000';
 const API_ENDPOINTS = {
   STATISTICS: '/api/static'
 };

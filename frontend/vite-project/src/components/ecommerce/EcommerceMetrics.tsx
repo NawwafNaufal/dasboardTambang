@@ -71,7 +71,7 @@ interface EcommerceMetricsProps {
 export default function EcommerceMetrics({ 
   selectedPT = "PT Semen Tonasa",
   currentActivity,
-  apiUrl = "http://localhost:4000/api/plan-rkpa",
+  apiUrl = "http://IP-VPS:4000/api/plan-rkpa",
   year = 2026  // ✅ Default ke 2026
 }: EcommerceMetricsProps) {
   const [apiData, setApiData] = useState<{ [siteName: string]: SiteActivities } | null>(null);

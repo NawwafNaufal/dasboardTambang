@@ -7,8 +7,8 @@ const ApexChart = Chart as any;
 
 export default function MonthlySalesChart({ 
   selectedPT = "PT Semen Tonasa",
-  apiUrl = "http://localhost:4000/api/monthly-actual/by-site", 
-  year = 2026,  // ✅ Default ke 2026
+  apiUrl = "http://IP-VPS:4000/api/monthly-actual/by-site", 
+  year = 2026,  
   currentActivity
 }: MonthlySalesChartProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { MonthlyTargetData } from "../interface/monthlyTarget";
 
-const API_URL = "http://localhost:4000";
+const API_URL = "http://IP-VPS:4000";
 
 export function useMonthlyTargetData(
   selectedPT: string,
