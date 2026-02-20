@@ -22,7 +22,7 @@ export default function EmptyState({
       <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Monthly Target - {selectedPT}
+            {/* Monthly Target - {selectedPT} */}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {getMonthName(selectedMonth)} {currentYear}
