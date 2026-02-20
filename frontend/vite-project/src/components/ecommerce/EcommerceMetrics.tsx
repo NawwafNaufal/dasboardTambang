@@ -52,7 +52,7 @@ const toSnakeCase = (str: string): string => {
   return str.toLowerCase().replace(/\s+/g, "_");
 };
 
-// ✅ Format angka dengan 3 desimal menggunakan locale Indonesia
+// ✅ Format angka dengan 3 desimal → 18 → "18,000", 24.007 → "24,007"
 const formatNumber = (num: number): string => {
   return num.toLocaleString('id-ID', {
     minimumFractionDigits: 3,
@@ -151,7 +151,6 @@ export default function EcommerceMetrics({
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">Plan</span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {/* ✅ FIX: format dengan 3 desimal → 18 → 18,000 */}
                 {formatNumber(displayActivity.planRevenue)}
               </h4>
             </div>
@@ -175,7 +174,6 @@ export default function EcommerceMetrics({
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">RKPA</span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {/* ✅ FIX: format dengan 3 desimal → 24.007 → 24,007 */}
                 {formatNumber(displayActivity.rkpaRevenue)}
               </h4>
             </div>
