@@ -4,19 +4,8 @@ import {
 } from "../../icons";
 import { useState, useEffect } from "react";
 
-/* =========================
-   CUSTOM ICONS
-========================= */
 const PlanIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <circle cx="12" cy="12" r="6" />
     <circle cx="12" cy="12" r="2" />
@@ -24,23 +13,12 @@ const PlanIcon = ({ className }: { className?: string }) => (
 );
 
 const RkpaIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="12" y1="1" x2="12" y2="23" />
     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
   </svg>
 );
 
-/* =========================
-   INTERFACE
-========================= */
 interface ActivityData {
   activityName: string;
   planRevenue: number;
@@ -68,21 +46,18 @@ interface EcommerceMetricsProps {
   year?: number;
 }
 
-/* =========================
-   NORMALIZE HELPER
-   Handles both formats:
-   - "perintisan_used"   (snake_case)
-   - "Perintisan Used"  (Title Case)
-   → converts both to snake_case for matching
-========================= */
 const toSnakeCase = (str: string): string => {
   if (!str) return "";
-  // If already snake_case (contains _ and no spaces), return as is
   if (str.includes("_") && !str.includes(" ")) return str.toLowerCase();
-  // Convert Title Case / spaces to snake_case
-  return str
-    .toLowerCase()
-    .replace(/\s+/g, "_");
+  return str.toLowerCase().replace(/\s+/g, "_");
+};
+
+// ✅ Format angka dengan 3 desimal menggunakan locale Indonesia
+const formatNumber = (num: number): string => {
+  return num.toLocaleString('id-ID', {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
+  });
 };
 
 export default function EcommerceMetrics({ 
@@ -95,45 +70,28 @@ export default function EcommerceMetrics({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch data from API
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        
-        console.log('🔍 [EcommerceMetrics] Fetching Plan-RKPA data for year:', year);
         const response = await fetch(`${apiUrl}?year=${year}`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const result: ApiResponse = await response.json();
-        console.log('📊 [EcommerceMetrics] Plan-RKPA API Response:', result);
-        
         if (result.success) {
           setApiData(result.data);
         } else {
           throw new Error("API returned success: false");
         }
       } catch (err) {
-        console.error("❌ [EcommerceMetrics] Error fetching Plan-RKPA data:", err);
         setError(err instanceof Error ? err.message : "Failed to fetch data");
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, [apiUrl, year]);
 
-  useEffect(() => {
-    console.log('🎯 [EcommerceMetrics] currentActivity received (raw):', currentActivity);
-    console.log('🔄 [EcommerceMetrics] currentActivity normalized:', toSnakeCase(currentActivity || ""));
-  }, [currentActivity]);
-
-  // Loading state
   if (loading) {
     return (
       <div className="space-y-4">
@@ -150,8 +108,7 @@ export default function EcommerceMetrics({
     );
   }
 
-  // Error state
-  if (error || !apiData) {
+  if (error || !apiData || !apiData[selectedPT]) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
@@ -173,70 +130,14 @@ export default function EcommerceMetrics({
     );
   }
 
-  // No data for selectedPT
-  if (!apiData[selectedPT]) {
-    return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {[{ Icon: PlanIcon, label: "Plan" }, { Icon: RkpaIcon, label: "RKPA" }].map(({ Icon, label }) => (
-            <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-              <div className="flex flex-col items-center justify-center h-48 gap-3">
-                <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                  <Icon className="w-8 h-8 text-gray-400" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Tidak ada data untuk {selectedPT}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
   const ptActivities = apiData[selectedPT].activities;
-
-  if (ptActivities.length === 0) {
-    return (
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {[{ Icon: PlanIcon, label: "Plan" }, { Icon: RkpaIcon, label: "RKPA" }].map(({ Icon, label }) => (
-            <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-              <div className="flex flex-col items-center justify-center h-48 gap-3">
-                <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                  <Icon className="w-8 h-8 text-gray-400" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Belum ada aktivitas</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  // ✅ FIX UTAMA: Normalize currentActivity sebelum matching
-  // Handles: "perintisan_used", "Perintisan Used", "PERINTISAN USED" → semua cocok
   const normalizedCurrent = toSnakeCase(currentActivity || "");
-  
-  console.log('🔎 [EcommerceMetrics] Normalized currentActivity:', normalizedCurrent);
-  console.log('📋 [EcommerceMetrics] Available activities (normalized):', 
-    ptActivities.map(a => toSnakeCase(a.activityName))
-  );
 
   const activityData = normalizedCurrent
     ? ptActivities.find(act => toSnakeCase(act.activityName) === normalizedCurrent)
     : ptActivities[0];
 
-  // Fallback jika tidak ketemu
   const displayActivity = activityData || ptActivities[0];
-  
-  console.log('✅ [EcommerceMetrics] Matched activity:', displayActivity.activityName);
 
   return (
     <div className="space-y-4">
@@ -250,7 +151,8 @@ export default function EcommerceMetrics({
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">Plan</span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {displayActivity.planRevenue.toLocaleString()}
+                {/* ✅ FIX: format dengan 3 desimal → 18 → 18,000 */}
+                {formatNumber(displayActivity.planRevenue)}
               </h4>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
@@ -273,7 +175,8 @@ export default function EcommerceMetrics({
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">RKPA</span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {displayActivity.rkpaRevenue.toLocaleString()}
+                {/* ✅ FIX: format dengan 3 desimal → 24.007 → 24,007 */}
+                {formatNumber(displayActivity.rkpaRevenue)}
               </h4>
             </div>
             <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium ${
