@@ -7,6 +7,7 @@ import PageMeta from "../../components/common/PageMeta";
 import FearGreedGaugePaOne from "@/components/produk/FearGreadPaOne";
 import FearGreedGaugePaTwo from "@/components/produk/FearGreadPaTwo";
 import FearGreedGaugePaThree from "@/components/produk/FearGreadPaThree";
+import DonutJamChart from "@/components/produk/Piechart";
 
 export default function HomeProduk() {
   const { selectedPT, currentActivity } = useOutletContext<{
@@ -37,12 +38,12 @@ export default function HomeProduk() {
         </div>
 
         {/* Baris 2: MonthlySalesChart full */}
-        {/* <div className="col-span-12">
-          <MonthlySalesChart
+        <div className="col-span-12">
+          <DonutJamChart
             selectedPT={selectedPT}
             currentActivity={currentActivity}
           />
-        </div> */}
+        </div>
 
         {/* Baris 3: Ketiga gauge sejajar 3 kolom sama rata */}
         <div className="col-span-12 grid grid-cols-3 gap-3">
