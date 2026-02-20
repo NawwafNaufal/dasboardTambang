@@ -68,11 +68,28 @@ interface EcommerceMetricsProps {
   year?: number;
 }
 
+/* =========================
+   NORMALIZE HELPER
+   Handles both formats:
+   - "perintisan_used"   (snake_case)
+   - "Perintisan Used"  (Title Case)
+   → converts both to snake_case for matching
+========================= */
+const toSnakeCase = (str: string): string => {
+  if (!str) return "";
+  // If already snake_case (contains _ and no spaces), return as is
+  if (str.includes("_") && !str.includes(" ")) return str.toLowerCase();
+  // Convert Title Case / spaces to snake_case
+  return str
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+};
+
 export default function EcommerceMetrics({ 
   selectedPT = "PT Semen Tonasa",
   currentActivity,
   apiUrl = "http://76.13.198.60:4000/api/plan-rkpa",
-  year = 2026  // ✅ Default ke 2026
+  year = 2026
 }: EcommerceMetricsProps) {
   const [apiData, setApiData] = useState<{ [siteName: string]: SiteActivities } | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,123 +128,69 @@ export default function EcommerceMetrics({
     fetchData();
   }, [apiUrl, year]);
 
-  // ✅ Log perubahan currentActivity untuk debugging
   useEffect(() => {
-    console.log('🎯 [EcommerceMetrics] currentActivity received (snake_case):', currentActivity);
+    console.log('🎯 [EcommerceMetrics] currentActivity received (raw):', currentActivity);
+    console.log('🔄 [EcommerceMetrics] currentActivity normalized:', toSnakeCase(currentActivity || ""));
   }, [currentActivity]);
 
-  // Show loading state
+  // Loading state
   if (loading) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {/* Plan Loading Skeleton */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex items-center justify-center h-32">
-              <div className="text-center">
-                <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
-                  <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
-                </div>
+          {[PlanIcon, RkpaIcon].map((Icon, i) => (
+            <div key={i} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+              <div className="flex items-center justify-center h-32">
+                <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent" role="status" />
               </div>
             </div>
-          </div>
-
-          {/* RKPA Loading Skeleton */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex items-center justify-center h-32">
-              <div className="text-center">
-                <div className="inline-block h-6 w-6 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite]" role="status">
-                  <span className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  // Show error state
+  // Error state
   if (error || !apiData) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {/* Plan Error Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                <PlanIcon className="w-8 h-8 text-gray-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Plan
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Tidak ada data
-                </p>
+          {[{ Icon: PlanIcon, label: "Plan" }, { Icon: RkpaIcon, label: "RKPA" }].map(({ Icon, label }) => (
+            <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+              <div className="flex flex-col items-center justify-center h-48 gap-3">
+                <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                  <Icon className="w-8 h-8 text-gray-400" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Tidak ada data</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* RKPA Error Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                <RkpaIcon className="w-8 h-8 text-gray-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  RKPA
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Tidak ada data
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  // ✅ Tidak fallback ke PT lain - langsung cek selectedPT
+  // No data for selectedPT
   if (!apiData[selectedPT]) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {/* Plan No Data Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                <PlanIcon className="w-8 h-8 text-gray-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Plan
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Tidak ada data untuk {selectedPT}
-                </p>
+          {[{ Icon: PlanIcon, label: "Plan" }, { Icon: RkpaIcon, label: "RKPA" }].map(({ Icon, label }) => (
+            <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+              <div className="flex flex-col items-center justify-center h-48 gap-3">
+                <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                  <Icon className="w-8 h-8 text-gray-400" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Tidak ada data untuk {selectedPT}</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* RKPA No Data Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                <RkpaIcon className="w-8 h-8 text-gray-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  RKPA
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Tidak ada data untuk {selectedPT}
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     );
@@ -239,63 +202,44 @@ export default function EcommerceMetrics({
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
-          {/* Plan No Activities Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                <PlanIcon className="w-8 h-8 text-gray-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Plan
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Belum ada aktivitas
-                </p>
+          {[{ Icon: PlanIcon, label: "Plan" }, { Icon: RkpaIcon, label: "RKPA" }].map(({ Icon, label }) => (
+            <div key={label} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
+              <div className="flex flex-col items-center justify-center h-48 gap-3">
+                <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
+                  <Icon className="w-8 h-8 text-gray-400" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Belum ada aktivitas</p>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* RKPA No Activities Card */}
-          <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
-            <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <div className="rounded-full bg-gray-100 p-3 dark:bg-gray-800">
-                <RkpaIcon className="w-8 h-8 text-gray-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  RKPA
-                </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Belum ada aktivitas
-                </p>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  // ✅ LANGSUNG MATCH dengan snake_case (tidak perlu normalisasi)
-  console.log('🔎 [EcommerceMetrics] Looking for activity (snake_case):', currentActivity);
-  console.log('📋 [EcommerceMetrics] Available activities:', ptActivities.map(a => a.activityName));
+  // ✅ FIX UTAMA: Normalize currentActivity sebelum matching
+  // Handles: "perintisan_used", "Perintisan Used", "PERINTISAN USED" → semua cocok
+  const normalizedCurrent = toSnakeCase(currentActivity || "");
   
-  // ✅ currentActivity sudah dalam snake_case dari AppHeader
-  // ✅ API juga return dalam snake_case
-  // ✅ Langsung match tanpa konversi
-  const activityData = currentActivity 
-    ? ptActivities.find(act => act.activityName === currentActivity)
+  console.log('🔎 [EcommerceMetrics] Normalized currentActivity:', normalizedCurrent);
+  console.log('📋 [EcommerceMetrics] Available activities (normalized):', 
+    ptActivities.map(a => toSnakeCase(a.activityName))
+  );
+
+  const activityData = normalizedCurrent
+    ? ptActivities.find(act => toSnakeCase(act.activityName) === normalizedCurrent)
     : ptActivities[0];
 
-  // Fallback jika aktivitas tidak ditemukan
+  // Fallback jika tidak ketemu
   const displayActivity = activityData || ptActivities[0];
   
   console.log('✅ [EcommerceMetrics] Matched activity:', displayActivity.activityName);
 
   return (
     <div className="space-y-4">
-      {/* Metrics Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6">
         {/* Plan Metric */}
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
@@ -304,9 +248,7 @@ export default function EcommerceMetrics({
           </div>
           <div className="flex items-end justify-between mt-5">
             <div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                Plan
-              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Plan</span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
                 {displayActivity.planRevenue.toLocaleString()}
               </h4>
@@ -329,9 +271,7 @@ export default function EcommerceMetrics({
           </div>
           <div className="flex items-end justify-between mt-5">
             <div>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                RKPA
-              </span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">RKPA</span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
                 {displayActivity.rkpaRevenue.toLocaleString()}
               </h4>
