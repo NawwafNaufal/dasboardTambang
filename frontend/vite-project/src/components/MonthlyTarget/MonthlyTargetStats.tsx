@@ -23,7 +23,10 @@ function StatItem({ label, value }: { label: string; value: number }) {
         {label}
       </p>
       <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
-        {value.toLocaleString('id-ID')}
+        {value.toLocaleString('id-ID', {
+          minimumFractionDigits: 3,
+          maximumFractionDigits: 3,
+        })}
       </p>
     </div>
   );
