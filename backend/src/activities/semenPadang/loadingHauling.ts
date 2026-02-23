@@ -3,11 +3,11 @@ import { parseNum } from "../../utils/parseNum";
 export const transformLoadingHaulingPadang = (row: string[]) => {
   console.log(`    [transformLoadingHaulingPadang] Input row:`, row.slice(0, 8));
   
-  const plan = parseNum(row[4],true);
-  const actual = parseNum(row[5]);
-  const rkap = parseNum(row[6]);
+  const plan = parseNum(row[4], true);
+  const actual = parseNum(row[5], true);
+  const rkap = parseNum(row[6], true);
   const reason = row[7]?.trim() || undefined;
-  
+
   const result = {
     unit: "ton",
     plan,
@@ -15,8 +15,7 @@ export const transformLoadingHaulingPadang = (row: string[]) => {
     rkap,
     reason,
   };
-  
+
   console.log(`    [transformLoadingHaulingPadang] Final result:`, result);
-  
   return result;
 };
