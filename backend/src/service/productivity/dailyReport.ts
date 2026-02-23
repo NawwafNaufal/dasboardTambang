@@ -1,8 +1,22 @@
 import { DailyOperation } from "../../model/monthly.model";
 import { getMonthName } from "../../utils/data";
 import { MonthlyActualResult } from "../../interface/productivity/monthlyActualType";
+import Decimal from "decimal.js";
+import { parseNum, isLargeNumberColumn } from "../../utils/parseNum";
 
-export const getMonthlyActualBySiteService = async (year: number): Promise<MonthlyActualResult> => {
+const parseActual = (actual: string | number | undefined, colIndex: number): Decimal => {
+  let num = 0;
+  if (typeof actual === "number") {
+    num = actual;
+  } else if (typeof actual === "string") {
+    num = parseNum(actual, isLargeNumberColumn(colIndex)) ?? 0;
+  }
+  return new Decimal(num);
+};
+
+export const getMonthlyActualBySiteService = async (
+  year: number
+): Promise<MonthlyActualResult> => {
   const startDate = `${year}-01-01`;
   const endDate = `${year}-12-31`;
 
@@ -12,7 +26,8 @@ export const getMonthlyActualBySiteService = async (year: number): Promise<Month
     .select("site date activities")
     .lean();
 
-  const grouped: Record<string, Record<string, Record<string, number>>> = {};
+  // Struktur: grouped[site][activityName][month] = Decimal
+  const grouped: Record<string, Record<string, Record<string, Decimal>>> = {};
 
   for (const doc of records) {
     const site = doc.site;
@@ -28,9 +43,12 @@ export const getMonthlyActualBySiteService = async (year: number): Promise<Month
         .replace(/\b\w/g, l => l.toUpperCase());
 
       grouped[site][activityName] ??= {};
-      grouped[site][activityName][month] ??= 0;
+      grouped[site][activityName][month] ??= new Decimal(0);
 
-      grouped[site][activityName][month] += activity?.actual ?? 0;
+      // Gunakan parseActual untuk presisi
+      const colIndex = Number(key); // sesuaikan jika index berbeda
+      grouped[site][activityName][month] =
+        grouped[site][activityName][month].plus(parseActual(activity?.actual, colIndex));
     }
   }
 
@@ -47,7 +65,10 @@ export const getMonthlyActualBySiteService = async (year: number): Promise<Month
 
         result[site][activity].push({
           month: getMonthName(i),
-          value: Math.round(grouped[site][activity][monthKey] ?? 0),
+          // Konversi Decimal ke number, bulatkan 2 desimal mirip Excel
+          value: grouped[site][activity][monthKey]
+            ? grouped[site][activity][monthKey].toDecimalPlaces(2).toNumber()
+            : 0
         });
       }
     }
