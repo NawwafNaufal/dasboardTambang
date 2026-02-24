@@ -2,7 +2,9 @@ export interface ActivityBreakdown {
   [key: string]: {
     plan: number;
     actual: number;
-    todayActual: number;
+    max: number;
+    min: number;
+    average: number;
     percentage: number;
   };
 }
@@ -13,7 +15,9 @@ export interface MonthlyTargetData {
   year: number;
   totalPlan: number;
   totalActual: number;
-  todayActual: number;
+  maxDaily: number;
+  minDaily: number;
+  averageDaily: number;
   percentage: number;
   deviation: number;
   activityBreakdown: ActivityBreakdown;
@@ -27,7 +31,9 @@ export interface MonthlyTargetProps {
 export interface CurrentData {
   plan: number;
   actual: number;
-  today: number;
+  max: number;
+  min: number;
+  today: number;  // average
   percentage: number;
   deviation: number;
 }

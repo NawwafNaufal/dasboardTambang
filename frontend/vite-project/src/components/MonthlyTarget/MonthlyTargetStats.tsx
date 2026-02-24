@@ -9,7 +9,9 @@ export default function MonthlyTargetStats({ currentData }: MonthlyTargetStatsPr
     <div className="flex items-center justify-center gap-5 px-6 py-4 sm:gap-8 sm:py-5 bg-white dark:bg-gray-900 rounded-b-2xl border-t border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out">
       <StatItem label="Plan" value={currentData.plan} />
       <Divider />
-      <StatItem label="Actual" value={currentData.actual} />
+      <StatItem label="Max" value={currentData.max} />
+      <Divider />
+      <StatItem label="Min" value={currentData.min} />
       <Divider />
       <StatItem label="Average" value={currentData.today} />
     </div>
@@ -18,7 +20,7 @@ export default function MonthlyTargetStats({ currentData }: MonthlyTargetStatsPr
 
 function StatItem({ label, value }: { label: string; value: number }) {
   return (
-    <div className="flex-1 max-w-[120px]">
+    <div className="flex-1 max-w-[100px]">
       <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
         {label}
       </p>
