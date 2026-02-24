@@ -20,7 +20,9 @@ export const getCurrentActivityData = (
     return {
       plan: data.totalPlan,
       actual: data.totalActual,
-      today: data.todayActual,
+      max: data.maxDaily,
+      min: data.minDaily,
+      today: data.averageDaily,
       percentage: data.percentage,
       deviation: data.deviation,
     };
@@ -29,30 +31,33 @@ export const getCurrentActivityData = (
   const normalizedCurrent = normalizeActivityName(currentActivity);
   console.log('🔎 [MonthlyTarget] Looking for activity:', normalizedCurrent);
   console.log('📋 [MonthlyTarget] Available activities:', Object.keys(data.activityBreakdown));
-  
+
   const activityKey = Object.keys(data.activityBreakdown).find(
     key => normalizeActivityName(key) === normalizedCurrent
   );
-  
+
   if (activityKey) {
     const activityData = data.activityBreakdown[activityKey];
     const deviation = activityData.percentage - 100;
     console.log('✅ [MonthlyTarget] Found activity:', activityKey);
-    console.log('📊 [MonthlyTarget] Activity todayActual:', activityData.todayActual);
     return {
       plan: activityData.plan,
       actual: activityData.actual,
-      today: activityData.todayActual,
+      max: activityData.max,
+      min: activityData.min,
+      today: activityData.average,
       percentage: activityData.percentage,
       deviation: deviation,
     };
   }
-  
+
   console.warn('⚠️ [MonthlyTarget] Activity not found, using total');
   return {
     plan: data.totalPlan,
     actual: data.totalActual,
-    today: data.todayActual,
+    max: data.maxDaily,
+    min: data.minDaily,
+    today: data.averageDaily,
     percentage: data.percentage,
     deviation: data.deviation,
   };
@@ -60,14 +65,14 @@ export const getCurrentActivityData = (
 
 export const getPerformanceMessage = (currentData: CurrentData): string => {
   const averageFormatted = currentData.today.toLocaleString('id-ID');
-  
+
   if (currentData.deviation >= 10) {
-    return `Average ${averageFormatted}`;
+    return `Outstanding! Average ${averageFormatted} per day.`;
   } else if (currentData.deviation >= 0) {
-    return `Average ${averageFormatted}.`;
+    return `Great work! Average ${averageFormatted} per day.`;
   } else if (currentData.deviation >= -10) {
-    return `Average ${averageFormatted}.`;
+    return `Average ${averageFormatted} per day.`;
   } else {
-    return `Average ${averageFormatted}.`;
+    return `Average ${averageFormatted} per day.`;
   }
 };
