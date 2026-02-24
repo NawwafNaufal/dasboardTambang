@@ -76,7 +76,10 @@ export async function getMonthlyTargetService(params: Params) {
       : 0;
 
   const maxDaily = dailyTotals.length > 0 ? Math.max(...dailyTotals) : 0;
-  const minDaily = dailyTotals.length > 0 ? Math.min(...dailyTotals) : 0;
+
+  // ✅ Filter zero untuk min agar hari tidak operasi tidak dihitung
+  const nonZeroDailyTotals = dailyTotals.filter(val => val > 0);
+  const minDaily = nonZeroDailyTotals.length > 0 ? Math.min(...nonZeroDailyTotals) : 0;
 
   const percentage = totalPlan > 0 ? (totalActual / totalPlan) * 100 : 0;
 
@@ -85,7 +88,6 @@ export async function getMonthlyTargetService(params: Params) {
     year: yearNum,
     month: getMonthName(monthNum),
     totalPlan: Number(totalPlan.toFixed(2)),
-    // ✅ totalActual tidak di-return, hanya dipakai untuk kalkulasi percentage
     averageDaily: Number(averageDaily.toFixed(2)),
     maxDaily: Number(maxDaily.toFixed(2)),
     minDaily: Number(minDaily.toFixed(2)),
@@ -99,13 +101,15 @@ export async function getMonthlyTargetService(params: Params) {
             : 0;
 
         const activityMax = v.dailyActuals.length > 0 ? Math.max(...v.dailyActuals) : 0;
-        const activityMin = v.dailyActuals.length > 0 ? Math.min(...v.dailyActuals) : 0;
+
+        // ✅ Filter zero untuk min per activity
+        const nonZeroActuals = v.dailyActuals.filter(val => val > 0);
+        const activityMin = nonZeroActuals.length > 0 ? Math.min(...nonZeroActuals) : 0;
 
         return [
           k,
           {
             plan: Number(v.plan.toFixed(2)),
-            // ✅ actual tidak di-return, hanya dipakai untuk kalkulasi percentage
             average: Number(activityAverage.toFixed(2)),
             max: Number(activityMax.toFixed(2)),
             min: Number(activityMin.toFixed(2)),
