@@ -8,6 +8,10 @@ import FearGreedGaugePaOne from "@/components/produk/FearGreadPaOne";
 import FearGreedGaugePaTwo from "@/components/produk/FearGreadPaTwo";
 import FearGreedGaugePaThree from "@/components/produk/FearGreadPaThree";
 import DonutJamChart from "@/components/produk/Piechart";
+import DailyKpiChart from "@/components/produk/DailyKpiChart";
+import SyncKpiChart from "@/components/produk/SigleChart";
+import ProductivityIndexChart from "@/components/produk/ProduktivityIndexChart";
+import DailyProduct from "@/components/produk/DailyProduct";
 
 export default function HomeProduk() {
   const { selectedPT, currentActivity } = useOutletContext<{
@@ -22,7 +26,6 @@ export default function HomeProduk() {
         description="Dashboard page"
       />
       <div className="grid grid-cols-12 gap-4 md:gap-6">
-
         {/* Baris 1: EcommerceMetrics (7 col) | BarMtrLbg (5 col) */}
         <div className="col-span-12 xl:col-span-7">
           <EcommerceMetrics
@@ -30,16 +33,13 @@ export default function HomeProduk() {
             currentActivity={currentActivity}
           />
         </div>
-        <div className="col-span-12 xl:col-span-5">
-          <BarMtrLbg
-            // selectedPT={selectedPT}
-            // currentActivity={currentActivity}
-          />
-        </div>
+        {/* <div className="col-span-12 xl:col-span-5">
+          <BarMtrLbg />
+        </div> */}
 
-        {/* Baris 2: MonthlySalesChart full */}
+        {/* Baris 2: DonutJamChart full */}
         <div className="col-span-12">
-          <DonutJamChart
+          <ProductivityIndexChart
             selectedPT={selectedPT}
             currentActivity={currentActivity}
           />
@@ -52,11 +52,18 @@ export default function HomeProduk() {
           <FearGreedGaugePaThree />
         </div>
 
-        {/* StatisticsChart full */}
+        {/* DailyKpiChart full */}
         <div className="col-span-12">
-          <StatisticsChart selectedPT={selectedPT} />
+          <DailyKpiChart selectedPT={selectedPT} />
         </div>
 
+        {/* SyncKpiChart full */}
+        <div className="col-span-12">
+          <SyncKpiChart />
+        </div>
+        <div className="col-span-12">
+          <DailyProduct />
+        </div>
       </div>
     </>
   );
