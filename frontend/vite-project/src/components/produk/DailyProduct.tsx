@@ -188,7 +188,7 @@ export default function DailyProduct() {
         </p>
         <div className="flex items-center gap-2 mt-2">
           <span className="text-sm text-gray-400 dark:text-gray-500">
-            Input terakhir · {selectedMonth} 2026
+            Plan · {selectedMonth} 2026
           </span>
           <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
             isPositive
@@ -198,54 +198,34 @@ export default function DailyProduct() {
             {isPositive ? "+" : ""}{mainPct}%
           </span>
         </div>
-        <p className="text-xs text-gray-400 mt-1">[lbg/jam] — nilai hari terakhir</p>
       </div>
 
       {/* ── BODY: summary + chart ── */}
       <div className="p-4 md:p-6">
-        {/* Month selector */}
-        <div className="flex justify-between items-center mb-4">
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pilih Bulan</p>
-          <div className="flex flex-wrap gap-1 justify-end">
-            {months.map((m) => (
-              <button
-                key={m}
-                onClick={() => setSelectedMonth(m)}
-                className={`text-xs px-2 py-1 rounded-lg font-medium transition-all ${
-                  selectedMonth === m
-                    ? "bg-blue-500 text-white"
-                    : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                }`}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Summary KPI cards */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
-          {summaries.map((s) => (
-            <div key={s.label} className={`${s.bg} border ${s.border} rounded-xl p-2 text-center`}>
-              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{s.label}</p>
-              <p className={`text-lg font-bold ${s.color}`}>{s.value}</p>
-            </div>
-          ))}
-        </div>
-
         {/* Line Chart — tidak diubah sama sekali */}
         {/* @ts-ignore */}
         <Chart options={options} series={series} type="line" height={280} />
 
         {/* Footer */}
-        <div className="flex justify-between items-center border-t border-gray-200 dark:border-gray-700 pt-4 mt-2">
-          <span className="text-xs text-gray-400">Data harian {selectedMonth} 2026 · 31 hari</span>
-          <a href="#" className="inline-flex items-center text-blue-500 text-sm font-medium hover:underline">
-            Detail Report
-            <svg className="w-4 h-4 ms-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 12H5m14 0-4 4m4-4-4-4" />
-            </svg>
-          </a>
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4 mt-2 space-y-3">
+          {/* Month selector — tengah */}
+          <div className="flex justify-center">
+            <div className="flex flex-wrap gap-1 justify-center">
+              {months.map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setSelectedMonth(m)}
+                  className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-all ${
+                    selectedMonth === m
+                      ? "bg-brand-500 text-white"
+                      : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

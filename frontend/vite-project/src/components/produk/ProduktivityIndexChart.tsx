@@ -62,7 +62,7 @@ export default function ProductivityIndexChart() {
   }), []);
 
   return (
-    <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-5 dark:bg-gray-900 dark:border-gray-800">
+    <div className="w-full h-full bg-white border border-gray-200 rounded-2xl shadow-sm p-5 dark:bg-gray-900 dark:border-gray-800 flex flex-col">
       <div className="mb-2 text-center">
         <p className="text-xs font-bold tracking-widest text-gray-400 uppercase dark:text-gray-500">
           Produktivity Index
@@ -72,13 +72,15 @@ export default function ProductivityIndexChart() {
         </p>
       </div>
 
-      <Chart
-        options={options}
-        series={series}
-        type="radialBar"
-        height={390}
-        width="100%"
-      />
+      <div className="flex-1 flex items-center justify-center">
+        <Chart
+          options={options}
+          series={series}
+          type="radialBar"
+          height={390}
+          width="100%"
+        />
+      </div>
     </div>
   );
 }

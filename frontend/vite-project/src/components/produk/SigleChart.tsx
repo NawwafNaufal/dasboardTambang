@@ -2,8 +2,8 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { useMemo } from "react";
 
-const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni",
-                 "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+const months = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
+                 "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 
 // Data PA, MA, UA, EU per bulan
 const seriesData = [
