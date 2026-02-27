@@ -1,12 +1,11 @@
 import { useOutletContext } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
-import FearGreedGaugePaOne from "@/components/produk/FearGreadPaOne";
-import FearGreedGaugePaTwo from "@/components/produk/FearGreadPaTwo";
-import FearGreedGaugePaThree from "@/components/produk/FearGreadPaThree";
 import DailyKpiChart from "@/components/produk/DailyKpiChart";
 import SyncKpiChart from "@/components/produk/SigleChart";
 import ProductivityIndexChart from "@/components/produk/ProduktivityIndexChart";
 import DailyProduct from "@/components/produk/DailyProduct";
+import ProductionStackedBar from "@/components/produk/ProductionStackChart";
+import FbgMtrChart from "@/components/produk/FbgMrtChart";
 
 export default function HomeProduk() {
   const { selectedPT, currentActivity } = useOutletContext<{
@@ -27,35 +26,29 @@ export default function HomeProduk() {
           <DailyProduct />
         </div>
 
-        {/* Baris 2-3: kiri (9 col) = gauge kecil + SyncKpi | kanan (3 col) = ProductivityIndex panjang */}
-        <div className="col-span-12 xl:col-span-8 grid grid-cols-3 gap-3">
-          {/* Gauge kecil */}
-          <div className="col-span-1 h-36">
-            <FearGreedGaugePaOne />
-          </div>
-          <div className="col-span-1 h-36">
-            <FearGreedGaugePaTwo />
-          </div>
-          <div className="col-span-1 h-36">
-            <FearGreedGaugePaThree />
-          </div>
-          {/* SyncKpiChart di bawah gauge, span full 3 col, dengan jarak atas */}
-          <div className="col-span-3 mt-3">
+        {/* Baris 2: SyncKpiChart kiri + ProductivityIndexChart kanan */}
+        <div className="col-span-12 grid grid-cols-12 gap-4 md:gap-6 items-stretch">
+          <div className="col-span-12 xl:col-span-8 flex flex-col">
             <SyncKpiChart />
           </div>
-        </div>
-
-        {/* Kanan: ProductivityIndexChart satu, tinggi penuh */}
-        <div className="col-span-12 xl:col-span-4 flex flex-col">
-          <div className="flex-1 flex flex-col">
+          <div className="col-span-12 xl:col-span-4 flex flex-col">
             <ProductivityIndexChart />
           </div>
         </div>
 
-        {/* Baris 4: DailyKpiChart full width */}
+         <div className="col-span-12 xl:col-span-6">
+          <ProductionStackedBar selectedPT={selectedPT} />
+        </div>
+        <div className="col-span-12 xl:col-span-6">
+          <FbgMtrChart selectedPT={selectedPT} />
+        </div>
+
+        {/* Baris 3: DailyKpiChart full width */}
         <div className="col-span-12">
           <DailyKpiChart selectedPT={selectedPT} />
         </div>
+
+        {/* Baris 4: ProductionStackedBar kiri + FbgMtrChart kanan — bersebelahan */}
 
       </div>
     </>
