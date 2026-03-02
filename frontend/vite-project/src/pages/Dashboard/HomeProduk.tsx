@@ -36,19 +36,20 @@ export default function HomeProduk() {
           </div>
         </div>
 
-         <div className="col-span-12 xl:col-span-6">
-          <ProductionStackedBar selectedPT={selectedPT} />
-        </div>
-        <div className="col-span-12 xl:col-span-6">
-          <FbgMtrChart selectedPT={selectedPT} />
+        {/* Baris 3: ProductionStackedBar kiri + FbgMtrChart kanan — sama tinggi */}
+        <div className="col-span-12 grid grid-cols-12 gap-4 md:gap-6 items-stretch">
+          <div className="col-span-12 xl:col-span-6 flex flex-col">
+            <ProductionStackedBar selectedPT={selectedPT} />
+          </div>
+          <div className="col-span-12 xl:col-span-6 flex flex-col">
+            <FbgMtrChart selectedPT={selectedPT} />
+          </div>
         </div>
 
-        {/* Baris 3: DailyKpiChart full width */}
+        {/* Baris 4: DailyKpiChart full width */}
         <div className="col-span-12">
           <DailyKpiChart selectedPT={selectedPT} />
         </div>
-
-        {/* Baris 4: ProductionStackedBar kiri + FbgMtrChart kanan — bersebelahan */}
 
       </div>
     </>

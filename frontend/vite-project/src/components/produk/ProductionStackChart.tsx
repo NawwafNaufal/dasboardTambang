@@ -11,7 +11,13 @@ interface DataRecord {
   breakdown: number;
 }
 
-const MACHINES = ["M-01", "M-02", "M-03", "M-04", "M-05", "M-06"];
+const ALL_MACHINES = [
+  "M-01","M-02","M-03","M-04","M-05","M-06","M-07","M-08","M-09","M-10",
+  "M-11","M-12","M-13","M-14","M-15","M-16","M-17","M-18","M-19","M-20",
+  "M-21","M-22","M-23","M-24","M-25","M-26","M-27","M-28","M-29","M-30",
+  "M-31","M-32","M-33",
+];
+const PAGE_SIZE = 6;
 
 const MONTH_NAMES_SHORT = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
 const MONTH_NAMES_FULL  = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
@@ -22,7 +28,7 @@ function makeSeed(key: string): number {
   return Math.abs(h);
 }
 function getDailyData(date: string): DataRecord[] {
-  return MACHINES.map((machine) => {
+  return ALL_MACHINES.map((machine) => {
     const seed = makeSeed(date + machine);
     return {
       machine,
@@ -34,7 +40,7 @@ function getDailyData(date: string): DataRecord[] {
 }
 function getMonthlyData(year: number, month: number): DataRecord[] {
   const key = `${year}-${String(month).padStart(2,"0")}`;
-  return MACHINES.map((machine) => {
+  return ALL_MACHINES.map((machine) => {
     const seed = makeSeed(key + machine);
     return {
       machine,
@@ -78,7 +84,9 @@ const MonthPicker: React.FC<MonthPickerProps> = ({ year, month, onChange }) => {
           color: "#374151",
         }}
       >
-        <span style={{ fontSize: "16px" }}>📅</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#9ca3af" viewBox="0 0 16 16" style={{flexShrink:0}}>
+          <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+        </svg>
         {MONTH_NAMES_SHORT[month - 1]} {year}
         <span style={{ fontSize: "12px", color: "#9ca3af" }}>▾</span>
       </button>
@@ -186,7 +194,9 @@ const DatePicker: React.FC<DatePickerProps> = ({ value, onChange }) => {
           boxShadow: "0 1px 3px rgba(0,0,0,0.08)", color: "#374151",
         }}
       >
-        <span style={{ fontSize: "16px" }}>📅</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" fill="#9ca3af" viewBox="0 0 16 16" style={{flexShrink:0}}>
+          <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+        </svg>
         {displayLabel}
         <span style={{ fontSize: "12px", color: "#9ca3af" }}>▾</span>
       </button>
@@ -253,12 +263,17 @@ const ProductionStackedBar: React.FC = () => {
   const [selectedDate,  setSelectedDate]  = useState("2026-02-27");
   const [selectedYear,  setSelectedYear]  = useState(2026);
   const [selectedMonth, setSelectedMonth] = useState(2);
+  const [page, setPage] = useState(0);
+  const totalPages = Math.ceil(ALL_MACHINES.length / PAGE_SIZE);
+  const MACHINES = ALL_MACHINES.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   const chartData: DataRecord[] = useMemo(() => {
-    return period === "harian"
+    const all = period === "harian"
       ? getDailyData(selectedDate)
       : getMonthlyData(selectedYear, selectedMonth);
-  }, [period, selectedDate, selectedYear, selectedMonth]);
+    // Filter hanya mesin yang ada di halaman aktif
+    return all.filter((d) => MACHINES.includes(d.machine));
+  }, [period, selectedDate, selectedYear, selectedMonth, MACHINES]);
 
   const series = [
     { name: "Produksi",  data: chartData.map((d) => d.produksi)  },
@@ -296,29 +311,24 @@ const ProductionStackedBar: React.FC = () => {
   const avail     = totalAll > 0 ? ((totalProd / totalAll) * 100).toFixed(1) + "%" : "0%";
 
   return (
-    <div style={{ padding: "24px", fontFamily: "sans-serif", border: "1px solid #e5e7eb", borderRadius: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", background: "#fff" }}>
+    <div style={{ padding: "24px", fontFamily: "sans-serif", border: "1px solid #e5e7eb", borderRadius: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", background: "#fff", height: "100%" }}>
 
-      {/* Period Toggle */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
-        {(["harian", "bulanan"] as Period[]).map((p) => (
-          <button key={p} onClick={() => setPeriod(p)} style={{
-            padding: "6px 20px", borderRadius: "4px",
-            border: "1px solid #ccc",
-            background: period === p ? "#008FFB" : "#fff",
-            color: period === p ? "#fff" : "#333",
-            cursor: "pointer", fontWeight: period === p ? 600 : 400,
-            textTransform: "capitalize", fontSize: "14px",
-          }}>
-            {p}
-          </button>
-        ))}
-      </div>
-
-      {/* Picker */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px" }}>
-        <span style={{ fontSize: "13px", color: "#555", fontWeight: 600 }}>
-          {period === "harian" ? "Pilih Tanggal:" : "Pilih Bulan:"}
-        </span>
+      {/* Row 1: Period Toggle kiri + Picker kanan */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", gap: "8px" }}>
+        <div style={{ display: "flex", gap: "6px" }}>
+          {(["harian", "bulanan"] as Period[]).map((p) => (
+            <button key={p} onClick={() => setPeriod(p)} style={{
+              padding: "6px 20px", borderRadius: "4px",
+              border: "1px solid #ccc",
+              background: period === p ? "#008FFB" : "#fff",
+              color: period === p ? "#fff" : "#333",
+              cursor: "pointer", fontWeight: period === p ? 600 : 400,
+              textTransform: "capitalize", fontSize: "14px",
+            }}>
+              {p}
+            </button>
+          ))}
+        </div>
         {period === "harian"
           ? <DatePicker value={selectedDate} onChange={setSelectedDate} />
           : <MonthPicker year={selectedYear} month={selectedMonth} onChange={(y, m) => { setSelectedYear(y); setSelectedMonth(m); }} />
@@ -331,9 +341,9 @@ const ProductionStackedBar: React.FC = () => {
       {/* Summary Cards */}
       <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>
         {[
-          { label: "Total Produksi",  value: `${totalProd}h`, color: "#008FFB" },
-          { label: "Total Standby",   value: `${totalStb}h`,  color: "#00E396" },
-          { label: "Total Breakdown", value: `${totalBD}h`,   color: "#FEB019" },
+          { label: "Total Produksi",  value: `${totalProd}`, color: "#008FFB" },
+          { label: "Total Standby",   value: `${totalStb}`,  color: "#00E396" },
+          { label: "Total Breakdown", value: `${totalBD}`,   color: "#FEB019" },
           { label: "Availability",    value: avail,            color: "#775DD0" },
         ].map((c) => (
           <div key={c.label} style={{
@@ -344,6 +354,32 @@ const ProductionStackedBar: React.FC = () => {
             <div style={{ fontSize: "20px", fontWeight: 700, color: c.color }}>{c.value}</div>
           </div>
         ))}
+      </div>
+
+      {/* Pagination */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: "16px" }}>
+        <span style={{ fontSize: "12px", color: "#9ca3af" }}>
+          Mesin {page * PAGE_SIZE + 1}–{Math.min((page + 1) * PAGE_SIZE, ALL_MACHINES.length)} dari {ALL_MACHINES.length}
+        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+          <button
+            onClick={() => setPage(p => Math.max(0, p - 1))}
+            disabled={page === 0}
+            style={{ padding: "4px 10px", borderRadius: "6px", border: "1px solid #e5e7eb", background: page === 0 ? "#f9fafb" : "#fff", color: page === 0 ? "#d1d5db" : "#374151", cursor: page === 0 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}
+          >‹</button>
+          {Array.from({ length: totalPages }, (_, i) => (
+            <button
+              key={i}
+              onClick={() => setPage(i)}
+              style={{ padding: "4px 9px", borderRadius: "6px", border: "1px solid #e5e7eb", background: page === i ? "#008FFB" : "#fff", color: page === i ? "#fff" : "#374151", cursor: "pointer", fontSize: "12px", fontWeight: page === i ? 700 : 400 }}
+            >{i + 1}</button>
+          ))}
+          <button
+            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
+            disabled={page === totalPages - 1}
+            style={{ padding: "4px 10px", borderRadius: "6px", border: "1px solid #e5e7eb", background: page === totalPages - 1 ? "#f9fafb" : "#fff", color: page === totalPages - 1 ? "#d1d5db" : "#374151", cursor: page === totalPages - 1 ? "not-allowed" : "pointer", fontSize: "13px", fontWeight: 600 }}
+          >›</button>
+        </div>
       </div>
 
     </div>
