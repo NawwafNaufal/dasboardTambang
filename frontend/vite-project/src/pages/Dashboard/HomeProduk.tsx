@@ -31,9 +31,9 @@ export default function HomeProduk() {
           <div className="col-span-12 xl:col-span-8 flex flex-col">
             <SyncKpiChart />
           </div>
-          {/* <div className="col-span-12 xl:col-span-4 flex flex-col">
+          <div className="col-span-12 xl:col-span-4 flex flex-col">
             <ProductivityIndexChart />
-          </div> */}
+          </div>
         </div>
 
         {/* Baris 3: ProductionStackedBar kiri + FbgMtrChart kanan — sama tinggi */}
