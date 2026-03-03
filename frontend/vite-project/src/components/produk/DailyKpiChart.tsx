@@ -13,11 +13,11 @@ const ALL_UNITS = [
   "U.31","U.32",
 ];
 
-const seriesData = [
-  { name: "PA", data: [7, 8, 15, 18, 12, 10, 14, 9, 11, 13, 16, 8], color: "#F87171" },
-  { name: "MA", data: [6, 8, 10, 14, 9, 7, 12, 8, 10, 11, 13, 7],   color: "#FCD34D" },
-  { name: "UA", data: [5, 4, 5, 8, 6, 5, 7, 6, 5, 7, 9, 5],         color: "#86EFAC" },
-  { name: "EU", data: [4, 6, 8, 11, 7, 6, 9, 5, 7, 8, 10, 6],       color: "#FCA5A5" },
+const KPI_OPTIONS = [
+  { label: "PA", color: "#60A5FA" },
+  { label: "MA", color: "#FACC15" },
+  { label: "UA", color: "#4ADE80" },
+  { label: "EU", color: "#F87171" },
 ];
 
 // ── Unit Dropdown ──────────────────────────────────────
@@ -46,7 +46,6 @@ function UnitSelect({ value, onChange }: { value: string; onChange: (v: string) 
 
   return (
     <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
-      {/* Trigger */}
       <button
         onClick={() => { setOpen(!open); setSearch(""); }}
         className="flex items-center gap-2 px-3 py-1.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50 transition-all"
@@ -61,7 +60,6 @@ function UnitSelect({ value, onChange }: { value: string; onChange: (v: string) 
         </svg>
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div style={{
           position: "absolute", top: "calc(100% + 6px)", right: 0,
@@ -71,7 +69,6 @@ function UnitSelect({ value, onChange }: { value: string; onChange: (v: string) 
           zIndex: 999, width: "140px",
           overflow: "hidden",
         }}>
-          {/* Search */}
           <div style={{ padding: "10px 10px 6px", borderBottom: "1px solid #f3f4f6", position: "relative" }}>
             <svg
               xmlns="http://www.w3.org/2000/svg" width="13" height="13"
@@ -97,7 +94,6 @@ function UnitSelect({ value, onChange }: { value: string; onChange: (v: string) 
             />
           </div>
 
-          {/* List */}
           <div style={{ maxHeight: "200px", overflowY: "auto", padding: "6px" }}>
             {filtered.length === 0 ? (
               <div style={{ textAlign: "center", padding: "12px", fontSize: "12px", color: "#9ca3af" }}>
@@ -136,7 +132,6 @@ function UnitSelect({ value, onChange }: { value: string; onChange: (v: string) 
   );
 }
 
-
 const gen = (base: number, variance: number) =>
   Array.from({ length: 31 }, () =>
     parseFloat((base + (Math.random() - 0.5) * variance).toFixed(1))
@@ -149,53 +144,55 @@ const generateChartData = () => ({
   EU: gen(79, 10),
 });
 
-const charts = [
-  { id: "kpi-pa", label: "PA", color: "#60A5FA" },
-  { id: "kpi-ma", label: "MA", color: "#FACC15" },
-  { id: "kpi-ua", label: "UA", color: "#4ADE80" },
-  { id: "kpi-eu", label: "EU", color: "#F87171" },
-];
-
-function SingleChart({
-  id, label, data, color, isDark,
-}: {
-  id: string;
-  label: string;
-  data: number[];
-  color: string;
-  isDark: boolean;
-}) {
-  const avg = (arr: number[]) => {
-    if (!arr || arr.length === 0) return "0.0";
-    return (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1);
-  };
-
+export default function DailyKpiChart() {
+  const [isDark, setIsDark] = useState(() =>
+    typeof document !== "undefined"
+      ? document.documentElement.classList.contains("dark")
+      : false
+  );
+  const [selectedMonth, setSelectedMonth] = useState<Month>("Jan");
+  const [selectedUnit, setSelectedUnit] = useState(ALL_UNITS[0]);
+  const [selectedKpi, setSelectedKpi] = useState<"PA" | "MA" | "UA" | "EU">("PA");
+  const [chartData, setChartData] = useState(generateChartData);
   const [isZoomed, setIsZoomed] = useState(false);
-  const isZoomedRef = useRef(false);
+
+  useEffect(() => {
+    setChartData(generateChartData());
+  }, [selectedMonth, selectedUnit]);
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
+  const activeKpi = KPI_OPTIONS.find((k) => k.label === selectedKpi)!;
+  const data = chartData[selectedKpi];
+  const avg = data.reduce((a, b) => a + b, 0) / data.length;
+
   const textColor = isDark ? "#9CA3AF" : "#6B7280";
   const gridColor = isDark ? "#2e2e33" : "#E5E7EB";
 
   const options: ApexOptions = useMemo(() => ({
     chart: {
-      id,
+      id: "kpi-single",
       type: "area",
       toolbar: { show: false },
       zoom: { enabled: true, type: "x", autoScaleYaxis: false },
       animations: { enabled: true, dynamicAnimation: { enabled: true, speed: 350 } },
       events: {
         zoomed: (_ctx: any, { xaxis }: { xaxis: { min: number; max: number } }) => {
-          const zoomed = (xaxis.max - xaxis.min) < 25;
-          isZoomedRef.current = zoomed;
-          setIsZoomed(zoomed);
+          setIsZoomed((xaxis.max - xaxis.min) < 25);
         },
         beforeResetZoom: () => {
-          isZoomedRef.current = false;
           setIsZoomed(false);
           return undefined;
         },
       },
     },
-    colors: [color],
+    colors: [activeKpi.color],
     stroke: { curve: "smooth", width: 2.5 },
     fill: {
       type: "gradient",
@@ -203,7 +200,7 @@ function SingleChart({
     },
     markers: {
       size: 4,
-      colors: [color],
+      colors: [activeKpi.color],
       strokeColors: isDark ? "#1c1c1f" : "#fff",
       strokeWidth: 2,
       hover: { size: 6 },
@@ -212,7 +209,7 @@ function SingleChart({
       enabled: isZoomed,
       background: {
         enabled: true,
-        foreColor: color,
+        foreColor: activeKpi.color,
         borderRadius: 4,
         padding: 4,
         opacity: 0.9,
@@ -220,7 +217,6 @@ function SingleChart({
       },
       style: { fontSize: "10px", fontWeight: 600, colors: ["#ffffff"] },
       offsetY: -18,
-      offsetX: 0,
       formatter: (value: number) => (value ? `${value}%` : ""),
     },
     xaxis: {
@@ -250,77 +246,32 @@ function SingleChart({
       shared: true, intersect: false,
       y: { formatter: (v) => `${v}%` },
     },
-  }), [isZoomed, isDark, color, id]);
+  }), [isZoomed, isDark, activeKpi.color, textColor, gridColor]);
 
   useEffect(() => {
     const onTransitionEnd = (e: TransitionEvent) => {
       if (e.propertyName === "margin-left" || e.propertyName === "width") {
         setTimeout(() => {
-          (ApexChartsLib as any).exec(id, "updateOptions", {}, false, false);
+          (ApexChartsLib as any).exec("kpi-single", "updateOptions", {}, false, false);
         }, 100);
       }
     };
     document.addEventListener("transitionend", onTransitionEnd);
     return () => document.removeEventListener("transitionend", onTransitionEnd);
-  }, [id]);
-
-  return (
-    <div className="border border-gray-100 dark:border-gray-800 rounded-xl px-3 pt-2 pb-0">
-      <div className="flex justify-between items-center mb-1">
-        <span className="text-xs font-semibold" style={{ color }}>{label}</span>
-        <span className="text-xs text-gray-400">avg {avg(data)}%</span>
-      </div>
-      <div className="w-full max-w-full overflow-hidden">
-        <Chart
-          options={options}
-          series={[{ name: label, data: data ?? [], color }]}
-          type="area"
-          height={220}
-          width="100%"
-        />
-      </div>
-    </div>
-  );
-}
-
-export default function DailyKpiChart() {
-  const [isDark, setIsDark] = useState(() =>
-    typeof document !== "undefined"
-      ? document.documentElement.classList.contains("dark")
-      : false
-  );
-  const [selectedMonth, setSelectedMonth] = useState<Month>("Jan");
-  const [selectedUnit, setSelectedUnit] = useState(ALL_UNITS[0]);
-  const [chartData, setChartData] = useState(generateChartData);
-
-  useEffect(() => {
-    setChartData(generateChartData());
-  }, [selectedMonth]);
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDark(document.documentElement.classList.contains("dark"));
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    return () => observer.disconnect();
   }, []);
-
-  const dataMap: Record<string, number[]> = {
-    "kpi-pa": chartData.PA,
-    "kpi-ma": chartData.MA,
-    "kpi-ua": chartData.UA,
-    "kpi-eu": chartData.EU,
-  };
 
   return (
     <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-4 md:p-6 dark:bg-gray-900 dark:border-gray-800">
-      <div className="flex justify-between items-center mb-5">
+      {/* Header */}
+      <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
         <div>
           <p className="text-sm text-gray-500 dark:text-gray-400">Trend Harian — {selectedMonth} 2026</p>
-          <p className="text-xl font-semibold text-gray-900 dark:text-white">PA · MA · UA · EU</p>
+          <p className="text-xl font-semibold text-gray-900 dark:text-white">
+            <span style={{ color: activeKpi.color }}>{selectedKpi}</span> · {selectedUnit}
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           {/* Month tabs */}
           <div className="flex gap-1 flex-nowrap overflow-x-auto">
             {months.map((m) => (
@@ -338,7 +289,6 @@ export default function DailyKpiChart() {
             ))}
           </div>
 
-          {/* Divider */}
           <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
 
           {/* Unit select */}
@@ -349,17 +299,40 @@ export default function DailyKpiChart() {
         </div>
       </div>
 
-      <div className="space-y-2">
-        {charts.map((c) => (
-          <SingleChart
-            key={c.id}
-            id={c.id}
-            label={c.label}
-            data={dataMap[c.id]}
-            color={c.color}
-            isDark={isDark}
-          />
+      {/* KPI Selector */}
+      <div className="flex items-center gap-2 mb-4">
+        {KPI_OPTIONS.map((kpi) => (
+          <button
+            key={kpi.label}
+            onClick={() => setSelectedKpi(kpi.label as any)}
+            style={{
+              backgroundColor: kpi.color,
+              color: "#fff",
+              opacity: selectedKpi === kpi.label ? 1 : 0.35,
+              border: "none",
+              transform: selectedKpi === kpi.label ? "scale(1)" : "scale(0.95)",
+            }}
+            className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+          >
+            {kpi.label}
+          </button>
         ))}
+        <span className="ml-auto text-xs text-gray-400 dark:text-gray-500">
+          avg <span style={{ color: activeKpi.color, fontWeight: 600 }}>{avg.toFixed(1)}%</span>
+        </span>
+      </div>
+
+      {/* Chart */}
+      <div className="border border-gray-100 dark:border-gray-800 rounded-xl px-3 pt-2 pb-0">
+        <div className="w-full max-w-full overflow-hidden">
+          <Chart
+            options={options}
+            series={[{ name: selectedKpi, data: data ?? [], color: activeKpi.color }]}
+            type="area"
+            height={300}
+            width="100%"
+          />
+        </div>
       </div>
     </div>
   );

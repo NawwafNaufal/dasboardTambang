@@ -183,7 +183,7 @@ const OutputChart: React.FC = () => {
   const titleText = useMemo(() => {
     if (period === "harian") {
       const [y, m, d] = selectedDate.split("-").map(Number);
-      return `Output Produksi (FBG & MTR) — ${String(d).padStart(2,"0")} ${MONTH_NAMES_FULL[m-1]} ${y}`;
+      return `Output Produksi (LBG & MTR) — ${String(d).padStart(2,"0")} ${MONTH_NAMES_FULL[m-1]} ${y}`;
     }
     return `Output Produksi (FBG & MTR) — ${MONTH_NAMES_FULL[selectedMonth-1]} ${selectedYear}`;
   }, [period, selectedDate, selectedYear, selectedMonth]);
