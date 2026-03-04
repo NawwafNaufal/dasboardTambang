@@ -105,13 +105,6 @@ function Tooltip({ tooltip }) {
   );
 }
 
-const KPI_INFO = {
-  PA: { label: "Physical Availability", desc: "Alat siap secara fisik" },
-  MA: { label: "Mechanical Availability", desc: "Alat siap secara mekanis" },
-  UA: { label: "Use of Availability", desc: "Alat tersedia & dipakai" },
-  EU: { label: "Effective Utilization", desc: "Utilisasi efektif keseluruhan" },
-};
-
 export default function SyncKpiChart() {
   const [selectedUnit, setSelectedUnit] = useState(ALL_UNITS[0]);
   const [activeMonth, setActiveMonth] = useState(null);
@@ -126,15 +119,6 @@ export default function SyncKpiChart() {
       scrollRef.current.scrollLeft = Math.max(0, mi * 90 - 100);
     }
   }, []);
-
-  // Summary: avg per KPI across all months
-  const summaries = useMemo(() => KPI_SERIES.map((s, si) => {
-    const avg = data[si].reduce((a, b) => a + b, 0) / data[si].length;
-    const lastMonth = data[si][data[si].length - 1];
-    const prevMonth = data[si][data[si].length - 2];
-    const delta = lastMonth - prevMonth;
-    return { ...s, avg: avg.toFixed(1), lastMonth, delta };
-  }), [data]);
 
   const maxVal = useMemo(() => Math.max(...data.flat()) + 5, [data]);
 
@@ -151,14 +135,14 @@ export default function SyncKpiChart() {
   const groupW = KPI_SERIES.length * (barW + barGap) - barGap;
 
   return (
-    <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+    <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", height: "100%" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+        .kpi-scroll { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
         .kpi-scroll::-webkit-scrollbar { height: 4px; }
         .kpi-scroll::-webkit-scrollbar-track { background: #f9fafb; border-radius: 2px; }
         .kpi-scroll::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 2px; }
         .bar-col:hover { background: rgba(0,0,0,0.025) !important; }
-        .kpi-summary-card:hover { background: #fafafa !important; }
       `}</style>
 
       <div style={{
@@ -178,51 +162,11 @@ export default function SyncKpiChart() {
           </div>
         </div>
 
-        {/* Summary strip — rata2 tahunan + delta bulan terakhir */}
-        <div style={{
-          display: "grid", gridTemplateColumns: "repeat(4,1fr)",
-          gap: 8, marginBottom: 14,
-          padding: "12px 4px 10px",
-          borderTop: "1px solid #f3f4f6", borderBottom: "1px solid #f3f4f6"
-        }}>
-          {summaries.map((s) => {
-            const isPos = s.delta >= 0;
-            return (
-              <div key={s.name} className="kpi-summary-card" style={{
-                padding: "8px 10px", borderRadius: 12, cursor: "default",
-                transition: "background 0.15s"
-              }}>
-                <div style={{ fontSize: 11, color: "#9ca3af", marginBottom: 2 }}>
-                  {KPI_INFO[s.name].label}
-                </div>
-                <div style={{ display: "flex", alignItems: "flex-end", gap: 6 }}>
-                  <span style={{ fontSize: 22, fontWeight: 700, color: "#111827", lineHeight: 1 }}>
-                    {s.avg}
-                    <span style={{ fontSize: 13, fontWeight: 500, color: "#9ca3af" }}>%</span>
-                  </span>
-                  <span style={{
-                    fontSize: 11, fontWeight: 600, padding: "2px 6px", borderRadius: 6,
-                    background: isPos ? "#f0fdf4" : "#fff1f2",
-                    color: isPos ? "#16a34a" : "#e11d48",
-                    marginBottom: 2
-                  }}>
-                    {isPos ? "+" : ""}{s.delta}
-                  </span>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 3 }}>
-                  <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color, flexShrink: 0 }} />
-                  <span style={{ fontSize: 11, color: "#9ca3af" }}>{s.name} · avg 12 bln</span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
         {/* Scrollable chart */}
         <div
           ref={scrollRef}
           className="kpi-scroll"
-          style={{ overflowX: "auto", overflowY: "hidden", cursor: "grab", userSelect: "none", paddingBottom: 4 }}
+          style={{ cursor: "grab", userSelect: "none", paddingBottom: 4, maxWidth: "100%" }}
           onMouseDown={e => {
             const el = scrollRef.current;
             const startX = e.clientX + el.scrollLeft;
@@ -267,7 +211,7 @@ export default function SyncKpiChart() {
                         <rect x={bx} y={by + 4} width={barW} height={bh} rx={5} fill={s.color} opacity={opacity * 0.15} />
                         <rect x={bx} y={by} width={barW} height={bh} rx={5} fill={s.color} opacity={opacity} style={{ transition: "opacity 0.2s" }} />
                         <text x={bx + barW / 2} y={by - 5} textAnchor="middle"
-                          fontSize={10} fontWeight={700} fill={s.color} opacity={opacity} style={{ transition: "opacity 0.2s" }}>
+                          fontSize={10} fontWeight={700} fill="#111827" opacity={opacity} style={{ transition: "opacity 0.2s" }}>
                           {val}%
                         </text>
                       </g>
