@@ -1,16 +1,16 @@
 export const transformMonthlyPlan = (rows: string[][]) => {
-  console.log("[TRANSFORM] raw rows:", rows.length);
+  // console.log("[TRANSFORM] raw rows:", rows.length);
 
   const [, ...dataRows] = rows;
   const map = new Map<string, any>();
 
   for (const row of dataRows) {
-    console.log("[TRANSFORM] row:", row);
+    // console.log("[TRANSFORM] row:", row);
 
     const [month, site, activity, plan, rkap, unit] = row;
 
     if (!month || !site || !activity || !unit) {
-      console.log("[TRANSFORM] skip invalid row");
+      // console.log("[TRANSFORM] skip invalid row");
       continue;
     }
 
@@ -32,7 +32,7 @@ export const transformMonthlyPlan = (rows: string[][]) => {
   }
 
   const result = Array.from(map.values());
-  console.log("[TRANSFORM] result:", result);
+  // console.log("[TRANSFORM] result:", result);
 
   return result;
 };

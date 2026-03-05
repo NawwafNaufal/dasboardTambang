@@ -1,5 +1,5 @@
 import express from "express"
-import { getStatisticsByMonth } from "../../service/productivity/dailyStatic"
+import { getStatisticsByMonth } from "../../controller/productivity/statistics"
 
 const routes = express.Router()
 

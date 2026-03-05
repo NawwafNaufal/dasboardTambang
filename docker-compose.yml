@@ -1,48 +1,48 @@
 version: "3.9"
+
 services:
-  dataTambang:
-    container_name: dataTambang
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
-      MYSQL_DATABASE: "${MYSQL_DATABASE}"
+  mongo:
+    container_name: mongo
+    image: mongo:6
+    restart: always
     ports:
-      - "3306:3306"
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
     volumes:
-      - data-tambang:/var/lib/mysql 
-    
-  dasboardBackend:
+      - mongo-data:/data/db
+
+  dashboardBackend:
     build: ./backend
     container_name: backend
-    image: dasboard-tambang-be:latest
+    image: dashboard-tambang-be:latest
     env_file:
       - .env
     environment:
-      DB_HOST: "${DB_HOST}"
-      DB_USER: "${DB_USER}"
-      DB_PASSWORD: "${DB_PASSWORD}"
-      DB_NAME: "${DB_NAME}"
+      MONGO_URI: ${MONGO_URI}
     ports:
       - "4000:4000"
-    volumes:                                 
-      - ./backend:/app                       
-      - /app/node_modules   
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     depends_on:
-      - dataTambang
-      
-  dasboardFrontend:
+      - mongo
+
+  dashboardFrontend:
     build: ./frontend/vite-project
     container_name: frontend
-    image: dasboard-tambang-fe:latest
+    image: dashboard-tambang-fe:latest
     environment:
-      - CHOKIDAR_USEPOLLING=true 
+      - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./frontend/vite-project:/app
-      - /app/node_modules 
-    ports:  
-      - "5173:5173"  
+      - /app/node_modules
+    ports:
+      - "5173:5173"
     depends_on:
-      - dasboardBackend
-  
+      - dashboardBackend
+
 volumes:
-  data-tambang:
+  mongo-data:

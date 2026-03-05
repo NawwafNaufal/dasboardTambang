@@ -1,8 +1,8 @@
 import express from "express"
-import { getPlanRkpaByYear } from "../../service/productivity/planRkpaProductivity"
+import { getPlanRkpa} from "../../controller/productivity/planRkpa"
 
 const routes = express.Router()
 
-routes.get("/plan-rkpa", getPlanRkpaByYear)
+routes.get("/plan-rkpa", getPlanRkpa)
 
 export default routes

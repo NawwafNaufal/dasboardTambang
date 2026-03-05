@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getMonthlyTarget } from "../../service/productivity/monthlyTarget";
+import { getMonthlyTarget } from "../../controller/productivity/monthlyTarget";
 
 const router = Router();
 

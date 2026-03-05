@@ -1,17 +1,14 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { CalenderIcon } from "../../icons";
 
-// API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://76.13.198.60:4000';
 const API_ENDPOINTS = {
   STATISTICS: '/api/static'
 };
 
-/* =========================
-   TYPES & INTERFACES
-========================= */
 interface UnitDetail {
   unitName: string;
   plan?: number;
@@ -91,11 +88,74 @@ export default function StatisticsChart({
   const [selectedDay, setSelectedDay] = useState<{ day: string; description: string; } | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState("Januari");
-  const [selectedYear] = useState(2025);
+  const [selectedYear] = useState(2026);
   const [apiData, setApiData] = useState<ApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [chartKey, setChartKey] = useState(0);
+  const [chartWidth, setChartWidth] = useState<number | string>("100%");
+  
+  const containerRef = useRef<HTMLDivElement>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  /* =========================
+     FIX CHART WIDTH - Mencegah melar
+  ========================= */
+  useEffect(() => {
+    const updateChartWidth = () => {
+      if (chartContainerRef.current) {
+        const width = chartContainerRef.current.offsetWidth;
+        setChartWidth(width);
+        setChartKey(prev => prev + 1);
+      }
+    };
+
+    // Initial width
+    const timer = setTimeout(updateChartWidth, 100);
+
+    // Resize observer
+    let resizeObserver: ResizeObserver | null = null;
+    
+    if (chartContainerRef.current) {
+      resizeObserver = new ResizeObserver(() => {
+        if (resizeTimeoutRef.current) {
+          clearTimeout(resizeTimeoutRef.current);
+        }
+        
+        resizeTimeoutRef.current = setTimeout(() => {
+          updateChartWidth();
+        }, 400);
+      });
+      
+      resizeObserver.observe(chartContainerRef.current);
+    }
+
+    // Window resize
+    window.addEventListener('resize', updateChartWidth);
+
+    // Transition end listener
+    const handleTransitionEnd = (e: TransitionEvent) => {
+      if (e.propertyName === 'margin-left' || e.propertyName === 'width') {
+        setTimeout(updateChartWidth, 50);
+      }
+    };
+    
+    document.addEventListener('transitionend', handleTransitionEnd);
+
+    return () => {
+      clearTimeout(timer);
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
+      window.removeEventListener('resize', updateChartWidth);
+      document.removeEventListener('transitionend', handleTransitionEnd);
+      if (resizeTimeoutRef.current) {
+        clearTimeout(resizeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   /* =========================
      FETCH DATA FROM API
@@ -192,16 +252,22 @@ export default function StatisticsChart({
     
     const days = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
     
-    const targetValue = activity.plan || 0;
-    const targetData = Array(daysInMonth).fill(targetValue);
+    const tempTargetData = Array(daysInMonth).fill(0);
+    // ✅ FIX: Inisialisasi dengan 0 bukan null agar hari tanpa data tetap tampil di grafik
+    const actualData = Array(daysInMonth).fill(0);
     
-    const actualData = Array(daysInMonth).fill(null);
     activity.dailyData.forEach((dailyItem) => {
       const index = dailyItem.day - 1;
       if (index >= 0 && index < daysInMonth) {
-        actualData[index] = dailyItem.actual;
+        // ✅ FIX: Gunakan ?? 0 untuk handle nilai null/undefined dari API
+        actualData[index] = dailyItem.actual ?? 0;
+        tempTargetData[index] = dailyItem.plan || 0;
       }
     });
+
+    const validPlan = tempTargetData.find(plan => plan > 0) || 0;
+    const targetData = Array(daysInMonth).fill(validPlan);
+    const targetValue = validPlan;
 
     return { days, targetData, actualData, targetValue };
   };
@@ -228,11 +294,20 @@ export default function StatisticsChart({
     chart: {
       type: "area",
       height: 310,
-      toolbar: { show: false },
+      toolbar: { 
+        show: false 
+      },
       zoom: {
         enabled: true,
         type: 'x',
         autoScaleYaxis: false,
+      },
+      animations: {
+        enabled: true,
+        dynamicAnimation: {
+          enabled: true,
+          speed: 350
+        }
       },
       events: {
         markerClick: (_event, _ctx, { dataPointIndex }) => {
@@ -243,21 +318,18 @@ export default function StatisticsChart({
             const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
             
             if (dailyItem) {
-              // Cek apakah ada reason yang tidak kosong
               if (dailyItem.reason && dailyItem.reason.trim() !== '') {
                 setSelectedDay({
                   day,
                   description: dailyItem.reason
                 });
               } else {
-                // Jika tidak ada reason, tampilkan "Tidak ada keterangan"
                 setSelectedDay({
                   day,
                   description: "Tidak ada keterangan"
                 });
               }
             } else {
-              // Jika tidak ada data untuk hari tersebut
               setSelectedDay({
                 day,
                 description: "Tidak ada keterangan"
@@ -342,13 +414,13 @@ export default function StatisticsChart({
         if (!activity) return '';
         
         const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
-        if (!dailyItem) return '';
         
+        // ✅ FIX: Jika tidak ada dailyItem (hari tanpa data), tampilkan tooltip dengan nilai 0
         const breakdownItem = activity.breakdownDetails?.find(b => b.day === parseInt(day));
         
         let html = '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 180px;">';
         html += '<div style="font-weight: 600; color: #60A5FA; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">';
-        html += dailyItem.dayName + ', ' + day + ' ' + selectedMonth;
+        html += (dailyItem?.dayName ?? '-') + ', ' + day + ' ' + selectedMonth;
         html += '</div>';
         
         if (breakdownItem && breakdownItem.units && breakdownItem.units.length > 0) {
@@ -363,12 +435,11 @@ export default function StatisticsChart({
         } else {
           html += '<div style="display: flex; justify-content: space-between;">';
           html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
-          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + value + ' ' + activity.unit + '</span>';
+          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + (value ?? 0) + ' ' + activity.unit + '</span>';
           html += '</div>';
         }
         
-        // Tambahkan keterangan jika ada reason
-        if (dailyItem.reason && dailyItem.reason.trim() !== '') {
+        if (dailyItem?.reason && dailyItem.reason.trim() !== '') {
           html += '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">';
           html += '<div style="font-size: 11px; color: #6b7280; margin-bottom: 2px;">Keterangan:</div>';
           html += '<div style="font-size: 12px; color: #374151;">' + dailyItem.reason + '</div>';
@@ -409,19 +480,23 @@ export default function StatisticsChart({
         radius: 2,
       },
     },
+    responsive: [{
+      breakpoint: 768,
+      options: {
+        legend: {
+          position: 'bottom',
+          offsetY: 0
+        }
+      }
+    }]
   }), [days, isZoomed, apiData, selectedCategory, selectedMonth]);
 
   /* =========================
      HANDLERS
   ========================= */
   const handleCategoryChange = (cat: string) => {
-    const currentScrollY = window.scrollY;
     setSelectedCategory(cat);
     setSelectedDay(null);
-    
-    requestAnimationFrame(() => {
-      window.scrollTo(0, currentScrollY);
-    });
   };
 
   const handleMonthChange = (month: string) => {
@@ -452,129 +527,139 @@ export default function StatisticsChart({
     );
   }
 
-  if (!apiData || !apiData.data || Object.keys(apiData.data).length === 0) {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Statistics - {selectedPT}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {selectedMonth} {selectedYear}
-          </p>
+  const hasData = apiData && apiData.data && Object.keys(apiData.data).length > 0;
+  const categories = hasData ? Object.keys(apiData.data) : [];
+
+  return (
+    <div ref={containerRef} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
+      <div className="mb-6">
+        {/* Header, Category Tabs, and Month Selector in one row */}
+        <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+          {/* Left: Header */}
+          <div className="flex-shrink-0">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              Statistics - {apiData?.site || selectedPT}
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {hasData ? (
+                `${selectedCategory.split('_').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1)
+                ).join(' ')} - ${selectedMonth}`
+              ) : (
+                `${selectedMonth} ${selectedYear}`
+              )}
+            </p>
+          </div>
+
+          {/* Right: Category Tabs and Month Selector */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+            {/* Category Tabs */}
+            {hasData && (
+              <div className="overflow-x-auto pb-1 -mx-1 px-1">
+                <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 min-w-max">
+                  {categories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => handleCategoryChange(cat)}
+                      className={`px-3 py-2 text-xs font-medium rounded-md transition-all duration-200 whitespace-nowrap ${
+                        selectedCategory === cat
+                          ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
+                          : "text-gray-600 hover:text-gray-800 hover:bg-gray-50 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50"
+                      }`}
+                    >
+                      {cat.split('_').map(word => 
+                        word.charAt(0).toUpperCase() + word.slice(1)
+                      ).join(' ')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Month Selector */}
+            <div className="relative flex-shrink-0 w-full sm:w-auto">
+              <CalenderIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-500 z-10" />
+              <select
+                value={selectedMonth}
+                onChange={(e) => handleMonthChange(e.target.value)}
+                className="h-9 w-full sm:w-36 rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              >
+                <option value="Januari">Januari</option>
+                <option value="Februari">Februari</option>
+                <option value="Maret">Maret</option>
+                <option value="April">April</option>
+                <option value="Mei">Mei</option>
+                <option value="Juni">Juni</option>
+                <option value="Juli">Juli</option>
+                <option value="Agustus">Agustus</option>
+                <option value="September">September</option>
+                <option value="Oktober">Oktober</option>
+                <option value="November">November</option>
+                <option value="Desember">Desember</option>
+              </select>
+              <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
         </div>
-        
-        <div className="flex flex-col items-center justify-center h-80 gap-4">
+      </div>
+
+      {!hasData ? (
+        <div className="flex flex-col items-center justify-center h-80 gap-4 px-4">
           <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
             <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <div className="text-center">
+          <div className="text-center max-w-md">
             <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
               Tidak Ada Data
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Belum ada data operasional untuk {selectedPT} di bulan {selectedMonth} {selectedYear}
+              Belum ada data operasional untuk {apiData?.site || selectedPT} di bulan {selectedMonth} {selectedYear}
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              Silakan tambahkan data melalui form input terlebih dahulu
+              Silakan pilih bulan lain atau tambahkan data melalui form input
             </p>
           </div>
         </div>
-      </div>
-    );
-  }
-
-  const categories = Object.keys(apiData.data);
-  const currentActivity = apiData.data[selectedCategory];
-
-  return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-      <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Statistics - {apiData.site}
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {selectedCategory.split('_').map(word => 
-              word.charAt(0).toUpperCase() + word.slice(1)
-            ).join(' ')} - {selectedMonth}
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* Category Tabs */}
-          <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 overflow-x-auto">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => handleCategoryChange(cat)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${
-                  selectedCategory === cat
-                    ? "bg-white text-gray-800 shadow-sm dark:bg-gray-900 dark:text-white"
-                    : "text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-                }`}
-              >
-                {cat.split('_').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ')}
-              </button>
-            ))}
+      ) : (
+        <>
+          {/* Chart container */}
+          <div ref={chartContainerRef} className="w-full max-w-full">
+            <Chart 
+              key={chartKey}
+              options={options} 
+              series={series} 
+              type="area" 
+              height={310}
+              width={chartWidth}
+            />
           </div>
 
-          {/* Month Selector */}
-          <div className="relative">
-            <CalenderIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-500" />
-            <select
-              value={selectedMonth}
-              onChange={(e) => handleMonthChange(e.target.value)}
-              className="h-9 w-32 rounded-lg border border-gray-200 bg-white pl-10 pr-3 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer"
-            >
-              <option value="Januari">Januari</option>
-              <option value="Februari">Februari</option>
-              <option value="Maret">Maret</option>
-              <option value="April">April</option>
-              <option value="Mei">Mei</option>
-              <option value="Juni">Juni</option>
-              <option value="Juli">Juli</option>
-              <option value="Agustus">Agustus</option>
-              <option value="September">September</option>
-              <option value="Oktober">Oktober</option>
-              <option value="November">November</option>
-              <option value="Desember">Desember</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Chart */}
-      <Chart 
-        options={options} 
-        series={series} 
-        type="area" 
-        height={310} 
-      />
-
-      {/* Display selected day info when marker is clicked */}
-      {selectedDay && (
-        <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/20">
-          <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
-            Keterangan {(() => {
-              const activity = apiData?.data[selectedCategory];
-              if (activity) {
-                const dailyItem = activity.dailyData.find(d => d.day === parseInt(selectedDay.day));
-                if (dailyItem) {
-                  return `${dailyItem.dayName}, ${selectedDay.day} ${selectedMonth}`;
-                }
-              }
-              return `Hari ke-${selectedDay.day}`;
-            })()}
-          </p>
-          <p className="text-sm text-gray-700 dark:text-gray-200">
-            {selectedDay.description}
-          </p>
-        </div>
+          {selectedDay && (
+            <div className="mt-4 rounded-xl border border-gray-200 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/20">
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-300 mb-2">
+                Keterangan {(() => {
+                  const activity = apiData?.data[selectedCategory];
+                  if (activity) {
+                    const dailyItem = activity.dailyData.find(d => d.day === parseInt(selectedDay.day));
+                    if (dailyItem) {
+                      return `${dailyItem.dayName}, ${selectedDay.day} ${selectedMonth}`;
+                    }
+                  }
+                  return `Hari ke-${selectedDay.day}`;
+                })()}
+              </p>
+              <p className="text-sm text-gray-700 dark:text-gray-200 break-words">
+                {selectedDay.description}
+              </p>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
