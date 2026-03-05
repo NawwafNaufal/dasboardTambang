@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useOutletContext } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import DailyKpiChart from "@/components/produk/DailyKpiChart";
@@ -12,6 +13,8 @@ export default function HomeProduk() {
     currentActivity: string;
   }>();
 
+  const [activeTab, setActiveTab] = useState("Volume");
+
   return (
     <>
       <PageMeta
@@ -20,40 +23,57 @@ export default function HomeProduk() {
       />
       <div className="flex flex-col gap-4 md:gap-6">
 
-        {/* Baris 1 + 2: HeroBanner dengan ProductivityIndexChart overlap kiri & SyncKpiChart kanan */}
+        {/* Baris 1: HeroBanner + ProductivityIndexChart overlap */}
         <div className="relative">
-          {/* Hero Banner */}
-          <HeroBanner />
+          <HeroBanner onTabChange={setActiveTab} />
 
-          {/* ProductivityIndexChart — overlap banner, pojok kiri bawah */}
-          <div
-            className="absolute bottom-0 left-4 z-10"
-            style={{ width: "30%", transform: "translateY(87%)" }}
-          >
-            <ProductivityIndexChart />
+          {/* Desktop: overlap — hanya tampil di Unit */}
+          {activeTab === "Unit" && (
+            <div
+              className="hidden xl:block absolute bottom-0 left-4 z-10"
+              style={{ width: "30%", transform: "translateY(86%)" }}
+            >
+              <ProductivityIndexChart />
+            </div>
+          )}
+
+          {/* Mobile: normal flow — hanya tampil di Unit */}
+          {activeTab === "Unit" && (
+            <div className="xl:hidden mt-4">
+              <ProductivityIndexChart />
+            </div>
+          )}
+        </div>
+
+        {/* Tab Volume — placeholder, belum dibuat */}
+        {activeTab === "Volume" && (
+          <div className="pl-4 pr-4">
+            {/* konten volume akan dibuat nanti */}
           </div>
-        </div>
+        )}
 
-        {/* Baris 2: SyncKpiChart geser ke kanan dengan gap yang cukup */}
-        <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch">
-          {/* Spacer kosong selebar ProductivityIndexChart */}
-          <div className="hidden xl:block xl:col-span-4" />
+        {/* Tab Unit — semua chart masuk sini */}
+        {activeTab === "Unit" && (
+          <>
+            {/* SyncKpiChart */}
+            <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch" style={{ transform: "translateX(-16px)" }}>
+              <div className="hidden xl:block xl:col-span-4" />
+              <div className="col-span-12 xl:col-span-8">
+                <SyncKpiChart />
+              </div>
+            </div>
 
-          {/* SyncKpiChart mengisi sisa 8 kolom dengan padding kiri sebagai gap */}
-          <div className="col-span-12 xl:col-span-8 xl:pl-6 pr-4" style={{ marginLeft: "-50px",minHeight: "468px" }}>
-            <SyncKpiChart />
-          </div>
-        </div>
+            {/* DailyProduct */}
+            <div className="pl-4 pr-4">
+              <DailyProduct />
+            </div>
 
-        {/* Baris 3: DailyProduct full width */}
-        <div className="col-span-12 pl-4 pr-4">
-          <DailyProduct />
-        </div>
-
-        {/* Baris 4: DailyKpiChart full width */}
-        <div className="col-span-12 pl-4 pr-4">
-          <DailyKpiChart selectedPT={selectedPT} />
-        </div>
+            {/* DailyKpiChart */}
+            <div className="pl-4 pr-4">
+              <DailyKpiChart selectedPT={selectedPT} />
+            </div>
+          </>
+        )}
 
       </div>
     </>

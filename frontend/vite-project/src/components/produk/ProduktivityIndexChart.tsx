@@ -198,6 +198,7 @@ export default function ProductivityIndexChart() {
       borderRadius: 24, border: `1px solid ${t.border}`, boxShadow: t.shadow,
       padding: "20px 22px 18px", height: "100%", boxSizing: "border-box",
       display: "flex", flexDirection: "column",
+      
     }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');`}</style>
 

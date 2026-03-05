@@ -1,6 +1,7 @@
 import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { useState, useEffect, useRef, useMemo } from "react";
+import { useSidebar } from "../../context/SidebarContext";
 
 const ALL_UNITS = [
   "EPIROC-01","U.03","U.04","U.05","U.06","U.07","U.09","U.10","U.12","U.13",
@@ -9,7 +10,6 @@ const ALL_UNITS = [
   "U.31","U.32",
 ];
 
-// ── Custom Single Select ───────────────────────────────
 interface SingleSelectProps {
   options: string[];
   value: string;
@@ -42,8 +42,6 @@ const SingleSelect: React.FC<SingleSelectProps> = ({ options, value, onChange })
 
   return (
     <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
-
-      {/* Trigger */}
       <button
         onClick={() => setOpen(!open)}
         className={`flex items-center gap-3 px-5 py-1 rounded-xl min-w-[120px] justify-between border text-sm font-semibold transition-all ${
@@ -63,13 +61,11 @@ const SingleSelect: React.FC<SingleSelectProps> = ({ options, value, onChange })
         </svg>
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div
           className="absolute z-50 bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden"
           style={{ top: "calc(100% + 6px)", left: 0, minWidth: "160px" }}
         >
-          {/* Search */}
           <div className="p-2 border-b border-gray-100 dark:border-gray-800">
             <div className="relative">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="#9ca3af" viewBox="0 0 16 16" className="absolute left-2.5 top-1/2 -translate-y-1/2">
@@ -90,8 +86,6 @@ const SingleSelect: React.FC<SingleSelectProps> = ({ options, value, onChange })
               )}
             </div>
           </div>
-
-          {/* List */}
           <div style={{ maxHeight: "200px", overflowY: "auto" }} className="py-1">
             {filtered.length === 0 && (
               <div className="px-3 py-2 text-xs text-gray-400 text-center">Tidak ditemukan</div>
@@ -125,7 +119,6 @@ const SingleSelect: React.FC<SingleSelectProps> = ({ options, value, onChange })
   );
 };
 
-// ── Data ───────────────────────────────────────────────
 const generateDailyData = (base: number, variance: number) =>
   Array.from({ length: 31 }, () =>
     parseFloat((base + (Math.random() - 0.5) * variance).toFixed(3))
@@ -153,6 +146,15 @@ export default function DailyProduct() {
   const [tab,           setTab]           = useState<Tab>("productivity");
   const [selectedMonth, setSelectedMonth] = useState<Month>("Jan");
   const [selectedUnit,  setSelectedUnit]  = useState<string>(ALL_UNITS[0]);
+
+  const { isExpanded, isHovered } = useSidebar();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [isExpanded, isHovered]);
 
   useEffect(() => {
     const link = document.createElement("link");
@@ -253,14 +255,10 @@ export default function DailyProduct() {
 
       {/* TAB ROW */}
       <div className="flex items-center justify-between px-6 border-t border-gray-200 dark:border-gray-700">
-
-        {/* Kiri: custom unit select */}
         <div className="flex items-center gap-2 py-2">
           <span className="text-sm text-gray-400 dark:text-gray-500 font-medium">Unit:</span>
           <SingleSelect options={ALL_UNITS} value={selectedUnit} onChange={setSelectedUnit} />
         </div>
-
-        {/* Kanan: tab */}
         <div className="flex">
           {(["productivity", "fuel"] as Tab[]).map((t) => {
             const active = tab === t;
