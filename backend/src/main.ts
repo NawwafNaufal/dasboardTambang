@@ -45,9 +45,9 @@ const startServer = async () => {
       console.log(`[STARTUP] ✅ Server listening on PORT: ${PORT}`);
     });
 
-    console.log("[STARTUP] Starting CRON scheduler...");
+    // console.log("[STARTUP] Starting CRON scheduler...");
     setInterval(async () => {
-      console.log("[CRON] tick");
+      // console.log("[CRON] tick");
       try {
         await syncDailyOperationJob();
       } catch (error) {
