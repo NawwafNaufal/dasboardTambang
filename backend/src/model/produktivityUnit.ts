@@ -10,6 +10,7 @@ export interface IProductionUnit extends Document {
   ua: number;
   ma: number;
   eu: number;
+  fuel : number;
   produktivityIndex: {
     lbgJam: number;
     mtrJam: number;
@@ -72,6 +73,11 @@ const productionUnitSchema = new Schema<IProductionUnit>(
     },
 
     eu: {
+      type: Number,
+      default: 0,
+    },
+    
+    fuel: {
       type: Number,
       default: 0,
     },

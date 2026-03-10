@@ -11,6 +11,7 @@ export interface Activity {
   ua: number
   ma: number
   eu: number
+  fuel : number
   productivityIndex: ProductivityIndex
 }
 

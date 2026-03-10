@@ -2,7 +2,7 @@ import { upsertProductionUnits } from "./productionUnit";
 import { ProductionUnit, Activity } from "../../interface/productivity/unitProductionType";
 import mongoose from "mongoose";
 
-interface DrillingUnitData {
+interface LoadingUnitData {
   site: string;
   date: string;
   day?: string;
@@ -15,7 +15,7 @@ interface DrillingUnitData {
   plan?: number;
 }
 
-export const syncDrillingService = async (data: DrillingUnitData) => {
+export const syncLoadingService = async (data: LoadingUnitData) => {
   if (mongoose.connection.readyState !== 1) {
     throw new Error("Database not connected");
   }
@@ -28,7 +28,7 @@ export const syncDrillingService = async (data: DrillingUnitData) => {
       ua: data.ua,
       ma: data.ma,
       eu: data.eu,
-      fuel: data.fuel ?? 0, // ✅ tambah fuel
+      fuel: data.fuel ?? 0,
       productivityIndex: {
         lbgJam: 0,
         mtrJam: 0,
@@ -37,7 +37,7 @@ export const syncDrillingService = async (data: DrillingUnitData) => {
     };
 
     const activitiesMap = new Map<string, Activity[]>();
-    activitiesMap.set("DRILLING", [activity]);
+    activitiesMap.set("LOADING", [activity]);
 
     const prodUnitData: ProductionUnit = {
       date: data.date,

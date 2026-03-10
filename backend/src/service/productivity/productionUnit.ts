@@ -25,6 +25,7 @@ export const upsertProductionUnits = async (data: ProductionUnit): Promise<void>
               ua: activity.ua,
               ma: activity.ma,
               eu: activity.eu,
+              fuel : activity.fuel,
               produktivityIndex: activity.productivityIndex
             }
           },

@@ -11,6 +11,7 @@ export type SpreadsheetModules = {
   DRILLING: SpreadsheetConfig[];
   LOADING: SpreadsheetConfig[];
   HAULING: SpreadsheetConfig[];
+  SUPPORTING: SpreadsheetConfig[];
 }
 
 const sites = [
@@ -32,6 +33,7 @@ const SPREADSHEET_CONFIGS: SpreadsheetModules = {
   DRILLING: createSpreadsheetConfig("Drilling!A1:AZ500"),
   LOADING:  createSpreadsheetConfig("Loading!A1:AZ500"),
   HAULING:  createSpreadsheetConfig("Hauling!A1:AZ500"),
+  SUPPORTING: createSpreadsheetConfig("Supporting!A1:AZ500"),
 }
 
 export default SPREADSHEET_CONFIGS
