@@ -57,7 +57,7 @@ export function testParseNum() {
     { input: "100", expected: 100, desc: "Plain number" },
   ];
 
-  console.log('🧪 Testing parseNum:\n');
+  // console.log('🧪 Testing parseNum:\n');
 
   let passCount = 0;
   let failCount = 0;
@@ -68,14 +68,14 @@ export function testParseNum() {
 
     if (passed) {
       passCount++;
-      console.log(`✅ "${test.input}" → ${result} | ${test.desc}`);
+      // console.log(`✅ "${test.input}" → ${result} | ${test.desc}`);
     } else {
       failCount++;
-      console.log(`❌ "${test.input}" → ${result} (expected ${test.expected}) | ${test.desc}`);
+      // console.log(`❌ "${test.input}" → ${result} (expected ${test.expected}) | ${test.desc}`);
     }
   }
 
-  console.log(`\n📊 Results: ${passCount} passed, ${failCount} failed`);
+  // console.log(`\n📊 Results: ${passCount} passed, ${failCount} failed`);
   
   return { passCount, failCount };
 }
