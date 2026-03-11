@@ -29,11 +29,11 @@ const createSpreadsheetConfig = (range: string): SpreadsheetConfig[] =>
   }))
 
 const SPREADSHEET_CONFIGS: SpreadsheetModules = {
-  PRODUKSI: createSpreadsheetConfig("Sheet1!A1:AZ500"),
-  DRILLING: createSpreadsheetConfig("Drilling!A1:AZ500"),
-  LOADING:  createSpreadsheetConfig("Loading!A1:AZ500"),
-  HAULING:  createSpreadsheetConfig("Hauling!A1:AZ500"),
-  SUPPORTING: createSpreadsheetConfig("Supporting!A1:AZ500"),
+  PRODUKSI: createSpreadsheetConfig("Sheet1!A1:ZZ500"),
+  DRILLING: createSpreadsheetConfig("Drilling!A1:ZZ500"),
+  LOADING:  createSpreadsheetConfig("Loading!A1:ZZ500"),
+  HAULING:  createSpreadsheetConfig("Hauling!A1:ZZ500"),
+  SUPPORTING: createSpreadsheetConfig("Supporting!A1:ZZ500"),
 }
 
 export default SPREADSHEET_CONFIGS
