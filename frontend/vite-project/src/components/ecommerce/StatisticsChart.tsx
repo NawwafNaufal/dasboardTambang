@@ -3,7 +3,6 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { CalenderIcon } from "../../icons";
 
-
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://76.13.198.60:4000';
 const API_ENDPOINTS = {
   STATISTICS: '/api/static'
@@ -79,6 +78,11 @@ const getDaysInMonth = (month: number, year: number): number => {
   return new Date(year, month, 0).getDate();
 };
 
+// ✅ Helper format angka Indonesia
+const formatIDR = (value: number): string => {
+  return value.toLocaleString('id-ID');
+};
+
 /* =========================
    MAIN COMPONENT
 ========================= */
@@ -101,7 +105,7 @@ export default function StatisticsChart({
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   /* =========================
-     FIX CHART WIDTH - Mencegah melar
+     FIX CHART WIDTH
   ========================= */
   useEffect(() => {
     const updateChartWidth = () => {
@@ -112,10 +116,8 @@ export default function StatisticsChart({
       }
     };
 
-    // Initial width
     const timer = setTimeout(updateChartWidth, 100);
 
-    // Resize observer
     let resizeObserver: ResizeObserver | null = null;
     
     if (chartContainerRef.current) {
@@ -123,19 +125,15 @@ export default function StatisticsChart({
         if (resizeTimeoutRef.current) {
           clearTimeout(resizeTimeoutRef.current);
         }
-        
         resizeTimeoutRef.current = setTimeout(() => {
           updateChartWidth();
         }, 400);
       });
-      
       resizeObserver.observe(chartContainerRef.current);
     }
 
-    // Window resize
     window.addEventListener('resize', updateChartWidth);
 
-    // Transition end listener
     const handleTransitionEnd = (e: TransitionEvent) => {
       if (e.propertyName === 'margin-left' || e.propertyName === 'width') {
         setTimeout(updateChartWidth, 50);
@@ -146,14 +144,10 @@ export default function StatisticsChart({
 
     return () => {
       clearTimeout(timer);
-      if (resizeObserver) {
-        resizeObserver.disconnect();
-      }
+      if (resizeObserver) resizeObserver.disconnect();
       window.removeEventListener('resize', updateChartWidth);
       document.removeEventListener('transitionend', handleTransitionEnd);
-      if (resizeTimeoutRef.current) {
-        clearTimeout(resizeTimeoutRef.current);
-      }
+      if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
     };
   }, []);
 
@@ -194,10 +188,7 @@ export default function StatisticsChart({
         if (!selectedCategory || !data.data[selectedCategory]) {
           const firstCategory = Object.keys(data.data)[0];
           setSelectedCategory(firstCategory);
-          console.log('Selected category:', firstCategory);
         }
-      } else {
-        console.warn('No activity data available for this period');
       }
 
     } catch (err) {
@@ -218,11 +209,6 @@ export default function StatisticsChart({
       console.log('=== API Data Debug ===');
       console.log('Selected Category:', selectedCategory);
       console.log('Activity Data:', activity);
-      console.log('Has breakdownDetails:', !!activity.breakdownDetails);
-      if (activity.breakdownDetails) {
-        console.log('Breakdown Details Length:', activity.breakdownDetails.length);
-        console.log('First Breakdown Detail:', activity.breakdownDetails[0]);
-      }
       console.log('====================');
     }
   }, [apiData, selectedCategory]);
@@ -251,15 +237,12 @@ export default function StatisticsChart({
     const daysInMonth = getDaysInMonth(monthNumber, selectedYear);
     
     const days = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
-    
     const tempTargetData = Array(daysInMonth).fill(0);
-    // ✅ FIX: Inisialisasi dengan 0 bukan null agar hari tanpa data tetap tampil di grafik
     const actualData = Array(daysInMonth).fill(0);
     
     activity.dailyData.forEach((dailyItem) => {
       const index = dailyItem.day - 1;
       if (index >= 0 && index < daysInMonth) {
-        // ✅ FIX: Gunakan ?? 0 untuk handle nilai null/undefined dari API
         actualData[index] = dailyItem.actual ?? 0;
         tempTargetData[index] = dailyItem.plan || 0;
       }
@@ -294,9 +277,7 @@ export default function StatisticsChart({
     chart: {
       type: "area",
       height: 310,
-      toolbar: { 
-        show: false 
-      },
+      toolbar: { show: false },
       zoom: {
         enabled: true,
         type: 'x',
@@ -304,10 +285,7 @@ export default function StatisticsChart({
       },
       animations: {
         enabled: true,
-        dynamicAnimation: {
-          enabled: true,
-          speed: 350
-        }
+        dynamicAnimation: { enabled: true, speed: 350 }
       },
       events: {
         markerClick: (_event, _ctx, { dataPointIndex }) => {
@@ -316,24 +294,13 @@ export default function StatisticsChart({
           
           if (activity) {
             const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
-            
             if (dailyItem) {
-              if (dailyItem.reason && dailyItem.reason.trim() !== '') {
-                setSelectedDay({
-                  day,
-                  description: dailyItem.reason
-                });
-              } else {
-                setSelectedDay({
-                  day,
-                  description: "Tidak ada keterangan"
-                });
-              }
-            } else {
               setSelectedDay({
                 day,
-                description: "Tidak ada keterangan"
+                description: dailyItem.reason?.trim() ? dailyItem.reason : "Tidak ada keterangan"
               });
+            } else {
+              setSelectedDay({ day, description: "Tidak ada keterangan" });
             }
           }
         },
@@ -348,16 +315,10 @@ export default function StatisticsChart({
       },
     },
     colors: ["#ec6765", "#27b5f5"],
-    stroke: { 
-      curve: "straight", 
-      width: [2, 2],
-    },
+    stroke: { curve: "straight", width: [2, 2] },
     fill: { 
       type: ['solid', 'gradient'],
-      gradient: { 
-        opacityFrom: 0.5, 
-        opacityTo: 0 
-      },
+      gradient: { opacityFrom: 0.5, opacityTo: 0 },
       opacity: [0, 0.5]
     },
     markers: { 
@@ -384,8 +345,9 @@ export default function StatisticsChart({
         colors: ['#ffffff']
       },
       offsetY: -10,
+      // ✅ FIX: Format angka dengan pemisah ribuan
       formatter: function(value) {
-        return value ? value.toString() : '';
+        return value ? formatIDR(Number(value)) : '';
       }
     },
     tooltip: { 
@@ -395,7 +357,6 @@ export default function StatisticsChart({
       followCursor: false,
       custom: function({ series, seriesIndex, dataPointIndex, w }) {
         const day = days[dataPointIndex];
-        const seriesName = w.globals.seriesNames[seriesIndex];
         const value = series[seriesIndex][dataPointIndex];
         
         if (seriesIndex === 0) {
@@ -405,7 +366,8 @@ export default function StatisticsChart({
           return '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 160px;">' +
             '<div style="font-weight: 600; color: #ec6765; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">Target Plan</div>' +
             '<div style="display: flex; justify-content: space-between;">' +
-            '<span style="color: #ec6765; font-weight: 600; font-size: 12px;">' + value.toLocaleString() + ' ' + unit + '</span>' +
+            // ✅ FIX: Format nilai target
+            '<span style="color: #ec6765; font-weight: 600; font-size: 12px;">' + formatIDR(value) + ' ' + unit + '</span>' +
             '</div>' +
             '</div>';
         }
@@ -414,8 +376,6 @@ export default function StatisticsChart({
         if (!activity) return '';
         
         const dailyItem = activity.dailyData.find(d => d.day === parseInt(day));
-        
-        // ✅ FIX: Jika tidak ada dailyItem (hari tanpa data), tampilkan tooltip dengan nilai 0
         const breakdownItem = activity.breakdownDetails?.find(b => b.day === parseInt(day));
         
         let html = '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 180px;">';
@@ -428,14 +388,16 @@ export default function StatisticsChart({
           breakdownItem.units.forEach(unit => {
             html += '<div style="display: flex; justify-content: space-between; gap: 16px;">';
             html += '<span style="color: #6b7280; font-size: 12px;">' + unit.unitName + ':</span>';
-            html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + unit.actual.toLocaleString() + ' ' + unit.unit + '</span>';
+            // ✅ FIX: Format nilai breakdown
+            html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + formatIDR(unit.actual) + ' ' + unit.unit + '</span>';
             html += '</div>';
           });
           html += '</div>';
         } else {
           html += '<div style="display: flex; justify-content: space-between;">';
           html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
-          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + (value ?? 0) + ' ' + activity.unit + '</span>';
+          // ✅ FIX: Format nilai total
+          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + formatIDR(value ?? 0) + ' ' + activity.unit + '</span>';
           html += '</div>';
         }
         
@@ -464,8 +426,9 @@ export default function StatisticsChart({
           colors: '#9CA3AF',
           fontSize: '12px',
         },
+        // ✅ FIX: Format y-axis label dengan pemisah ribuan
         formatter: function(value) {
-          return value.toFixed(0);
+          return formatIDR(value);
         }
       } 
     },
@@ -474,19 +437,12 @@ export default function StatisticsChart({
       position: 'top',
       horizontalAlign: 'right',
       offsetY: -10,
-      markers: {
-        width: 12,
-        height: 12,
-        radius: 2,
-      },
+      markers: { width: 12, height: 12, radius: 2 },
     },
     responsive: [{
       breakpoint: 768,
       options: {
-        legend: {
-          position: 'bottom',
-          offsetY: 0
-        }
+        legend: { position: 'bottom', offsetY: 0 }
       }
     }]
   }), [days, isZoomed, apiData, selectedCategory, selectedMonth]);
@@ -533,9 +489,7 @@ export default function StatisticsChart({
   return (
     <div ref={containerRef} className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="mb-6">
-        {/* Header, Category Tabs, and Month Selector in one row */}
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-          {/* Left: Header */}
           <div className="flex-shrink-0">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
               Statistics - {apiData?.site || selectedPT}
@@ -551,9 +505,7 @@ export default function StatisticsChart({
             </p>
           </div>
 
-          {/* Right: Category Tabs and Month Selector */}
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-            {/* Category Tabs */}
             {hasData && (
               <div className="overflow-x-auto pb-1 -mx-1 px-1">
                 <div className="flex items-center gap-1.5 p-1 bg-gray-100 rounded-lg dark:bg-gray-800 min-w-max">
@@ -576,7 +528,6 @@ export default function StatisticsChart({
               </div>
             )}
 
-            {/* Month Selector */}
             <div className="relative flex-shrink-0 w-full sm:w-auto">
               <CalenderIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-500 z-10" />
               <select
@@ -584,18 +535,9 @@ export default function StatisticsChart({
                 onChange={(e) => handleMonthChange(e.target.value)}
                 className="h-9 w-full sm:w-36 rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="Januari">Januari</option>
-                <option value="Februari">Februari</option>
-                <option value="Maret">Maret</option>
-                <option value="April">April</option>
-                <option value="Mei">Mei</option>
-                <option value="Juni">Juni</option>
-                <option value="Juli">Juli</option>
-                <option value="Agustus">Agustus</option>
-                <option value="September">September</option>
-                <option value="Oktober">Oktober</option>
-                <option value="November">November</option>
-                <option value="Desember">Desember</option>
+                {["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"].map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
               </select>
               <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
                 <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -615,9 +557,7 @@ export default function StatisticsChart({
             </svg>
           </div>
           <div className="text-center max-w-md">
-            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
-              Tidak Ada Data
-            </p>
+            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">Tidak Ada Data</p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Belum ada data operasional untuk {apiData?.site || selectedPT} di bulan {selectedMonth} {selectedYear}
             </p>
@@ -628,7 +568,6 @@ export default function StatisticsChart({
         </div>
       ) : (
         <>
-          {/* Chart container */}
           <div ref={chartContainerRef} className="w-full max-w-full">
             <Chart 
               key={chartKey}
@@ -647,9 +586,7 @@ export default function StatisticsChart({
                   const activity = apiData?.data[selectedCategory];
                   if (activity) {
                     const dailyItem = activity.dailyData.find(d => d.day === parseInt(selectedDay.day));
-                    if (dailyItem) {
-                      return `${dailyItem.dayName}, ${selectedDay.day} ${selectedMonth}`;
-                    }
+                    if (dailyItem) return `${dailyItem.dayName}, ${selectedDay.day} ${selectedMonth}`;
                   }
                   return `Hari ke-${selectedDay.day}`;
                 })()}

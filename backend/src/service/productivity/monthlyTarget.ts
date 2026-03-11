@@ -2,6 +2,12 @@ import { DailyOperation } from "../../model/monthly.model";
 import { getMonthDateRange, getMonthName } from "../../utils/data";
 import { Params } from "../../interface/productivity/monthlyActualType";
 
+interface ActivityAccumulator {
+  plan: number;
+  actual: number;
+  dailyActuals: number[];
+}
+
 export async function getMonthlyTargetService(params: Params) {
   const { site, year, month } = params;
 
@@ -36,50 +42,32 @@ export async function getMonthlyTargetService(params: Params) {
   let totalPlan = 0;
   let totalActual = 0;
 
-  const activityBreakdown: Record<
-    string,
-    { plan: number; actual: number; dailyActuals: number[] }
-  > = {};
+  const activityBreakdown: Record<string, ActivityAccumulator> = {};
 
-  // ✅ Collect all data WITHOUT rounding
   for (const doc of records) {
-    const activities = doc.activities ?? {};
-
-    for (const [name, activity] of Object.entries<any>(activities)) {
+    const activities = (doc.activities ?? {}) as Record<string, any>;
+    for (const [name, activity] of Object.entries(activities)) {
       const plan = activity.plan || 0;
       const actual = activity.actual || 0;
 
-      // ✅ Sum raw values (no rounding)
       totalPlan += plan;
       totalActual += actual;
 
       activityBreakdown[name] ??= { plan: 0, actual: 0, dailyActuals: [] };
       activityBreakdown[name].plan += plan;
       activityBreakdown[name].actual += actual;
-      
-      // ✅ Push ALL values (including zeros) for accurate average
       activityBreakdown[name].dailyActuals.push(actual);
     }
   }
 
-  // ✅ Calculate total average - INCLUDING days with 0
   const dailyTotals: number[] = [];
-
   for (const doc of records) {
-    const activities = doc.activities ?? {};
+    const activities = (doc.activities ?? {}) as Record<string, any>;
     let dayTotal = 0;
-
-    for (const activity of Object.values<any>(activities)) {
+    for (const activity of Object.values(activities)) {
       dayTotal += activity.actual || 0;
     }
-
-    // ✅ OPTION A: Include ALL days (even zeros) - matches Excel AVERAGE()
     dailyTotals.push(dayTotal);
-    
-    // ✅ OPTION B: Exclude zero days (uncomment to use)
-    // if (dayTotal > 0) {
-    //   dailyTotals.push(dayTotal);
-    // }
   }
 
   const averageDaily =
@@ -87,44 +75,44 @@ export async function getMonthlyTargetService(params: Params) {
       ? dailyTotals.reduce((sum, val) => sum + val, 0) / dailyTotals.length
       : 0;
 
+  const maxDaily = dailyTotals.length > 0 ? Math.max(...dailyTotals) : 0;
+
+  // ✅ Filter zero untuk min agar hari tidak operasi tidak dihitung
+  const nonZeroDailyTotals = dailyTotals.filter(val => val > 0);
+  const minDaily = nonZeroDailyTotals.length > 0 ? Math.min(...nonZeroDailyTotals) : 0;
+
   const percentage = totalPlan > 0 ? (totalActual / totalPlan) * 100 : 0;
 
   return {
     site,
     year: yearNum,
     month: getMonthName(monthNum),
-
-    // ✅ Round ONLY at the end for display
     totalPlan: Number(totalPlan.toFixed(2)),
-    totalActual: Number(totalActual.toFixed(2)),
-    todayActual: Number(averageDaily.toFixed(2)),
-
+    averageDaily: Number(averageDaily.toFixed(2)),
+    maxDaily: Number(maxDaily.toFixed(2)),
+    minDaily: Number(minDaily.toFixed(2)),
     percentage: Number(percentage.toFixed(2)),
     deviation: Number((percentage - 100).toFixed(2)),
-
     activityBreakdown: Object.fromEntries(
-      Object.entries(activityBreakdown).map(([k, v]) => {
-        // ✅ OPTION A: Average INCLUDING all days (even zeros)
+      Object.entries(activityBreakdown).map(([k, v]: [string, ActivityAccumulator]) => {
         const activityAverage =
           v.dailyActuals.length > 0
             ? v.dailyActuals.reduce((sum, val) => sum + val, 0) / v.dailyActuals.length
             : 0;
 
-        // ✅ OPTION B: Average EXCLUDING zero days (uncomment to use)
-        // const nonZeroDays = v.dailyActuals.filter((val) => val > 0);
-        // const activityAverage =
-        //   nonZeroDays.length > 0
-        //     ? nonZeroDays.reduce((sum, val) => sum + val, 0) / nonZeroDays.length
-        //     : 0;
+        const activityMax = v.dailyActuals.length > 0 ? Math.max(...v.dailyActuals) : 0;
+
+        // ✅ Filter zero untuk min per activity
+        const nonZeroActuals = v.dailyActuals.filter(val => val > 0);
+        const activityMin = nonZeroActuals.length > 0 ? Math.min(...nonZeroActuals) : 0;
 
         return [
           k,
           {
-            // ✅ Round ONLY for display
             plan: Number(v.plan.toFixed(2)),
-            actual: Number(v.actual.toFixed(2)),
-            todayActual: Number(activityAverage.toFixed(2)),
-
+            average: Number(activityAverage.toFixed(2)),
+            max: Number(activityMax.toFixed(2)),
+            min: Number(activityMin.toFixed(2)),
             percentage:
               v.plan > 0 ? Number(((v.actual / v.plan) * 100).toFixed(2)) : 0,
           },

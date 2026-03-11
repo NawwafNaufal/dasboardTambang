@@ -279,7 +279,7 @@ export default function MonthlySalesChart({
     },
     dataLabels: {
       enabled: true,
-      formatter: (val: number) => val.toFixed(2),
+      formatter: (val: number) => val.toLocaleString('id-ID'),
       offsetY: -18,
       style: {
         fontSize: '11px',
@@ -329,7 +329,7 @@ export default function MonthlySalesChart({
         show: false,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: (val: number) => val.toLocaleString('id-ID'),
       },
     },
   };
