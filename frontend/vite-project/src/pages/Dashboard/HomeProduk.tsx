@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useOutletContext } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
 import DailyKpiChart from "@/components/produk/DailyKpiChart";
@@ -6,13 +5,17 @@ import SyncKpiChart from "@/components/produk/SigleChart";
 import ProductivityIndexChart from "@/components/produk/ProduktivityIndexChart";
 import DailyProduct from "@/components/produk/DailyProduct";
 import HeroBanner from "@/components/produk/HeroBanner";
+import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
+import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";
+import StatisticsChart from "../../components/ecommerce/StatisticsChart";
+import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 
 export default function HomeProduk() {
   const { selectedPT, currentActivity, activeTab, setActiveTab } = useOutletContext<{
     selectedPT: string;
     currentActivity: string;
-    activeTab: string;           // ← TAMBAH
-    setActiveTab: (tab: string) => void; // ← TAMBAH
+    activeTab: string;
+    setActiveTab: (tab: string) => void;
   }>();
 
   return (
@@ -22,12 +25,17 @@ export default function HomeProduk() {
         description="Dashboard page"
       />
       <div className="flex flex-col gap-4 md:gap-6">
+
+        {/* HeroBanner — satu div.relative untuk semua tab */}
         <div className="relative">
-          <HeroBanner onTabChange={setActiveTab} /> {/* ← pakai setActiveTab dari context */}
+          <HeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
+
+          {/* UNIT: overlay kiri */}
           {activeTab === "Unit" && (
-            <div className="hidden xl:block absolute bottom-0 left-4 z-10"
-              style={{ width: "30%", transform: "translateY(86%)" }}>
-                
+            <div
+              className="hidden xl:block absolute bottom-0 left-4 z-10"
+              style={{ width: "30%", transform: "translateY(86%)" }}
+            >
               <ProductivityIndexChart />
             </div>
           )}
@@ -36,16 +44,62 @@ export default function HomeProduk() {
               <ProductivityIndexChart />
             </div>
           )}
+
+          {/* VOLUME: overlay kiri — IDENTIK dengan Unit */}
+          {activeTab === "Volume" && (
+            <div
+              className="hidden xl:block absolute bottom-0 left-4 z-10"
+              style={{ width: "30%", transform: "translateY(86%)" }}
+            >
+              <MonthlyTarget
+                selectedPT={selectedPT}
+                currentActivity={currentActivity}
+              />
+            </div>
+          )}
+          {activeTab === "Volume" && (
+            <div className="xl:hidden mt-4">
+              <MonthlyTarget
+                selectedPT={selectedPT}
+                currentActivity={currentActivity}
+              />
+            </div>
+          )}
         </div>
 
+        {/* ── VOLUME TAB ── */}
         {activeTab === "Volume" && (
-          <div className="pl-4 pr-4">
-          </div>
+          <>
+            {/* Sama persis dengan Unit tab — col-span-4 kosong di kiri */}
+            <div
+              className="grid grid-cols-12 gap-4 md:gap-6 items-stretch"
+              style={{ transform: "translateX(-16px)" }}
+            >
+              <div className="hidden xl:block xl:col-span-4" />
+              <div className="col-span-12 xl:col-span-8 flex flex-col gap-4 md:gap-6">
+                <EcommerceMetrics
+                  selectedPT={selectedPT}
+                  currentActivity={currentActivity}
+                />
+                <MonthlySalesChart
+                  selectedPT={selectedPT}
+                  currentActivity={currentActivity}
+                />
+              </div>
+            </div>
+            <div className="w-full">
+              <StatisticsChart selectedPT={selectedPT} />
+            </div>
+          </>
         )}
 
+        {/* ── UNIT TAB ── */}
         {activeTab === "Unit" && (
           <>
-            <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch" style={{ transform: "translateX(-16px)" }}>
+            <div
+              className="grid grid-cols-12 gap-4 md:gap-6 items-stretch"
+              style={{ transform: "translateX(-16px)" }}
+            >
               <div className="hidden xl:block xl:col-span-4" />
               <div className="col-span-12 xl:col-span-8">
                 <SyncKpiChart />
@@ -59,6 +113,7 @@ export default function HomeProduk() {
             </div>
           </>
         )}
+
       </div>
     </>
   );
