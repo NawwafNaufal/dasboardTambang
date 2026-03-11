@@ -14,6 +14,7 @@ import getActivityUnit from "./routes/productivity/getActivitiesRoute"
 import produktivityIndexMounth from "./routes/productivity/getProductivityIndexRoute"
 import getUnit from "./routes/productivity/getUnit"
 import avaibilityIndex from "./routes/productivity/getTotalPaUaMaUe"
+import dailyProductivity from "./routes/productivity/dailyProductivity"
 
 const app = express();
 const PORT = process.env.PORT;
@@ -41,6 +42,7 @@ app.use("/api",getActivityUnit)
 app.use("/api",produktivityIndexMounth)
 app.use("/api",getUnit)
 app.use("/api",avaibilityIndex)
+app.use("/api",dailyProductivity)
 app.use(error);
 
 const startServer = async () => {

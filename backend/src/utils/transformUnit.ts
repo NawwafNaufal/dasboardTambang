@@ -46,8 +46,6 @@ export const transformMultiUnitActivity = (rows: string[][]) => {
     const row = rows[i];
 
     if (isUnitHeaderRow(row)) {
-      console.log("UNIT HEADER RAW:", row.map((c, idx) => c ? `[${idx}]=${c}` : null).filter(Boolean));
-
       const rawUnits: { name: string; colIndex: number }[] = [];
       row.forEach((cell, index) => {
         if (index >= 4 && cell && cell.trim() !== '') {
@@ -55,7 +53,6 @@ export const transformMultiUnitActivity = (rows: string[][]) => {
         }
       });
 
-      // cari sub-header row [lbg/jam] dan PA
       let lbgJamRow: string[] | null = null;
       let paRow: string[] | null = null;
       for (let j = i + 1; j < Math.min(i + 15, rows.length); j++) {
@@ -70,9 +67,12 @@ export const transformMultiUnitActivity = (rows: string[][]) => {
 
       unitPositions = rawUnits.map((u, idx) => {
         const nextCol = rawUnits[idx + 1]?.colIndex ?? 999;
-        const fuelOffset = 1;
 
-        // cari PA offset
+        // unit pertama: fuel di colIndex+1 (col 5 untuk HCR-07 base=4)
+        // unit lainnya: fuel tepat di colIndex sendiri
+        // karena di data row, nilai fuel ada di kolom yang sama dengan colIndex unit tsb
+        const fuelOffset = idx === 0 ? 1 : 0;
+
         let paOffset = 7;
         if (paRow) {
           for (let k = u.colIndex + 1; k < nextCol; k++) {
@@ -83,19 +83,16 @@ export const transformMultiUnitActivity = (rows: string[][]) => {
           }
         }
 
-        // cari lbg/jam, mtr/jam, ltr/mtr offset
         let lbgOffset = paOffset + 4;
         let mtrOffset = paOffset + 5;
         let ltrOffset = paOffset + 6;
         if (lbgJamRow) {
           for (let k = u.colIndex + 1; k < nextCol + 5; k++) {
-            if (lbgJamRow[k]?.includes('lbg/jam')) { lbgOffset = k - u.colIndex; }
-            if (lbgJamRow[k]?.includes('mtr/jam')) { mtrOffset = k - u.colIndex; }
-            if (lbgJamRow[k]?.includes('ltr/mtr')) { ltrOffset = k - u.colIndex; }
+            if (lbgJamRow[k]?.includes('lbg/jam')) lbgOffset = k - u.colIndex;
+            if (lbgJamRow[k]?.includes('mtr/jam')) mtrOffset = k - u.colIndex;
+            if (lbgJamRow[k]?.includes('ltr/mtr')) ltrOffset = k - u.colIndex;
           }
         }
-
-        console.log(`UNIT ${u.name}: colIndex=${u.colIndex} fuelOffset=${fuelOffset} paOffset=${paOffset} lbgOffset=${lbgOffset} mtrOffset=${mtrOffset} ltrOffset=${ltrOffset}`);
 
         return {
           name: u.name,
@@ -126,6 +123,7 @@ export const transformMultiUnitActivity = (rows: string[][]) => {
 
     for (const block of unitPositions) {
       const base = block.colIndex;
+
       const fuel   = parseNum(row[base + block.fuelOffset]) ?? 0;
       const pa     = parsePrecent(row[base + block.paOffset]);
       const ma     = parsePrecent(row[base + block.maOffset]);
@@ -135,7 +133,6 @@ export const transformMultiUnitActivity = (rows: string[][]) => {
       const mtrJam = parseNum(row[base + block.mtrOffset]) ?? 0;
       const ltrMtr = parseNum(row[base + block.ltrOffset]) ?? 0;
 
-      // skip kalau semua benar-benar kosong
       if (
         row[base + block.paOffset] === undefined &&
         row[base + block.euOffset] === undefined &&
