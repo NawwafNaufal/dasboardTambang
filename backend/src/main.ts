@@ -10,6 +10,10 @@ import productivity from "./routes/productivity/productivity";
 import planRkpa from "./routes/productivity/planRkpa"
 import staticD from "./routes/productivity/dailyStatic"
 import monthlyTarget from "./routes/productivity/monthlyTarget"
+import getActivityUnit from "./routes/productivity/getActivitiesRoute"
+import produktivityIndexMounth from "./routes/productivity/getProductivityIndexRoute"
+import getUnit from "./routes/productivity/getUnit"
+import avaibilityIndex from "./routes/productivity/getTotalPaUaMaUe"
 
 const app = express();
 const PORT = process.env.PORT;
@@ -33,6 +37,10 @@ app.use("/api", productivity);
 app.use("/api",planRkpa)
 app.use("/api", staticD)
 app.use("/api",monthlyTarget)
+app.use("/api",getActivityUnit)
+app.use("/api",produktivityIndexMounth)
+app.use("/api",getUnit)
+app.use("/api",avaibilityIndex)
 app.use(error);
 
 const startServer = async () => {
@@ -53,7 +61,7 @@ const startServer = async () => {
       } catch (error) {
         console.error("[CRON] Job failed:", error);
       }
-    }, 10_000);
+    },1 * 60 * 1000);
 
     console.log("[STARTUP] ✅ CRON scheduler started (every 10s)");
     console.log("[STARTUP] 🚀 All systems ready!");

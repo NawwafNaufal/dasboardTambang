@@ -1,13 +1,8 @@
 import { useMemo, useState, useRef, useEffect } from "react";
+import { useOutletContext } from "react-router";
 
+const BASE_URL = "http://localhost:4000/api";
 const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
-
-const ALL_UNITS = [
-  "U.02","U.03","U.04","U.05","U.06","U.07","U.09","U.10","U.12","U.13",
-  "U.16","U.17","U.19","U.20","U.23","U.39","U.40","U.41","U.50","U.51",
-  "U.52","U.54","U.55","U.56","U.24","U.25","U.27","U.28","U.29","U.30",
-  "U.31","U.32",
-];
 
 const METRICS = [
   { label: "Lbg/Jam", color: "#4ADE80" },
@@ -15,18 +10,6 @@ const METRICS = [
   { label: "Ltr/Mtr", color: "#FBBF24" },
 ];
 
-const FIXED_PCTS = [50, 15, 35];
-
-const generateMonthlyMetrics = (monthIdx) => {
-  const seed = monthIdx + 1;
-  return [
-    { label: "Lbg/Jam", value: parseFloat((6 + seed * 0.3).toFixed(2)),      avg: parseFloat((5 + seed * 0.2).toFixed(2)) },
-    { label: "Mtr/Jam", value: parseFloat((38 + seed * 0.8).toFixed(2)),     avg: parseFloat((35 + seed * 0.6).toFixed(2)) },
-    { label: "Ltr/Mtr", value: parseFloat((0.75 + seed * 0.006).toFixed(3)), avg: parseFloat((0.68 + seed * 0.005).toFixed(3)) },
-  ];
-};
-
-// Detect dark mode from document
 function useDarkMode() {
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
   useEffect(() => {
@@ -59,16 +42,28 @@ const T = {
   }
 };
 
-function UnitSelect({ value, onChange, t }) {
+function UnitSelect({ value, onChange, units, t }: {
+  value: string;
+  onChange: (u: string) => void;
+  units: string[];
+  t: typeof T.light;
+}) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const ref = useRef(null);
-  const filtered = ALL_UNITS.filter(u => u.toLowerCase().includes(search.toLowerCase()));
+  const ref = useRef<HTMLDivElement>(null);
+  const filtered = units.filter(u => u.toLowerCase().includes(search.toLowerCase()));
+
   useEffect(() => {
-    const h = e => { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setSearch(""); } };
+    const h = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    };
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
+
   return (
     <div ref={ref} style={{ position: "relative" }}>
       <button onClick={() => setOpen(!open)} style={{
@@ -76,7 +71,7 @@ function UnitSelect({ value, onChange, t }) {
         border: `1px solid ${t.btnBorder}`, background: t.btnBg, fontSize: 12, fontWeight: 600,
         color: t.btnColor, cursor: "pointer", fontFamily: "inherit"
       }}>
-        {value}
+        {value || "Pilih Unit"}
         <svg width="9" height="9" fill={t.label} viewBox="0 0 16 16"
           style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }}>
           <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
@@ -90,18 +85,27 @@ function UnitSelect({ value, onChange, t }) {
         }}>
           <div style={{ padding: "8px 8px 6px", borderBottom: `1px solid ${t.pickerBorder}` }}>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari unit..."
-              autoFocus style={{ width: "100%", padding: "4px 8px", borderRadius: 7,
+              autoFocus style={{
+                width: "100%", padding: "4px 8px", borderRadius: 7,
                 border: `1px solid ${t.btnBorder}`, fontSize: 12, outline: "none",
-                background: t.btnBg, color: t.btnColor, boxSizing: "border-box", fontFamily: "inherit" }} />
+                background: t.btnBg, color: t.btnColor, boxSizing: "border-box", fontFamily: "inherit"
+              }} />
           </div>
           <div style={{ maxHeight: 190, overflowY: "auto", padding: 5 }}>
+            {filtered.length === 0 && (
+              <div style={{ padding: "8px 10px", fontSize: 12, color: t.pickerText }}>
+                Tidak ada unit
+              </div>
+            )}
             {filtered.map(u => (
               <div key={u} onClick={() => { onChange(u); setOpen(false); setSearch(""); }}
-                style={{ padding: "6px 10px", borderRadius: 7, cursor: "pointer", fontSize: 12,
+                style={{
+                  padding: "6px 10px", borderRadius: 7, cursor: "pointer", fontSize: 12,
                   fontWeight: u === value ? 700 : 400, color: u === value ? t.title : t.pickerText,
-                  background: u === value ? t.btnBg : "transparent" }}
-                onMouseEnter={e => { if (u !== value) e.currentTarget.style.background = t.btnBg; }}
-                onMouseLeave={e => { if (u !== value) e.currentTarget.style.background = "transparent"; }}>
+                  background: u === value ? t.btnBg : "transparent"
+                }}
+                onMouseEnter={e => { if (u !== value) (e.currentTarget as HTMLDivElement).style.background = t.btnBg; }}
+                onMouseLeave={e => { if (u !== value) (e.currentTarget as HTMLDivElement).style.background = "transparent"; }}>
                 {u}
               </div>
             ))}
@@ -112,39 +116,38 @@ function UnitSelect({ value, onChange, t }) {
   );
 }
 
-function DonutChart({ slices, size, t }) {
+function DonutChart({ slices, size, t, totalValue }: {
+  slices: { pct: number; color: string; value: number }[];
+  size: number;
+  t: typeof T.light;
+  totalValue: string;
+}) {
   const cx = size / 2, cy = size / 2;
-  const R = size * 0.42;
-  const r = size * 0.24;
-  const GAP = 3.5;
-  const toRad = d => (d * Math.PI) / 180;
+  const R = size * 0.42, r = size * 0.24, GAP = 3.5;
+  const toRad = (d: number) => (d * Math.PI) / 180;
   const total = slices.reduce((s, x) => s + x.pct, 0);
   const minPct = Math.min(...slices.map(s => s.pct));
-  const paths = [];
+  const paths: { d: string; color: string; pct: number; value: number; lx: number; ly: number }[] = [];
   let start = -90;
 
   slices.forEach(sl => {
     const isSmallest = sl.pct === minPct;
-    const pop = isSmallest ? 10 : 0; // push smallest segment outward
+    const pop = isSmallest ? 10 : 0;
     const span = (sl.pct / total) * 360 - GAP;
     const end = start + span;
     const mid = start + span / 2;
     const midRad = toRad(mid);
-    const ox = pop * Math.cos(midRad); // offset x
-    const oy = pop * Math.sin(midRad); // offset y
-
+    const ox = pop * Math.cos(midRad), oy = pop * Math.sin(midRad);
     const x1o = cx + ox + R * Math.cos(toRad(start)), y1o = cy + oy + R * Math.sin(toRad(start));
     const x2o = cx + ox + R * Math.cos(toRad(end)),   y2o = cy + oy + R * Math.sin(toRad(end));
     const x1i = cx + ox + r * Math.cos(toRad(end)),   y1i = cy + oy + r * Math.sin(toRad(end));
     const x2i = cx + ox + r * Math.cos(toRad(start)), y2i = cy + oy + r * Math.sin(toRad(start));
     const lg = span > 180 ? 1 : 0;
     const d = `M${x1o} ${y1o} A${R} ${R} 0 ${lg} 1 ${x2o} ${y2o} L${x1i} ${y1i} A${r} ${r} 0 ${lg} 0 ${x2i} ${y2i}Z`;
-
-    // Bubble sits on the outer arc midpoint
     const lr = R + 2;
     const lx = cx + ox + lr * Math.cos(midRad);
     const ly = cy + oy + lr * Math.sin(midRad);
-    paths.push({ d, color: sl.color, pct: sl.pct, lx, ly });
+    paths.push({ d, color: sl.color, pct: sl.pct, value: sl.value, lx, ly });
     start += span + GAP;
   });
 
@@ -153,20 +156,19 @@ function DonutChart({ slices, size, t }) {
       <g transform="translate(50,50)">
         {paths.map((p, i) => <path key={i} d={p.d} fill={p.color} />)}
 
-        {/* Center */}
-        <text x={cx} y={cy - 6} textAnchor="middle" fontSize={28} fontWeight={800} fill={t.centerText}
-          style={{ fontFamily: "'DM Sans',sans-serif" }}>100%</text>
+        {/* Center — total value */}
+        <text x={cx} y={cy - 6} textAnchor="middle" fontSize={22} fontWeight={800} fill={t.centerText}
+          style={{ fontFamily: "'DM Sans',sans-serif" }}>{totalValue}</text>
         <text x={cx} y={cy + 15} textAnchor="middle" fontSize={11} fill={t.centerSub}
           style={{ fontFamily: "'DM Sans',sans-serif" }}>Total</text>
 
-        {/* Bubble labels */}
+        {/* Bubble — value asli */}
         {paths.map((p, i) => (
           <g key={`b${i}`}>
-            <circle cx={p.lx} cy={p.ly} r={23} fill={t.bubbleBg}
-              stroke={t.bubbleBorder} strokeWidth={1.5} />
+            <circle cx={p.lx} cy={p.ly} r={23} fill={t.bubbleBg} stroke={t.bubbleBorder} strokeWidth={1.5} />
             <text x={p.lx} y={p.ly + 4} textAnchor="middle" fontSize={10} fontWeight={700}
               fill={t.bubbleText} style={{ fontFamily: "'DM Sans',sans-serif" }}>
-              {p.pct.toFixed(1)}%
+              {p.value}
             </text>
           </g>
         ))}
@@ -176,18 +178,106 @@ function DonutChart({ slices, size, t }) {
 }
 
 export default function ProductivityIndexChart() {
-  const [selectedMonth, setSelectedMonth] = useState(0);
-  const [showMonthPicker, setShowMonthPicker] = useState(false);
-  const [selectedUnit, setSelectedUnit] = useState(ALL_UNITS[0]);
+  const { selectedPT, currentUnitActivity } = useOutletContext<{
+    selectedPT: string;
+    currentUnitActivity: string;
+  }>();
+
+  const year = 2026;
   const dark = useDarkMode();
   const t = dark ? T.dark : T.light;
-  const pickerRef = useRef(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
-  const metrics = useMemo(() => generateMonthlyMetrics(selectedMonth), [selectedMonth]);
-  const slices = METRICS.map((m, i) => ({ pct: FIXED_PCTS[i], color: m.color }));
+  const [selectedMonth, setSelectedMonth] = useState(0);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [selectedUnit, setSelectedUnit] = useState("");
+  const [units, setUnits] = useState<string[]>([]);
+  const [loadingUnits, setLoadingUnits] = useState(false);
+  const [metrics, setMetrics] = useState<{ label: string; avg: number }[]>([]);
+  const [loadingMetrics, setLoadingMetrics] = useState(false);
+
+  // fetch unit list
+  useEffect(() => {
+    if (!selectedPT || !currentUnitActivity) return;
+    const fetchUnits = async () => {
+      try {
+        setLoadingUnits(true);
+        const res = await fetch(
+          `${BASE_URL}/units?site=${encodeURIComponent(selectedPT)}&activity=${encodeURIComponent(currentUnitActivity)}`
+        );
+        const result = await res.json();
+        if (result.success && result.data.length > 0) {
+          setUnits(result.data);
+          setSelectedUnit(result.data[0]);
+        } else {
+          setUnits([]);
+          setSelectedUnit("");
+        }
+      } catch {
+        setUnits([]);
+        setSelectedUnit("");
+      } finally {
+        setLoadingUnits(false);
+      }
+    };
+    fetchUnits();
+  }, [selectedPT, currentUnitActivity]);
+
+  // fetch productivity index
+  useEffect(() => {
+    if (!selectedPT || !currentUnitActivity || !selectedUnit) return;
+    const fetchMetrics = async () => {
+      try {
+        setLoadingMetrics(true);
+        const res = await fetch(
+          `${BASE_URL}/productivity-index?site=${encodeURIComponent(selectedPT)}&activity=${encodeURIComponent(currentUnitActivity)}&year=${year}&unit=${encodeURIComponent(selectedUnit)}`
+        );
+        const result = await res.json();
+        if (result.success && result.data.length > 0) {
+          const monthData = result.data.find((d: any) => d.month === selectedMonth + 1);
+          if (monthData) {
+            setMetrics([
+              { label: "Lbg/Jam", avg: monthData.average.lbgJam },
+              { label: "Mtr/Jam", avg: monthData.average.mtrJam },
+              { label: "Ltr/Mtr", avg: monthData.average.ltrMtr },
+            ]);
+          } else {
+            setMetrics([
+              { label: "Lbg/Jam", avg: 0 },
+              { label: "Mtr/Jam", avg: 0 },
+              { label: "Ltr/Mtr", avg: 0 },
+            ]);
+          }
+        }
+      } catch {
+        setMetrics([]);
+      } finally {
+        setLoadingMetrics(false);
+      }
+    };
+    fetchMetrics();
+  }, [selectedPT, currentUnitActivity, selectedUnit, selectedMonth, year]);
+
+  const slices = useMemo(() => {
+    if (metrics.length === 0) return METRICS.map((m) => ({ pct: 33.3, color: m.color, value: 0 }));
+    const total = metrics.reduce((s, m) => s + m.avg, 0);
+    if (total === 0) return METRICS.map((m) => ({ pct: 33.3, color: m.color, value: 0 }));
+    return metrics.map((m, i) => ({
+      pct: (m.avg / total) * 100,
+      color: METRICS[i].color,
+      value: m.avg,
+    }));
+  }, [metrics]);
+
+  const totalValue = useMemo(() => {
+    const total = metrics.reduce((s, m) => s + m.avg, 0);
+    return total.toFixed(2);
+  }, [metrics]);
 
   useEffect(() => {
-    const h = e => { if (pickerRef.current && !pickerRef.current.contains(e.target)) setShowMonthPicker(false); };
+    const h = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) setShowMonthPicker(false);
+    };
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
@@ -198,7 +288,6 @@ export default function ProductivityIndexChart() {
       borderRadius: 24, border: `1px solid ${t.border}`, boxShadow: t.shadow,
       padding: "20px 22px 18px", height: "100%", boxSizing: "border-box",
       display: "flex", flexDirection: "column",
-      
     }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');`}</style>
 
@@ -246,13 +335,23 @@ export default function ProductivityIndexChart() {
               </div>
             )}
           </div>
-          <UnitSelect value={selectedUnit} onChange={setSelectedUnit} t={t} />
+
+          {/* Unit picker */}
+          {loadingUnits ? (
+            <span style={{ fontSize: 12, color: t.label }}>Loading...</span>
+          ) : (
+            <UnitSelect value={selectedUnit} onChange={setSelectedUnit} units={units} t={t} />
+          )}
         </div>
       </div>
 
       {/* Donut */}
       <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <DonutChart slices={slices} size={260} t={t} />
+        {loadingMetrics ? (
+          <span style={{ fontSize: 13, color: t.label }}>Loading...</span>
+        ) : (
+          <DonutChart slices={slices} size={260} t={t} totalValue={totalValue} />
+        )}
       </div>
 
       {/* Legend */}
@@ -268,12 +367,14 @@ export default function ProductivityIndexChart() {
       {/* Avg strip */}
       <div style={{ borderTop: `1px solid ${t.divider}`, paddingTop: 14 }}>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8 }}>
-          {metrics.map((m) => (
+          {(metrics.length > 0 ? metrics : METRICS.map(m => ({ label: m.label, avg: 0 }))).map((m) => (
             <div key={m.label} style={{ textAlign: "center" }}>
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: t.labelUpper,
                 textTransform: "uppercase", margin: "0 0 4px" }}>{m.label}</p>
               <p style={{ fontSize: 10, color: t.label, margin: "0 0 2px" }}>Average</p>
-              <p style={{ fontSize: 20, fontWeight: 700, color: t.value, margin: 0 }}>{m.avg}</p>
+              <p style={{ fontSize: 20, fontWeight: 700, color: t.value, margin: 0 }}>
+                {loadingMetrics ? "..." : m.avg}
+              </p>
             </div>
           ))}
         </div>

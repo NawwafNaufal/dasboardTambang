@@ -46,11 +46,21 @@ export const syncDailyOperationJob = async () => {
 
     // tunggu 10 detik sebelum fetch DRILLING
     logger.info("[JOB] Waiting 10s before fetching DRILLING...");
-    await new Promise(resolve => setTimeout(resolve, 10000));
+    // ganti semua delay 10s → 15s
+await new Promise(resolve => setTimeout(resolve, 20000));
 
     // ─── 2. SHEET DRILLING ─────────────────────────────────────
     // ─── 2. SHEET DRILLING ─────────────────────────────────────
 const drillingSheets = await getAllSpreadsheetsData("DRILLING");
+
+for (const { site, data, success } of drillingSheets) {
+  if (!success) continue;
+  const rows = data as string[][];
+  // cari row yang r[2] berisi format tanggal seperti "1-Jan-26"
+  const firstDateRow = rows.find(r => r[2] && r[2].includes('-Jan-'));
+  console.log(`[DRILLING RAW] site: ${site}, first date row:`, JSON.stringify(firstDateRow));
+  console.log(`[DRILLING RAW] total rows: ${rows.length}`);
+}
 
 for (const { site, data, success } of drillingSheets) {
   if (!success) {
@@ -81,7 +91,7 @@ for (const { site, data, success } of drillingSheets) {
 
 // ─── 3. SHEET LOADING ──────────────────────────────────────
 logger.info("[JOB] Waiting 10s before fetching LOADING...");
-await new Promise(resolve => setTimeout(resolve, 10000));
+await new Promise(resolve => setTimeout(resolve, 20000));
 const loadingSheets = await getAllSpreadsheetsData("LOADING");
 
 for (const { site, data, success } of loadingSheets) {
@@ -110,7 +120,7 @@ for (const { site, data, success } of loadingSheets) {
 
 // ─── 4. SHEET HAULING ──────────────────────────────────────
 logger.info("[JOB] Waiting 10s before fetching HAULING...");
-await new Promise(resolve => setTimeout(resolve, 10000));
+await new Promise(resolve => setTimeout(resolve, 20000));
 const haulingSheets = await getAllSpreadsheetsData("HAULING");
 
 for (const { site, data, success } of haulingSheets) {
@@ -139,7 +149,7 @@ for (const { site, data, success } of haulingSheets) {
 
 // ─── 5. SHEET SUPPORTING ───────────────────────────────────
 logger.info("[JOB] Waiting 10s before fetching SUPPORTING...");
-await new Promise(resolve => setTimeout(resolve, 10000));
+await new Promise(resolve => setTimeout(resolve, 20000));
 const supportingSheets = await getAllSpreadsheetsData("SUPPORTING");
 
 for (const { site, data, success } of supportingSheets) {
