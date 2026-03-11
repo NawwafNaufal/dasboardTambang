@@ -21,6 +21,7 @@ export const transformDrilling = (row: string[]) => {
         unit: "meter",
         plan,
         actual,
+        reason,
         breakdown:
             Object.keys(filteredBreakdown).length > 0
             ? filteredBreakdown

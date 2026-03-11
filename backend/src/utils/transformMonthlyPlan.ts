@@ -141,10 +141,10 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
       if (ppoDirect) activities["ppo_direct"] = ppoDirect;
 
     } else if (site === "PT Semen Padang") {
-      console.log(`  - Transforming loading_hauling...`);
+      // console.log(`  - Transforming loading_hauling...`);
       const loadingHauling = transformLoadingHaulingPadang(row);
       activities["loading_hauling"] = loadingHauling;
-      console.log(`  - Result:`, loadingHauling);
+      // console.log(`  - Result:`, loadingHauling);
     }
 
     const record: DailyOperationData = {

@@ -152,11 +152,11 @@ export default function FearGreedGaugePaTwo({ initialValue = 84 }: Props) {
           pointerEvents: "none",
           whiteSpace: "nowrap",
         }}>
-          <div style={{ color: valC, fontSize: "36px", fontWeight: 700, lineHeight: 1, transition: "color .3s" }}>
+          <div style={{ color: valC, fontSize: "30px", fontWeight: 700, lineHeight: 1, transition: "color .3s" }}>
             {displayed}
           </div>
           <div style={{ color: subC, fontSize: "12px", marginTop: "4px", transition: "color .3s" }}>
-            Drilling
+            Hauling
           </div>
         </div>
       </div>

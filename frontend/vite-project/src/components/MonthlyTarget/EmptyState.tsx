@@ -18,25 +18,25 @@ export default function EmptyState({
   onMonthChange
 }: EmptyStateProps) {
   return (
-    <div ref={chartRef} className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-5 transition-all duration-300 ease-in-out h-full min-h-[500px] flex flex-col">
+    <div
+      ref={chartRef}
+      className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-5 transition-all duration-300 ease-in-out flex flex-col"
+      style={{ height: "716px" }}
+    >
       <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-            {/* Monthly Target - {selectedPT} */}
           </h3>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {getMonthName(selectedMonth)} {currentYear}
           </p>
         </div>
-
         <div className="relative h-9 w-32">
           <CalenderIcon className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-gray-500 z-10" />
           <select
             value={selectedMonth}
             onChange={(e) => onMonthChange(parseInt(e.target.value))}
-            className="h-full w-full rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm
-                       appearance-none cursor-pointer
-                       dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="h-full w-full rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm appearance-none cursor-pointer dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
               <option key={month} value={month}>
@@ -57,9 +57,7 @@ export default function EmptyState({
           </svg>
         </div>
         <div className="text-center">
-          <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">
-            Tidak Ada Data
-          </p>
+          <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">Tidak Ada Data</p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Belum ada data target bulanan untuk {selectedPT} di bulan {getMonthName(selectedMonth)} {currentYear}
           </p>

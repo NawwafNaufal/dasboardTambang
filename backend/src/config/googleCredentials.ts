@@ -1,6 +1,7 @@
 import { google } from "googleapis";
 import { credentialsGoogle } from "../credentials/credentialGoogle";
 import "dotenv/config"
+import SPREADSHEET_CONFIGS from "../utils/spreadsheetConfigs";
 
 const dataCredentials = credentialsGoogle();
 const auth = new google.auth.GoogleAuth({
@@ -10,30 +11,8 @@ const auth = new google.auth.GoogleAuth({
 
 const sheet = google.sheets({ version: "v4", auth });
 
-const SPREADSHEET_CONFIGS = [
-  {
-    id: process.env.ID_SPREADSHEETS_TONASA,
-    site: "PT Semen Tonasa",
-    range: "Sheet1!A1:AZ500"
-  },
-  {
-    id: process.env.ID_SPREADSHEETS_LSB,
-    site: "Lamongan Shorebase",
-    range: "Sheet1!A1:Z100"
-  },
-  {
-    id: process.env.ID_SPREADSHEETS_UTSG,
-    site: "Site Sale",
-    range: "Sheet1!A1:Z100"
-  },
-  {
-    id: process.env.ID_SPREADSHEETS_PADANG,
-    site: "PT Semen Padang",
-    range: "Sheet1!A1:Z100"
-  }
-];
-
 export const getDataGoogle = async (spreadsheetId: string, range: string = "Sheet1!A1:Z100") => {
+  console.log("RANGE YANG DIKIRIM:", range);
   const res = await sheet.spreadsheets.values.get({
     spreadsheetId: spreadsheetId,
     range: range,
@@ -41,22 +20,23 @@ export const getDataGoogle = async (spreadsheetId: string, range: string = "Shee
   return res.data.values ?? [];
 };
 
-export const getAllSpreadsheetsData = async () => {
-  const promises = SPREADSHEET_CONFIGS.map(async (config) => {
+export const getAllSpreadsheetsData = async (module : keyof typeof SPREADSHEET_CONFIGS) => {
+  const configs = SPREADSHEET_CONFIGS[module]
+  const promises = configs.map(async (config) => {
     try {
       const data = await getDataGoogle(config.id, config.range);
       
       return {
         spreadsheetId: config.id,
-        site: config.site,
-        data: data,
+        site: config.name,
+        data,
         success: true
       };
     } catch (error: any) {
-      console.error(`[GOOGLE] Error fetching ${config.site} (${config.id}):`, error.message);
+      console.error(`[GOOGLE] Error fetching ${config.name} (${config.id}):`, error.message);
       return {
         spreadsheetId: config.id,
-        site: config.site,
+        site: config.name,
         data: [],
         success: false,
         error: error.message
