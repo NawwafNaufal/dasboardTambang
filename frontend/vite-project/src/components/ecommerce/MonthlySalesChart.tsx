@@ -210,10 +210,6 @@ export default function MonthlySalesChart({
 
   const currentProducts = Object.keys(apiData[selectedPT]);
   
-  console.log('🔍 [Chart] Current PT:', selectedPT);
-  console.log('📦 [Chart] Available products (snake_case):', currentProducts);
-  console.log('🎯 [Chart] Current activity from props (snake_case):', currentActivity);
-  
   if (currentProducts.length === 0) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">

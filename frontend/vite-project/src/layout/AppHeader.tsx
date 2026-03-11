@@ -11,6 +11,8 @@ interface AppHeaderProps {
   onActivityChange?: (activity: string) => void;
   apiUrl?: string;
   year?: number;
+  activeTab?: string;
+  onUnitActivityChange?: (activity: string) => void; // ← TAMBAH
 }
 
 interface MonthlyData {
@@ -32,18 +34,23 @@ interface ApiResponse {
   data: SiteData;
 }
 
-const AppHeader: React.FC<AppHeaderProps> = ({ 
-  selectedPT, 
+const AppHeader: React.FC<AppHeaderProps> = ({
+  selectedPT,
   onPTChange,
   currentActivity,
   onActivityChange,
-  apiUrl = "http://76.13.198.60:4000/api/monthly-actual/by-site",
-  year = 2026
+  apiUrl = "http://localhost:4000/api/monthly-actual/by-site",
+  year = 2026,
+  activeTab = "Volume",
+  onUnitActivityChange, // ← TAMBAH
 }) => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(0);
   const [activities, setActivities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [unitActivities, setUnitActivities] = useState<string[]>([]);
+  const [selectedUnitCategory, setSelectedUnitCategory] = useState(0);
+  const [loadingUnit, setLoadingUnit] = useState(true);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
@@ -54,6 +61,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       .join(' ');
   };
 
+  // fetch Volume activities
   useEffect(() => {
     const fetchActivities = async () => {
       try {
@@ -71,7 +79,6 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           setActivities([]);
         }
       } catch (err) {
-        console.error("❌ [AppHeader] Error:", err);
         setActivities([]);
       } finally {
         setLoading(false);
@@ -79,6 +86,35 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     };
     fetchActivities();
   }, [selectedPT, apiUrl, year]);
+
+  // fetch Unit activities
+  useEffect(() => {
+    const fetchUnitActivities = async () => {
+      try {
+        setLoadingUnit(true);
+        const response = await fetch(`http://localhost:4000/api/activities`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const result = await response.json();
+        if (result.success) {
+          setUnitActivities(result.data);
+        } else {
+          setUnitActivities([]);
+        }
+      } catch (err) {
+        setUnitActivities([]);
+      } finally {
+        setLoadingUnit(false);
+      }
+    };
+    fetchUnitActivities();
+  }, []);
+
+  // notify parent saat unit activities pertama kali loaded
+  useEffect(() => {
+    if (unitActivities.length > 0) {
+      onUnitActivityChange?.(unitActivities[0]); // ← default activity pertama
+    }
+  }, [unitActivities]);
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -93,20 +129,30 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   };
 
   const goToNext = () => {
-    const nextIndex = selectedCategory < activities.length - 1 ? selectedCategory + 1 : 0;
-    setSelectedCategory(nextIndex);
-    if (onActivityChange && activities[nextIndex]) {
-      onActivityChange(activities[nextIndex]);
+    if (activeTab === "Volume") {
+      const nextIndex = selectedCategory < activities.length - 1 ? selectedCategory + 1 : 0;
+      setSelectedCategory(nextIndex);
+      if (onActivityChange && activities[nextIndex]) {
+        onActivityChange(activities[nextIndex]);
+      }
+    } else {
+      const nextIndex = selectedUnitCategory < unitActivities.length - 1 ? selectedUnitCategory + 1 : 0;
+      setSelectedUnitCategory(nextIndex);
+      onUnitActivityChange?.(unitActivities[nextIndex]); // ← notify parent
     }
   };
 
   useEffect(() => {
     setSelectedCategory(0);
+    setSelectedUnitCategory(0);
   }, [selectedPT, year]);
 
-  const currentActivityDisplay = activities[selectedCategory] 
-    ? formatActivityName(activities[selectedCategory])
-    : "Loading...";
+  const isLoadingCurrent = activeTab === "Volume" ? loading : loadingUnit;
+  const currentList = activeTab === "Volume" ? activities : unitActivities;
+  const currentIndex = activeTab === "Volume" ? selectedCategory : selectedUnitCategory;
+  const currentActivityDisplay = currentList[currentIndex]
+    ? formatActivityName(currentList[currentIndex])
+    : "No activities";
 
   return (
     <header className="sticky top-0 flex w-full h-[65px] bg-white border-gray-200 z-99999 dark:border-gray-800 dark:bg-gray-900 lg:border-b">
@@ -152,10 +198,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                   <path d="M7 7H2v12h5"/>
                 </svg>
                 <span className="tracking-wide truncate">
-                  {loading ? "Loading..." : activities.length > 0 ? currentActivityDisplay : "No activities"}
+                  {isLoadingCurrent ? "Loading..." : currentList.length > 0 ? currentActivityDisplay : "No activities"}
                 </span>
               </div>
-              {!loading && activities.length > 0 && (
+              {!isLoadingCurrent && currentList.length > 0 && (
                 <button
                   onClick={goToNext}
                   className="flex items-center justify-center flex-shrink-0 w-8 h-8 bg-white border-2 border-gray-200 rounded-lg text-gray-900 transition-all hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-700"
@@ -170,17 +216,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           </div>
         </div>
 
-        {/* Right side: UserDropdown kiri, ThemeToggle kanan */}
-        <div
-          className={`${
-            isApplicationMenuOpen ? "flex" : "hidden"
-          } items-center justify-between w-full gap-4 px-5 py-2 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}
-        >
+        <div className={`${isApplicationMenuOpen ? "flex" : "hidden"} items-center justify-between w-full gap-4 px-5 py-2 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}>
           <div className="flex items-center gap-2 2xsm:gap-3">
-            <UserDropdown 
-              selectedPT={selectedPT}
-              onPTChange={onPTChange}
-            />
+            <UserDropdown selectedPT={selectedPT} onPTChange={onPTChange} />
             <ThemeToggleButton />
           </div>
         </div>

@@ -13,6 +13,11 @@ interface DrillingUnitData {
   ma: number;
   eu: number;
   plan?: number;
+  produktivityIndex?: { // ← TAMBAH
+    lbgJam: number;
+    mtrJam: number;
+    ltrMtr: number;
+  };
 }
 
 export const syncDrillingService = async (data: DrillingUnitData) => {
@@ -28,11 +33,11 @@ export const syncDrillingService = async (data: DrillingUnitData) => {
       ua: data.ua,
       ma: data.ma,
       eu: data.eu,
-      fuel: data.fuel ?? 0, // ✅ tambah fuel
+      fuel: data.fuel ?? 0,
       productivityIndex: {
-        lbgJam: 0,
-        mtrJam: 0,
-        ltrMtr: 0,
+        lbgJam: data.produktivityIndex?.lbgJam ?? 0, // ← FIX
+        mtrJam: data.produktivityIndex?.mtrJam ?? 0, // ← FIX
+        ltrMtr: data.produktivityIndex?.ltrMtr ?? 0, // ← FIX
       },
     };
 
@@ -47,7 +52,6 @@ export const syncDrillingService = async (data: DrillingUnitData) => {
     };
 
     await upsertProductionUnits(prodUnitData);
-
     return { action: "insert" };
   } catch (error) {
     console.error(`[SERVICE] syncDrillingService Error:`, error);

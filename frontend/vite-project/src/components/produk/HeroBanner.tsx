@@ -1,23 +1,18 @@
-import { useState } from "react";
 import { useOutletContext } from "react-router";
 
 interface HeroBannerProps {
+  activeTab: string;
   onTabChange?: (tab: string) => void;
 }
 
-export default function HeroBanner({ onTabChange }: HeroBannerProps) {
-  const [activeTab, setActiveTab] = useState("Volume");
+export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) {
   const tabs = ["Volume", "Unit"];
+
   let selectedPT = "PT Semen Tonasa";
   try {
     const ctx = useOutletContext<{ selectedPT?: string }>();
     if (ctx?.selectedPT) selectedPT = ctx.selectedPT;
   } catch {}
-
-  const handleTab = (tab: string) => {
-    setActiveTab(tab);
-    onTabChange?.(tab);
-  };
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden" style={{ height: "510px" }}>
@@ -54,9 +49,11 @@ export default function HeroBanner({ onTabChange }: HeroBannerProps) {
             {tabs.map((tab) => (
               <button
                 key={tab}
-                onClick={() => handleTab(tab)}
+                onClick={() => onTabChange?.(tab)}
                 className={`px-6 py-2 rounded-sm text-sm font-medium transition-all duration-200 ${
-                  activeTab === tab ? "bg-white text-gray-800 shadow" : "text-white hover:text-white/80"
+                  activeTab === tab
+                    ? "bg-white text-gray-800 shadow"
+                    : "text-white hover:text-white/80"
                 }`}
               >
                 {tab}

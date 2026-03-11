@@ -13,6 +13,11 @@ interface SupportingUnitData {
   ma: number;
   eu: number;
   plan?: number;
+  produktivityIndex?: { // ← TAMBAH
+    lbgJam: number;
+    mtrJam: number;
+    ltrMtr: number;
+  };
 }
 
 export const syncSupportingService = async (data: SupportingUnitData) => {
@@ -30,9 +35,9 @@ export const syncSupportingService = async (data: SupportingUnitData) => {
       eu: data.eu,
       fuel: data.fuel ?? 0,
       productivityIndex: {
-        lbgJam: 0,
-        mtrJam: 0,
-        ltrMtr: 0,
+        lbgJam: data.produktivityIndex?.lbgJam ?? 0, // ← FIX
+        mtrJam: data.produktivityIndex?.mtrJam ?? 0, // ← FIX
+        ltrMtr: data.produktivityIndex?.ltrMtr ?? 0, // ← FIX
       },
     };
 

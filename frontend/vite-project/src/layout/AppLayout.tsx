@@ -9,6 +9,8 @@ const LayoutContent: React.FC = () => {
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const [selectedPT, setSelectedPT] = useState("PT Semen Tonasa");
   const [currentActivity, setCurrentActivity] = useState<string>("");
+  const [activeTab, setActiveTab] = useState("Volume");
+  const [currentUnitActivity, setCurrentUnitActivity] = useState<string>(""); // ← TAMBAH
 
   return (
     <div className="min-h-screen xl:flex">
@@ -26,9 +28,11 @@ const LayoutContent: React.FC = () => {
           onPTChange={setSelectedPT}
           currentActivity={currentActivity}
           onActivityChange={setCurrentActivity}
+          activeTab={activeTab}
+          onUnitActivityChange={setCurrentUnitActivity} // ← TAMBAH
         />
         <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-          <Outlet context={{ selectedPT, currentActivity }} />
+          <Outlet context={{ selectedPT, currentActivity, activeTab, setActiveTab, currentUnitActivity }} />
         </div>
       </div>
     </div>
