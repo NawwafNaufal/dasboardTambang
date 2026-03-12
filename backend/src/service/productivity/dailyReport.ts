@@ -4,9 +4,6 @@ import { MonthlyActualResult } from "../../interface/productivity/monthlyActualT
 import Decimal from "decimal.js";
 import { parseNum } from "../../utils/parseNum";
 
-/**
- * Helper untuk parsing nilai actual dengan aman
- */
 const parseActual = (actual: string | number | undefined): Decimal => {
   let num = 0;
 
@@ -31,10 +28,6 @@ export const getMonthlyActualBySiteService = async (
     .select("site date activities")
     .lean();
 
-  /**
-   * Struktur penyimpanan:
-   * grouped[site][activityName][month] = Decimal
-   */
   const grouped: Record<string, Record<string, Record<string, Decimal>>> = {};
 
   for (const doc of records) {
@@ -48,7 +41,7 @@ export const getMonthlyActualBySiteService = async (
     for (const [key, activity] of Object.entries(doc.activities)) {
       const activityName = key
         .replace(/_/g, " ")
-        .replace(/\b\w/g, (l) => l.toUpperCase());
+        .replace(/\b\w/g, l => l.toUpperCase());
 
       grouped[site][activityName] ??= {};
       grouped[site][activityName][month] ??= new Decimal(0);
