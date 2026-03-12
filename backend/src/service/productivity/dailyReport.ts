@@ -2,15 +2,20 @@ import { DailyOperation } from "../../model/monthly.model";
 import { getMonthName } from "../../utils/data";
 import { MonthlyActualResult } from "../../interface/productivity/monthlyActualType";
 import Decimal from "decimal.js";
-import { parseNum, isLargeNumberColumn } from "../../utils/parseNum";
+import { parseNum } from "../../utils/parseNum";
 
-const parseActual = (actual: string | number | undefined, colIndex: number): Decimal => {
+/**
+ * Helper untuk parsing nilai actual dengan aman
+ */
+const parseActual = (actual: string | number | undefined): Decimal => {
   let num = 0;
+
   if (typeof actual === "number") {
     num = actual;
   } else if (typeof actual === "string") {
-    num = parseNum(actual, isLargeNumberColumn(colIndex)) ?? 0;
+    num = parseNum(actual) ?? 0;
   }
+
   return new Decimal(num);
 };
 
@@ -26,7 +31,10 @@ export const getMonthlyActualBySiteService = async (
     .select("site date activities")
     .lean();
 
-  // Struktur: grouped[site][activityName][month] = Decimal
+  /**
+   * Struktur penyimpanan:
+   * grouped[site][activityName][month] = Decimal
+   */
   const grouped: Record<string, Record<string, Record<string, Decimal>>> = {};
 
   for (const doc of records) {
@@ -40,15 +48,15 @@ export const getMonthlyActualBySiteService = async (
     for (const [key, activity] of Object.entries(doc.activities)) {
       const activityName = key
         .replace(/_/g, " ")
-        .replace(/\b\w/g, l => l.toUpperCase());
+        .replace(/\b\w/g, (l) => l.toUpperCase());
 
       grouped[site][activityName] ??= {};
       grouped[site][activityName][month] ??= new Decimal(0);
 
-      // Gunakan parseActual untuk presisi
-      const colIndex = Number(key); // sesuaikan jika index berbeda
       grouped[site][activityName][month] =
-        grouped[site][activityName][month].plus(parseActual(activity?.actual, colIndex));
+        grouped[site][activityName][month].plus(
+          parseActual(activity?.actual)
+        );
     }
   }
 
@@ -65,9 +73,10 @@ export const getMonthlyActualBySiteService = async (
 
         result[site][activity].push({
           month: getMonthName(i),
-          // Konversi Decimal ke number, bulatkan 2 desimal mirip Excel
           value: grouped[site][activity][monthKey]
-            ? grouped[site][activity][monthKey].toDecimalPlaces(2).toNumber()
+            ? grouped[site][activity][monthKey]
+                .toDecimalPlaces(2)
+                .toNumber()
             : 0
         });
       }
