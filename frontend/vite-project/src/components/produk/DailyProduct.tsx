@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useOutletContext } from "react-router";
 import { useSidebar } from "../../context/SidebarContext";
 
-const BASE_URL = "http://localhost:4000/api";
+const BASE_URL = "http://76.13.198.60:4000";
 
 type Month = "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun" | "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec";
 const months: Month[] = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -263,6 +263,14 @@ export default function DailyProduct() {
         if (seriesIndex === 1) return `${val.toFixed(2)} mtr/jam`;
         return `${val.toFixed(4)} ltr/mtr`;
       },
+      // Data label formatter per series untuk productivity
+      dataLabelFormatter: (val: number, opts: any) => {
+        const si = opts.seriesIndex;
+        if (si === 0) return (val as number).toFixed(1);
+        if (si === 1) return (val as number).toFixed(1);
+        return (val as number).toFixed(3);
+      },
+      dataLabelColors: ["#38BDF8", "#34D399", "#FACC15"],
     },
     fuel: {
       title: "Fuel Consumption",
@@ -281,6 +289,9 @@ export default function DailyProduct() {
         title: { text: "Liter", style: { color: "#F97316" } }
       }],
       tooltipFormatter: (val: number) => `${val.toFixed(2)} ltr`,
+      // Data label formatter untuk fuel
+      dataLabelFormatter: (val: number) => (val as number).toFixed(0),
+      dataLabelColors: ["#F97316"],
     },
   }), [dailyData]);
 
@@ -288,15 +299,45 @@ export default function DailyProduct() {
   const mainPct = pctChange(cfg.mainData);
   const isPositive = Number(mainPct) >= 0;
 
+  // Jika data terlalu banyak (>15 hari), tampilkan label hanya di titik genap agar tidak berhimpitan
+  const tooManyPoints = dailyData.days.length > 15;
+
   const options: ApexOptions = {
     chart: {
       type: "line", fontFamily: "Outfit, sans-serif",
       toolbar: { show: false }, background: "transparent",
       animations: { enabled: true, speed: 600 }
     },
+    dataLabels: {
+      enabled: true,
+      formatter: (val: number, opts: any) => {
+        // Sembunyikan label pada index ganjil jika data terlalu banyak
+        if (tooManyPoints && opts.dataPointIndex % 2 !== 0) return "";
+        return cfg.dataLabelFormatter(val, opts);
+      },
+      style: {
+        fontSize: "10px",
+        fontFamily: "Outfit, sans-serif",
+        fontWeight: "700",
+        colors: cfg.dataLabelColors,
+      },
+      background: {
+        enabled: true,
+        foreColor: isDark ? "#111827" : "#ffffff",
+        padding: 3,
+        borderRadius: 4,
+        borderWidth: 1,
+        borderColor: isDark ? "#374151" : "#e5e7eb",
+        opacity: 0.85,
+        dropShadow: {
+          enabled: false,
+        },
+      },
+      offsetY: -8,
+    },
     stroke: { curve: "smooth", width: [2.5, 2.5, 2.5] },
     colors: cfg.colors,
-    markers: { size: 0, hover: { size: 5 } },
+    markers: { size: 4, hover: { size: 6 } },
     xaxis: {
       categories: dailyData.days,
       labels: { style: { colors: textColor, fontSize: "11px" }, rotate: 0 },
@@ -304,7 +345,7 @@ export default function DailyProduct() {
       title: { text: "Hari", style: { color: textColor, fontSize: "11px" } }
     },
     yaxis: cfg.yaxis as ApexOptions["yaxis"],
-    grid: { borderColor: gridColor, strokeDashArray: 4, padding: { top: -10, right: 10 } },
+    grid: { borderColor: gridColor, strokeDashArray: 4, padding: { top: 20, right: 10 } },
     legend: {
       show: true, position: "top", horizontalAlign: "right",
       labels: { colors: textColor }, markers: { size: 6 }
@@ -428,7 +469,7 @@ export default function DailyProduct() {
           </div>
         ) : (
           // @ts-ignore
-          <Chart options={options} series={cfg.series} type="line" height={280} />
+          <Chart options={options} series={cfg.series} type="line" height={300} />
         )}
 
         {/* Month picker */}
