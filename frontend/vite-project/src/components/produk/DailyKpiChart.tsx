@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useOutletContext } from "react-router";
 import * as ApexChartsLib from "apexcharts";
 
-const BASE_URL = "http://localhost:4000/api";
+const BASE_URL = "http://76.13.198.60:4000";
 
 type Month = "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun" | "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec";
 const months: Month[] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
