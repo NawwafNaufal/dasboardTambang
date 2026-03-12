@@ -31,7 +31,7 @@ export default function HomeProduk() {
           <HeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
 
           {/* Unit: ProductivityIndexChart overlay */}
-          {activeTab === "Unit" && (
+          {activeTab === "Index" && (
             <div
               className="hidden xl:block absolute bottom-0 left-4 z-10"
               style={{ width: "30%", transform: "translateY(86%)" }}
@@ -41,7 +41,7 @@ export default function HomeProduk() {
               </div>
             </div>
           )}
-          {activeTab === "Unit" && (
+          {activeTab === "Index" && (
             <div className="xl:hidden mt-4">
               <ProductivityIndexChart />
             </div>
@@ -97,7 +97,7 @@ export default function HomeProduk() {
         )}
 
         {/* ── UNIT TAB ── */}
-        {activeTab === "Unit" && (
+        {activeTab === "Index" && (
           <>
             <div
               className="grid grid-cols-12 gap-4 md:gap-6 items-stretch"

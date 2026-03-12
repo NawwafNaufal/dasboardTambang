@@ -6,7 +6,7 @@ interface HeroBannerProps {
 }
 
 export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) {
-  const tabs = ["Volume", "Unit"];
+  const tabs = ["Volume", "Index"];
 
   let selectedPT = "PT Semen Tonasa";
   try {
