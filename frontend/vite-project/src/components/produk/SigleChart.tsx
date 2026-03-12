@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useOutletContext } from "react-router";
 
-const BASE_URL = "http://76.13.198.60:4000";
+const BASE_URL = "http://76.13.198.60:4000/api";
 const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
 const KPI_SERIES = [
