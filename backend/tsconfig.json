@@ -2,6 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "esnext",
+    "outDir": "dist",        // 🔥 TAMBAHKAN
+    "rootDir": "src",        // 🔥 TAMBAHKAN
+
     "types": ["node"],
     "sourceMap": true,
     "declaration": true,
@@ -10,7 +13,7 @@
     "exactOptionalPropertyTypes": false,
     "strict": true,
     "strictNullChecks": false,
-    "noImplicitAny": false,  // ← TAMBAHKAN INI
+    "noImplicitAny": false,
     "jsx": "react-jsx",
     "verbatimModuleSyntax": false,
     "isolatedModules": true,
@@ -20,9 +23,5 @@
     "esModuleInterop": true,
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },
-  "include": ["src/**/*"],
-  "ts-node": {
-    "files": true,
-    "transpileOnly": false
-  }
+  "include": ["src/**/*.ts"]
 }
