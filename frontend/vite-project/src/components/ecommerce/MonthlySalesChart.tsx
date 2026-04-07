@@ -7,7 +7,7 @@ const ApexChart = Chart as any;
 
 export default function MonthlySalesChart({ 
   selectedPT = "PT Semen Tonasa",
-  apiUrl = "http://76.13.198.60:4000/api/monthly-actual/by-site", 
+  apiUrl = "http://43.157.205.158:4000/api/monthly-actual/by-site", 
   year = 2026,  
   currentActivity
 }: MonthlySalesChartProps) {
@@ -18,7 +18,6 @@ export default function MonthlySalesChart({
   const [chartWidth, setChartWidth] = useState<string>("100%");
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Fungsi untuk format snake_case ke Title Case (untuk display)
   const formatActivityName = (name: string) => {
     return name
       .split('_')
@@ -177,7 +176,6 @@ export default function MonthlySalesChart({
 
   const availableSites = Object.keys(apiData);
   
-  // ✅ TIDAK FALLBACK ke PT lain - langsung cek apakah selectedPT ada
   if (!apiData[selectedPT]) {
     return (
       <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
@@ -240,7 +238,6 @@ export default function MonthlySalesChart({
     );
   }
 
-  // ✅ Langsung gunakan currentActivity untuk matching (sudah dalam format snake_case)
   const currentProductName = currentActivity && currentProducts.includes(currentActivity)
     ? currentActivity
     : currentProducts[0];
