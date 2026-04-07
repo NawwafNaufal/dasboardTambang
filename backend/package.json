@@ -5,7 +5,9 @@
   "main": "main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/main.js",
     "dev": "nodemon --legacy-watch ./src/main.ts",
+    "build": "tsc",
     "z": "nodemon src/main.ts"
   },
   "author": "M Nawwaf Naufal",
