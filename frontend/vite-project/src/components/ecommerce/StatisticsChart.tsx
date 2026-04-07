@@ -3,7 +3,7 @@ import Chart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { CalenderIcon } from "../../icons";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://76.13.198.60:4000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://43.157.205.158:4000';
 const API_ENDPOINTS = {
   STATISTICS: '/api/static'
 };
