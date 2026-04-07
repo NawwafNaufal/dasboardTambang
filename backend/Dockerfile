@@ -10,4 +10,4 @@ COPY . .
 
 EXPOSE 4000
 
-CMD ["node", "--max-old-space-size=4096", "dist/main.js"]
+CMD [ "node", "--max-old-space-size=4096", "-r", "ts-node/register", "src/main.ts" ]
