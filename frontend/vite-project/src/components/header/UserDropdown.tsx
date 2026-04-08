@@ -19,7 +19,7 @@ export default function UserDropdown({
   const ptOptions = [
     "PT Semen Tonasa",
     "PT Semen Padang",
-    "Lamongan Shorebase",
+    "Jakamitra",
     "Site Sale"
   ];
 

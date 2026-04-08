@@ -21,7 +21,7 @@ export default function EmptyState({
     <div
       ref={chartRef}
       className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-5 transition-all duration-300 ease-in-out flex flex-col"
-      style={{ minHeight: "615px" }}
+      style={{ minHeight: "715px" }}
     >
       <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div>
@@ -62,7 +62,7 @@ export default function EmptyState({
             Belum ada data target bulanan untuk {selectedPT} di bulan {getMonthName(selectedMonth)} {currentYear}
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-            Silakan pilih bulan lain atau tambahkan data melalui form input
+            Silakan pilih bulan lain atau tambahkan data melalui spreadsheet
           </p>
         </div>
       </div>

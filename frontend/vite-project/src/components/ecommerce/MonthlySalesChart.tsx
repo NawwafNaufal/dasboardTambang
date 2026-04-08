@@ -166,7 +166,7 @@ export default function MonthlySalesChart({
               Belum ada data aktual untuk tahun {year}
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              Silakan tambahkan data melalui form input
+              Silakan tambahkan data melalui spreadsheet
             </p>
           </div>
         </div>

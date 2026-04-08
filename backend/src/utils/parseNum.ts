@@ -112,7 +112,7 @@ export const isHeaderRow = (row: string[]) => {
   const companyHeaders = [
     "PT Semen Tonasa",
     "PT Semen Padang",
-    "Lamongan Shorebase",
+    "Jakamitra",
     "Site Sale"
   ];
   
