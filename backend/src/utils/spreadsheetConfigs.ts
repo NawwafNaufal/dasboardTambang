@@ -16,7 +16,7 @@ export type SpreadsheetModules = {
 
 const sites = [
   { id: process.env.ID_SPREADSHEETS_TONASA!, name: "PT Semen Tonasa" },
-  { id: process.env.ID_SPREADSHEETS_LSB!, name: "Lamongan Shorebase" },
+  { id: process.env.ID_SPREADSHEETS_LSB!, name: "Jakamitra" },
   { id: process.env.ID_SPREADSHEETS_UTSG!, name: "Site Sale" },
   { id: process.env.ID_SPREADSHEETS_PADANG!, name: "PT Semen Padang" },
 ]

@@ -562,7 +562,7 @@ export default function StatisticsChart({
               Belum ada data operasional untuk {apiData?.site || selectedPT} di bulan {selectedMonth} {selectedYear}
             </p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              Silakan pilih bulan lain atau tambahkan data melalui form input
+              Silakan pilih bulan lain atau tambahkan data melalui spreadsheet
             </p>
           </div>
         </div>

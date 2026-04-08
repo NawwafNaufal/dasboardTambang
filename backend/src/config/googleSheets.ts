@@ -6,7 +6,7 @@ export const SPREADSHEET_CONFIGS = [
   },
   {
     id: process.env.ID_SPREADSHEETS_LSB!,
-    site: "Lamongan Shorebase",
+    site: "Jakamitra",
     range: "Sheet1!A1:Z100"
   },
   {

@@ -17,7 +17,6 @@ import { transformObInsitu } from "../activities/utsg/obInstitu";
 import { transformEr } from "../activities/utsg/er";
 import { transformPpoDirect } from "../activities/utsg/ppoDirect";
 
-// Lamongan Shorebase
 import { transformStock } from "../activities/lamonganShorbase/stock";
 import { transformCotonFields } from "../activities/lamonganShorbase/cotonFields";
 
@@ -99,7 +98,7 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     const activities: DailyOperationData["activities"] = {};
 
     // Transform berdasarkan site
-    if (site === "Lamongan Shorebase") {
+    if (site === "Jakamitra") {
       const cotonFields = transformCotonFields(row);
       if (cotonFields) activities["coton_fields"] = cotonFields;
 
