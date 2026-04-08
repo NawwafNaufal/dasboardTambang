@@ -51,7 +51,7 @@ export default function HomeProduk() {
           {activeTab === "Volume" && (
             <div
               className="hidden xl:block absolute bottom-0 left-4 z-10"
-              style={{ width: "30%", transform: "translateY(86%)" }}
+              style={{ width: "30%", transform: "translateY(88.5%)" }}
             >
               <div>
                 <MonthlyTarget
