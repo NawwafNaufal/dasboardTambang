@@ -106,7 +106,7 @@ export default function MonthlyTarget({
     <div
       ref={chartRef}
       className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03] transition-all duration-300 ease-in-out flex flex-col"
-      style={{ minHeight: "615px" }}
+       style={{ minHeight: "min(700px, 79.1svh)" }}
     >
       <div className="flex-1 flex flex-col px-5 pt-5 bg-white shadow-default rounded-t-2xl dark:bg-gray-900 sm:px-6 sm:pt-6 transition-all duration-300 ease-in-out overflow-hidden">
         <MonthlyTargetHeader

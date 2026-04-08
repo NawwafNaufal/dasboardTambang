@@ -21,10 +21,10 @@ export default function MonthlyTargetStats({ currentData }: MonthlyTargetStatsPr
 function StatItem({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex-1 max-w-[100px]">
-      <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400 sm:text-sm">
+      <p className="mb-1 text-center text-gray-500 text-theme-xs dark:text-gray-400">
         {label}
       </p>
-      <p className="flex items-center justify-center gap-1 text-base font-semibold text-gray-800 dark:text-white/90 sm:text-lg">
+      <p className="flex items-center justify-center gap-1 text-xs font-semibold text-gray-800 dark:text-white/90 sm:text-sm">
         {value.toLocaleString('id-ID')}
       </p>
     </div>

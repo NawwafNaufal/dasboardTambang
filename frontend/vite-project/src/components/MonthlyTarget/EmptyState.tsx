@@ -20,8 +20,8 @@ export default function EmptyState({
   return (
     <div
       ref={chartRef}
-      className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-5 transition-all duration-300 ease-in-out flex flex-col"
-      style={{ minHeight: "715px" }}
+       className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-5 transition-all duration-300 ease-in-out flex flex-col"
+      style={{ minHeight: "min(700px, 79.1svh)" }}
     >
       <div className="mb-6 flex flex-col gap-5 sm:flex-row sm:justify-between">
         <div>
