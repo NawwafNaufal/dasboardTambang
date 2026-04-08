@@ -12,7 +12,7 @@ export default function MonthlyTargetHeader({
   siteName,
   currentActivity,
   selectedMonth,
-  onMonthChange
+  onMonthChange,
 }: MonthlyTargetHeaderProps) {
   return (
     <div className="flex justify-between mb-4">
@@ -40,8 +40,18 @@ export default function MonthlyTargetHeader({
               </option>
             ))}
           </select>
-          <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <svg
+            className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
           </svg>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { ApexOptions } from "apexcharts";
 import MonthlyTargetChart from "../../components/MonthlyTarget/MonthlyTargetChart";
 import MonthlyTargetStats from "../../components/MonthlyTarget/MonthlyTargetStats";
@@ -11,10 +11,11 @@ import type { MonthlyTargetProps } from "../../interface/monthlyTarget";
 
 export default function MonthlyTarget({
   selectedPT = "PT Semen Tonasa",
-  currentActivity
+  currentActivity,
 }: MonthlyTargetProps) {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [chartKey, setChartKey] = useState(0);
+  const [chartHeight, setChartHeight] = useState(330);
   const chartRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -22,39 +23,68 @@ export default function MonthlyTarget({
   const { data, loading, error } = useMonthlyTargetData(selectedPT, selectedMonth, currentYear);
 
   useEffect(() => {
-    console.log('🎯 [MonthlyTarget] currentActivity changed to:', currentActivity);
+    console.log("🎯 [MonthlyTarget] currentActivity changed to:", currentActivity);
   }, [currentActivity]);
+
+  const updateSize = useCallback(() => {
+    if (!chartRef.current) return;
+    const width = chartRef.current.getBoundingClientRect().width;
+    const newHeight = Math.min(Math.max(width * 0.85, 280), 330);
+    setChartHeight(newHeight);
+    setChartKey((prev) => prev + 1);
+  }, []);
+
+  useLayoutEffect(() => {
+    updateSize();
+  }, [updateSize]);
 
   useEffect(() => {
     const handleResize = () => {
       if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
-      resizeTimeoutRef.current = setTimeout(() => {
-        setChartKey(prev => prev + 1);
-      }, 350);
+      resizeTimeoutRef.current = setTimeout(updateSize, 300);
     };
 
-    const resizeObserver = new ResizeObserver(() => handleResize());
-    if (chartRef.current) resizeObserver.observe(chartRef.current);
+    // Observe body untuk detect layout shift
+    const bodyObserver = new ResizeObserver(handleResize);
+    bodyObserver.observe(document.body);
+
+    // Observe sidebar TailAdmin langsung
+    const sidebar = document.querySelector("aside") || document.querySelector("nav");
+    let sidebarObserver: ResizeObserver | null = null;
+    if (sidebar) {
+      sidebarObserver = new ResizeObserver(handleResize);
+      sidebarObserver.observe(sidebar);
+    }
+
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      resizeObserver.disconnect();
+      bodyObserver.disconnect();
+      sidebarObserver?.disconnect();
+      window.removeEventListener("resize", handleResize);
       if (resizeTimeoutRef.current) clearTimeout(resizeTimeoutRef.current);
     };
-  }, []);
+  }, [updateSize]);
 
   if (loading) {
-    return <LoadingState chartRef={chartRef} />;
+    return (
+      <div className="w-full">
+        <LoadingState chartRef={chartRef} />
+      </div>
+    );
   }
 
   if (error || !data) {
     return (
-      <EmptyState
-        chartRef={chartRef}
-        selectedPT={selectedPT}
-        selectedMonth={selectedMonth}
-        currentYear={currentYear}
-        onMonthChange={setSelectedMonth}
-      />
+      <div className="w-full">
+        <EmptyState
+          chartRef={chartRef}
+          selectedPT={selectedPT}
+          selectedMonth={selectedMonth}
+          currentYear={currentYear}
+          onMonthChange={setSelectedMonth}
+        />
+      </div>
     );
   }
 
@@ -66,14 +96,17 @@ export default function MonthlyTarget({
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "radialBar",
-      height: 330,
+      height: chartHeight,
+      width: "100%",
       sparkline: { enabled: true },
+      redrawOnParentResize: true,
+      redrawOnWindowResize: true,
       animations: {
         enabled: true,
         speed: 800,
         animateGradually: { enabled: true, delay: 150 },
-        dynamicAnimation: { enabled: true, speed: 350 }
-      }
+        dynamicAnimation: { enabled: true, speed: 350 },
+      },
     },
     plotOptions: {
       radialBar: {
@@ -105,8 +138,7 @@ export default function MonthlyTarget({
   return (
     <div
       ref={chartRef}
-      className="rounded-2xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03] transition-all duration-300 ease-in-out flex flex-col"
-       style={{ minHeight: "min(700px, 79.1svh)" }}
+      className="w-full rounded-2xl border h-full border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/[0.03] transition-all duration-300 ease-in-out flex flex-col"
     >
       <div className="flex-1 flex flex-col px-5 pt-5 bg-white shadow-default rounded-t-2xl dark:bg-gray-900 sm:px-6 sm:pt-6 transition-all duration-300 ease-in-out overflow-hidden">
         <MonthlyTargetHeader
@@ -122,6 +154,7 @@ export default function MonthlyTarget({
           selectedPT={selectedPT}
           currentActivity={currentActivity}
           chartKey={chartKey}
+          chartHeight={chartHeight}
         />
       </div>
       <MonthlyTargetStats currentData={currentData} />

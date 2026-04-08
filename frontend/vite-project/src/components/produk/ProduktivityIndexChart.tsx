@@ -79,9 +79,21 @@ function UnitSelect({ value, onChange, units, t }: {
       </button>
       {open && (
         <div style={{
-          position: "absolute", top: "calc(100% + 6px)", right: 0, background: t.pickerBg,
+          position: "fixed",
+          top: (() => {
+            const el = ref.current;
+            if (!el) return 0;
+            return el.getBoundingClientRect().bottom + 6;
+          })(),
+          left: (() => {
+            const el = ref.current;
+            if (!el) return 0;
+            const rect = el.getBoundingClientRect();
+            return rect.right - 130;
+          })(),
+          background: t.pickerBg,
           borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
-          border: `1px solid ${t.pickerBorder}`, zIndex: 999, width: 130, overflow: "hidden"
+          border: `1px solid ${t.pickerBorder}`, zIndex: 9999, width: 130, overflow: "hidden"
         }}>
           <div style={{ padding: "8px 8px 6px", borderBottom: `1px solid ${t.pickerBorder}` }}>
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Cari unit..."
@@ -122,8 +134,11 @@ function DonutChart({ slices, size, t, totalValue }: {
   t: typeof T.light;
   totalValue: string;
 }) {
+  const padding = 30;
   const cx = size / 2, cy = size / 2;
-  const R = size * 0.42, r = size * 0.24, GAP = 3.5;
+  const R = size * 0.38;
+  const r = size * 0.22;
+  const GAP = 3.5;
   const toRad = (d: number) => (d * Math.PI) / 180;
   const total = slices.reduce((s, x) => s + x.pct, 0);
   const minPct = Math.min(...slices.map(s => s.pct));
@@ -132,7 +147,7 @@ function DonutChart({ slices, size, t, totalValue }: {
 
   slices.forEach(sl => {
     const isSmallest = sl.pct === minPct;
-    const pop = isSmallest ? 10 : 0;
+    const pop = isSmallest ? 6 : 0;
     const span = (sl.pct / total) * 360 - GAP;
     const end = start + span;
     const mid = start + span / 2;
@@ -144,7 +159,7 @@ function DonutChart({ slices, size, t, totalValue }: {
     const x2i = cx + ox + r * Math.cos(toRad(start)), y2i = cy + oy + r * Math.sin(toRad(start));
     const lg = span > 180 ? 1 : 0;
     const d = `M${x1o} ${y1o} A${R} ${R} 0 ${lg} 1 ${x2o} ${y2o} L${x1i} ${y1i} A${r} ${r} 0 ${lg} 0 ${x2i} ${y2i}Z`;
-    const lr = R + 2;
+    const lr = R - 10;
     const lx = cx + ox + lr * Math.cos(midRad);
     const ly = cy + oy + lr * Math.sin(midRad);
     paths.push({ d, color: sl.color, pct: sl.pct, value: sl.value, lx, ly });
@@ -152,27 +167,30 @@ function DonutChart({ slices, size, t, totalValue }: {
   });
 
   return (
-    <svg width={size + 100} height={size + 100} style={{ overflow: "visible" }}>
-      <g transform="translate(50,50)">
-        {paths.map((p, i) => <path key={i} d={p.d} fill={p.color} />)}
+    <svg
+      width={size + padding * 2}
+      height={size + padding * 2}
+      viewBox={`${-padding} ${-padding} ${size + padding * 2} ${size + padding * 2}`}
+      style={{ display: "block", overflow: "hidden" }}
+    >
+      {paths.map((p, i) => <path key={i} d={p.d} fill={p.color} />)}
 
-        {/* Center — total value */}
-        <text x={cx} y={cy - 6} textAnchor="middle" fontSize={22} fontWeight={800} fill={t.centerText}
-          style={{ fontFamily: "'DM Sans',sans-serif" }}>{totalValue}</text>
-        <text x={cx} y={cy + 15} textAnchor="middle" fontSize={11} fill={t.centerSub}
-          style={{ fontFamily: "'DM Sans',sans-serif" }}>Total</text>
+      {/* Center */}
+      <text x={cx} y={cy - 6} textAnchor="middle" fontSize={22} fontWeight={800}
+        fill={t.centerText} style={{ fontFamily: "'DM Sans',sans-serif" }}>{totalValue}</text>
+      <text x={cx} y={cy + 15} textAnchor="middle" fontSize={11}
+        fill={t.centerSub} style={{ fontFamily: "'DM Sans',sans-serif" }}>Total</text>
 
-        {/* Bubble — value asli */}
-        {paths.map((p, i) => (
-          <g key={`b${i}`}>
-            <circle cx={p.lx} cy={p.ly} r={23} fill={t.bubbleBg} stroke={t.bubbleBorder} strokeWidth={1.5} />
-            <text x={p.lx} y={p.ly + 4} textAnchor="middle" fontSize={10} fontWeight={700}
-              fill={t.bubbleText} style={{ fontFamily: "'DM Sans',sans-serif" }}>
-              {p.value}
-            </text>
-          </g>
-        ))}
-      </g>
+      {/* Bubble di dalam arc */}
+      {paths.map((p, i) => (
+        <g key={`b${i}`}>
+          <circle cx={p.lx} cy={p.ly} r={18} fill={t.bubbleBg} stroke={t.bubbleBorder} strokeWidth={1.5} />
+          <text x={p.lx} y={p.ly + 4} textAnchor="middle" fontSize={9} fontWeight={700}
+            fill={t.bubbleText} style={{ fontFamily: "'DM Sans',sans-serif" }}>
+            {p.value}
+          </text>
+        </g>
+      ))}
     </svg>
   );
 }
@@ -196,7 +214,6 @@ export default function ProductivityIndexChart() {
   const [metrics, setMetrics] = useState<{ label: string; avg: number }[]>([]);
   const [loadingMetrics, setLoadingMetrics] = useState(false);
 
-  // fetch unit list
   useEffect(() => {
     if (!selectedPT || !currentUnitActivity) return;
     const fetchUnits = async () => {
@@ -223,7 +240,6 @@ export default function ProductivityIndexChart() {
     fetchUnits();
   }, [selectedPT, currentUnitActivity]);
 
-  // fetch productivity index
   useEffect(() => {
     if (!selectedPT || !currentUnitActivity || !selectedUnit) return;
     const fetchMetrics = async () => {
@@ -276,18 +292,30 @@ export default function ProductivityIndexChart() {
 
   useEffect(() => {
     const h = (e: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) setShowMonthPicker(false);
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowMonthPicker(false);
+      }
     };
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
-
+//d
   return (
     <div style={{
-      fontFamily: "'DM Sans','Segoe UI',sans-serif", background: t.bg,
-      borderRadius: 24, border: `1px solid ${t.border}`, boxShadow: t.shadow,
-      padding: "20px 22px 18px", height: "100%", boxSizing: "border-box",
-      display: "flex", flexDirection: "column",
+      fontFamily: "'DM Sans','Segoe UI',sans-serif",
+      background: t.bg,
+      borderRadius: 24,
+      border: `1px solid ${t.border}`,
+      boxShadow: t.shadow,
+      padding: "20px 22px 18px",
+      height: "100%",
+      width: "100%",   
+      boxSizing: "border-box",
+      display: "flex",
+      flexDirection: "column",
+      position: "relative",
+      zIndex: 0,
+      isolation: "isolate",
     }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');`}</style>
 
@@ -318,7 +346,19 @@ export default function ProductivityIndexChart() {
             </button>
             {showMonthPicker && (
               <div style={{
-                position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 50,
+                position: "fixed",
+                top: (() => {
+                  const el = pickerRef.current;
+                  if (!el) return 0;
+                  return el.getBoundingClientRect().bottom + 6;
+                })(),
+                left: (() => {
+                  const el = pickerRef.current;
+                  if (!el) return 0;
+                  const rect = el.getBoundingClientRect();
+                  return rect.right - 160;
+                })(),
+                zIndex: 9999,
                 background: t.pickerBg, border: `1px solid ${t.pickerBorder}`, borderRadius: 14,
                 boxShadow: "0 8px 24px rgba(0,0,0,0.15)", padding: 8,
                 display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 4, width: 160
@@ -346,11 +386,18 @@ export default function ProductivityIndexChart() {
       </div>
 
       {/* Donut */}
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        overflow: "hidden",
+        padding: "8px 0",
+      }}>
         {loadingMetrics ? (
           <span style={{ fontSize: 13, color: t.label }}>Loading...</span>
         ) : (
-          <DonutChart slices={slices} size={260} t={t} totalValue={totalValue} />
+          <DonutChart slices={slices} size={220} t={t} totalValue={totalValue} />
         )}
       </div>
 
