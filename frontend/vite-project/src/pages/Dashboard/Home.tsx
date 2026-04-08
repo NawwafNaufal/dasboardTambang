@@ -11,112 +11,85 @@ import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 
 export default function HomeProduk() {
-  const { selectedPT, currentActivity, activeTab, setActiveTab } = useOutletContext<{
-    selectedPT: string;
-    currentActivity: string;
-    activeTab: string;
-    setActiveTab: (tab: string) => void;
-  }>();
+  const { selectedPT, currentActivity, activeTab, setActiveTab } =
+    useOutletContext<{
+      selectedPT: string;
+      currentActivity: string;
+      activeTab: string;
+      setActiveTab: (tab: string) => void;
+    }>();
 
   return (
     <>
-      <PageMeta
-        title="React.js Ecommerce Dashboard | TailAdmin"
-        description="Dashboard page"
-      />
+      <PageMeta title="Dashboard Produk" description="Dashboard page" />
       <div className="flex flex-col gap-4 md:gap-6">
 
-        {/* HeroBanner + overlay cards */}
+        {/* HERO */}
         <div className="relative">
           <HeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
-
-          {/* Unit: ProductivityIndexChart overlay */}
-          {activeTab === "Index" && (
-            <div
-              className="hidden xl:block absolute bottom-0 left-4 z-10"
-              style={{ width: "30%", transform: "translateY(86%)" }}
-            >
-              <div style={{ minHeight: 600 }}>
-                <ProductivityIndexChart />
-              </div>
-            </div>
-          )}
-          {activeTab === "Index" && (
-            <div className="xl:hidden mt-4">
-              <ProductivityIndexChart />
-            </div>
-          )}
-
-          {/* Volume: MonthlyTarget overlay — sama persis */}
-          {activeTab === "Volume" && (
-            <div
-              className="hidden xl:block absolute bottom-0 left-4 z-10"
-              style={{ width: "30%", transform: "translateY(88.5%)" }}
-            >
-              <div>
-                <MonthlyTarget
-                  selectedPT={selectedPT}
-                  currentActivity={currentActivity}
-                />
-              </div>
-            </div>
-          )}
-          {activeTab === "Volume" && (
-            <div className="xl:hidden mt-4">
-              <MonthlyTarget
-                selectedPT={selectedPT}
-                currentActivity={currentActivity}
-              />
-            </div>
-          )}
         </div>
 
-        {/* ── VOLUME TAB ── */}
-        {activeTab === "Volume" && (
-          <>
-            <div
-              className="grid grid-cols-12 gap-4 md:gap-6 items-stretch"
-              style={{ transform: "translateX(-16px)" }}
-            >
-              <div className="hidden xl:block xl:col-span-4" />
-              <div className="col-span-12 xl:col-span-8 flex flex-col gap-4 md:gap-6">
-                <EcommerceMetrics
-                  selectedPT={selectedPT}
-                  currentActivity={currentActivity}
-                />
-                <MonthlySalesChart
-                  selectedPT={selectedPT}
-                  currentActivity={currentActivity}
-                />
-              </div>
-            </div>
-            <div className="w-full">
-              <StatisticsChart selectedPT={selectedPT} />
-            </div>
-          </>
-        )}
+        {/* WRAPPER SPACING */}
+        <div className="px-2 md:px-3 xl:px-4 w-full mt-0">
 
-        {/* ── UNIT TAB ── */}
-        {activeTab === "Index" && (
-          <>
-            <div
-              className="grid grid-cols-12 gap-4 md:gap-6 items-stretch"
-              style={{ transform: "translateX(-16px)" }}
-            >
-              <div className="hidden xl:block xl:col-span-4" />
-              <div className="col-span-12 xl:col-span-8">
-                <SyncKpiChart />
-              </div>
-            </div>
-            <div className="pl-4 pr-4">
-              <DailyProduct />
-            </div>
-            <div className="pl-4 pr-4">
-              <DailyKpiChart selectedPT={selectedPT} />
-            </div>
-          </>
-        )}
+          {/* ===================== VOLUME ===================== */}
+          {activeTab === "Volume" && (
+            <>
+              <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch w-full mt-0">
+                {/* LEFT - MonthlyTarget */}
+                <div className="col-span-12 xl:col-span-4 relative z-10 xl:-mt-[99.5px] flex w-full">
+                  <MonthlyTarget
+                    selectedPT={selectedPT}
+                    currentActivity={currentActivity}
+                  />
+                </div>
 
+                {/* RIGHT - Metrics + Chart */}
+                <div className="col-span-12 xl:col-span-8 flex flex-col gap-4 md:gap-6 w-full">
+                  <EcommerceMetrics
+                    selectedPT={selectedPT}
+                    currentActivity={currentActivity}
+                  />
+                  <MonthlySalesChart
+                    selectedPT={selectedPT}
+                    currentActivity={currentActivity}
+                  />
+                </div>
+              </div>
+
+              {/* STATISTICS */}
+              <div className="w-full mt-2 md:mt-8">
+                <StatisticsChart selectedPT={selectedPT} />
+              </div>
+            </>
+          )}
+
+          {/* ===================== INDEX ===================== */}
+          {activeTab === "Index" && (
+            <>
+              <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch w-full mt-0">
+                {/* LEFT */}
+                <div className="col-span-12 xl:col-span-4 relative z-10 xl:-mt-[99.5px] flex w-full">
+                  <ProductivityIndexChart />
+                </div>
+
+                {/* RIGHT */}
+                <div className="col-span-12 xl:col-span-8 w-full">
+                  <SyncKpiChart />
+                </div>
+              </div>
+
+              <div className="px-2 md:px-0 mt-2 md:mt-4">
+                <DailyProduct />
+              </div>
+
+              <div className="px-2 md:px-0 mt-2 md:mt-4">
+                <DailyKpiChart selectedPT={selectedPT} />
+              </div>
+            </>
+          )}
+
+        </div>
       </div>
     </>
   );

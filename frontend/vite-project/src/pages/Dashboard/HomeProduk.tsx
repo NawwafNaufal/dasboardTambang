@@ -11,12 +11,13 @@ import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 
 export default function HomeProduk() {
-  const { selectedPT, currentActivity, activeTab, setActiveTab } = useOutletContext<{
-    selectedPT: string;
-    currentActivity: string;
-    activeTab: string;
-    setActiveTab: (tab: string) => void;
-  }>();
+  const { selectedPT, currentActivity, activeTab, setActiveTab } =
+    useOutletContext<{
+      selectedPT: string;
+      currentActivity: string;
+      activeTab: string;
+      setActiveTab: (tab: string) => void;
+    }>();
 
   return (
     <>
@@ -26,57 +27,29 @@ export default function HomeProduk() {
       />
       <div className="flex flex-col gap-4 md:gap-6">
 
-        {/* HeroBanner — satu div.relative untuk semua tab */}
-        <div className="relative">
-          <HeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
+        {/* HERO */}
+        <HeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
 
-          {/* UNIT: overlay kiri */}
-          {activeTab === "Index" && (
-            <div
-              className="hidden xl:block absolute bottom-0 left-4 z-10"
-              style={{ width: "30%", transform: "translateY(86%)" }}
-            >
-              <ProductivityIndexChart />
-            </div>
-          )}
-          {activeTab === "Index" && (
-            <div className="xl:hidden mt-4">
-              <ProductivityIndexChart />
-            </div>
-          )}
+        {/* ================= INDEX TAB ================= */}
+        {activeTab === "Index" && (
+          <div className="w-full">
+            <ProductivityIndexChart />
+          </div>
+        )}
 
-          {/* VOLUME: overlay kiri — IDENTIK dengan Unit */}
-          {activeTab === "Volume" && (
-            <div
-              className="hidden xl:block absolute bottom-0 left-4 z-10"
-              style={{ width: "30%", transform: "translateY(86%)" }}
-            >
-              <MonthlyTarget
-                selectedPT={selectedPT}
-                currentActivity={currentActivity}
-              />
-            </div>
-          )}
-          {activeTab === "Volume" && (
-            <div className="xl:hidden mt-4">
-              <MonthlyTarget
-                selectedPT={selectedPT}
-                currentActivity={currentActivity}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* ── VOLUME TAB ── */}
+        {/* ================= VOLUME TAB ================= */}
         {activeTab === "Volume" && (
           <>
-            {/* Sama persis dengan Unit tab — col-span-4 kosong di kiri */}
-            <div
-              className="grid grid-cols-12 gap-4 md:gap-6 items-stretch"
-              style={{ transform: "translateX(-16px)" }}
-            >
-              <div className="hidden xl:block xl:col-span-4" />
-              <div className="col-span-12 xl:col-span-8 flex flex-col gap-4 md:gap-6">
+            <div className="grid grid-cols-12 gap-4 md:gap-6">
+              {/* LEFT */}
+              <div className="col-span-12 xl:col-span-4 min-w-0 overflow-hidden">
+                <MonthlyTarget
+                  selectedPT={selectedPT}
+                  currentActivity={currentActivity}
+                />
+              </div>
+              {/* RIGHT */}
+              <div className="col-span-12 xl:col-span-8 flex flex-col gap-4 md:gap-6 min-w-0">
                 <EcommerceMetrics
                   selectedPT={selectedPT}
                   currentActivity={currentActivity}
@@ -87,28 +60,27 @@ export default function HomeProduk() {
                 />
               </div>
             </div>
-            <div className="w-full">
+            <div className="w-full min-w-0">
               <StatisticsChart selectedPT={selectedPT} />
             </div>
           </>
         )}
 
-        {/* ── UNIT TAB ── */}
+        {/* ================= UNIT TAB ================= */}
         {activeTab === "Unit" && (
           <>
-            <div
-              className="grid grid-cols-12 gap-4 md:gap-6 items-stretch"
-              style={{ transform: "translateX(-16px)" }}
-            >
-              <div className="hidden xl:block xl:col-span-4" />
-              <div className="col-span-12 xl:col-span-8">
+            <div className="grid grid-cols-12 gap-4 md:gap-6">
+              {/* LEFT kosong */}
+              <div className="hidden xl:block xl:col-span-4 min-w-0" />
+              {/* RIGHT */}
+              <div className="col-span-12 xl:col-span-8 min-w-0 overflow-hidden">
                 <SyncKpiChart />
               </div>
             </div>
-            <div className="pl-4 pr-4">
+            <div className="px-4 min-w-0">
               <DailyProduct />
             </div>
-            <div className="pl-4 pr-4">
+            <div className="px-4 min-w-0">
               <DailyKpiChart selectedPT={selectedPT} />
             </div>
           </>

@@ -25,12 +25,14 @@ function StatItem({ label, value }: { label: string; value: number }) {
         {label}
       </p>
       <p className="flex items-center justify-center gap-1 text-xs font-semibold text-gray-800 dark:text-white/90 sm:text-sm">
-        {value.toLocaleString('id-ID')}
+        {value.toLocaleString("id-ID")}
       </p>
     </div>
   );
 }
 
 function Divider() {
-  return <div className="w-px bg-gray-200 h-7 dark:bg-gray-800 flex-shrink-0"></div>;
+  return (
+    <div className="w-px bg-gray-200 h-7 dark:bg-gray-800 flex-shrink-0"></div>
+  );
 }
