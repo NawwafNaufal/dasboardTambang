@@ -299,7 +299,7 @@ export default function ProductivityIndexChart() {
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
-
+//d
   return (
     <div style={{
       fontFamily: "'DM Sans','Segoe UI',sans-serif",
