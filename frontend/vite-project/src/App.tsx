@@ -32,7 +32,7 @@ export default function App() {
           {/* Dashboard Layout */}
           <Route element={<AppLayout />}>
             <Route index path="/" element={<Home />} />
-            <Route index path="/produksi-2" element={<HomeProduk />} />
+            <Route index path="/produksi" element={<HomeProduk />} />
 
             {/* Others Page */}
             <Route path="/profile" element={<UserProfiles />} />
