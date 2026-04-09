@@ -150,7 +150,6 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
   const [selectedKpi, setSelectedKpi] = useState<"PA" | "MA" | "UA" | "EU">("PA");
   const [isZoomed, setIsZoomed] = useState(false);
 
-  // dark mode observer
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
@@ -159,7 +158,6 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
     return () => observer.disconnect();
   }, []);
 
-  // fetch units
   useEffect(() => {
     if (!selectedPT || !currentUnitActivity) return;
     const fetchUnits = async () => {
@@ -185,7 +183,6 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
     fetchUnits();
   }, [selectedPT, currentUnitActivity]);
 
-  // fetch daily availability
   useEffect(() => {
     if (!selectedPT || !currentUnitActivity || !selectedUnit) return;
     const monthIdx = months.indexOf(selectedMonth) + 1;
@@ -218,7 +215,6 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
     fetchChart();
   }, [selectedPT, currentUnitActivity, selectedUnit, selectedMonth]);
 
-  // resize chart on sidebar transition
   useEffect(() => {
     const onTransitionEnd = (e: TransitionEvent) => {
       if (e.propertyName === "margin-left" || e.propertyName === "width") {
@@ -294,7 +290,7 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
       axisTicks: { show: false },
     },
     yaxis: {
-      min: 0,      // tidak ada batas bawah 50, tampilkan dari 0
+      min: 0,
       max: 100,
       tickAmount: 5,
       labels: {
@@ -320,42 +316,81 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
 
   return (
     <div className="w-full bg-white border border-gray-200 rounded-2xl shadow-sm p-4 md:p-6 dark:bg-gray-900 dark:border-gray-800">
-      {/* Header */}
-      <div className="flex justify-between items-center mb-5 flex-wrap gap-3">
+
+      {/* ── Header: Title kiri, controls kanan ── */}
+      <div className="flex justify-between items-start gap-3 mb-4">
+        {/* Kiri: judul */}
         <div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             Trend Harian — {selectedMonth} 2026
           </p>
           <p className="text-xl font-semibold text-gray-900 dark:text-white">
-            <span style={{ color: activeKpi.color }}>{selectedKpi}</span> · {selectedUnit}
+            <span style={{ color: activeKpi.color }}>{selectedKpi}</span>
+            {selectedUnit && (
+              <span className="text-gray-400 font-normal text-base"> · {selectedUnit}</span>
+            )}
           </p>
         </div>
 
-        <div className="flex items-center gap-3 flex-wrap">
-          {/* Month tabs */}
-          <div className="flex gap-1 flex-nowrap overflow-x-auto">
+        {/* Kanan: month tabs (desktop) / month select (mobile) + divider + unit select */}
+        <div className="flex items-center gap-3 flex-shrink-0 flex-wrap justify-end">
+
+          {/* Desktop: tabs bulan — tampil hanya md ke atas */}
+          <div className="hidden md:flex items-center" style={{ gap: 2 }}>
             {months.map((m) => (
               <button
                 key={m}
                 onClick={() => setSelectedMonth(m)}
-                className={`text-xs px-2 py-1 rounded-lg font-medium transition-all whitespace-nowrap ${
-                  selectedMonth === m
-                    ? "bg-brand-500 text-white"
-                    : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-                }`}
+                style={{
+                  padding: "4px 10px",
+                  borderRadius: 8,
+                  border: "none",
+                  fontSize: 12,
+                  fontWeight: 500,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "all 0.15s",
+                  background: selectedMonth === m ? "#3B82F6" : "transparent",
+                  color: selectedMonth === m ? "#fff" : "#9ca3af",
+                }}
               >
                 {m}
               </button>
             ))}
           </div>
 
+          {/* Mobile: dropdown bulan — tampil hanya di bawah md */}
+          <div className="flex md:hidden items-center gap-1.5">
+            <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>Bulan:</span>
+            <select
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value as Month)}
+              style={{
+                padding: "5px 10px",
+                borderRadius: 10,
+                border: "1.5px solid #e5e7eb",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#374151",
+                background: "#fff",
+                outline: "none",
+                cursor: "pointer",
+              }}
+            >
+              {months.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Divider */}
           <div className="w-px h-5 bg-gray-200 dark:bg-gray-700 flex-shrink-0" />
 
           {/* Unit select */}
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", flexShrink: 0 }}>
-            <span style={{ fontSize: "13px", color: "#6b7280", fontWeight: 500 }}>Unit:</span>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 500 }}>Unit:</span>
             {loadingUnits ? (
-              <span style={{ fontSize: "12px", color: "#9ca3af" }}>Loading...</span>
+              <span style={{ fontSize: 12, color: "#9ca3af" }}>Loading...</span>
             ) : (
               <UnitSelect value={selectedUnit} onChange={setSelectedUnit} units={units} />
             )}
@@ -363,7 +398,7 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
         </div>
       </div>
 
-      {/* KPI Selector */}
+      {/* ── KPI Selector + avg ── */}
       <div className="flex items-center gap-2 mb-4">
         {KPI_OPTIONS.map((kpi) => (
           <button
@@ -374,9 +409,14 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
               color: "#fff",
               opacity: selectedKpi === kpi.label ? 1 : 0.35,
               border: "none",
+              padding: "4px 12px",
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 600,
+              cursor: "pointer",
               transform: selectedKpi === kpi.label ? "scale(1)" : "scale(0.95)",
+              transition: "all 0.15s",
             }}
-            className="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
           >
             {kpi.label}
           </button>
@@ -389,7 +429,7 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
         </span>
       </div>
 
-      {/* Chart */}
+      {/* ── Chart ── */}
       <div className="border border-gray-100 dark:border-gray-800 rounded-xl px-3 pt-2 pb-0">
         <div className="w-full max-w-full overflow-hidden">
           {loadingChart ? (
