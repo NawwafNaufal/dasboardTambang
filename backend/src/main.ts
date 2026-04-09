@@ -25,7 +25,9 @@ app.use(cors({
   origin: [
     "http://localhost:5173",
     "http://43.157.205.158:5173",
-    "http://43.157.205.158"
+    "http://43.157.205.158",
+        "http://moa2.site",       
+    "https://moa2.site"   
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
