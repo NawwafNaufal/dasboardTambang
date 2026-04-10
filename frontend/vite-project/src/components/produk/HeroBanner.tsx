@@ -15,12 +15,21 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden" style={{ height: "510px" }}>
+      {/* Gambar siang - tampil di light mode */}
       <img
         src="../../../public/images/cards/tambang1.png"
         alt="Hero Banner"
-        className="absolute inset-0 w-full h-full object-cover"
+        className="absolute inset-0 w-full h-full object-cover opacity-100 dark:opacity-0 transition-opacity duration-700"
         style={{ objectPosition: "90% center" }}
       />
+      {/* Gambar malam - tampil di dark mode */}
+      <img
+        src="../../../public/images/cards/tambang2.png"
+        alt="Hero Banner Night"
+        className="absolute inset-0 w-full h-full object-cover opacity-0 dark:opacity-100 transition-opacity duration-700"
+        style={{ objectPosition: "90% 57%" }}
+      />
+
       <div
         className="absolute inset-0"
         style={{
@@ -41,8 +50,18 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
       {/* CONTENT */}
       <div className="absolute inset-0 flex flex-col justify-between p-6 md:p-8">
         <div>
-          <h1 className="text-white font-bold leading-none" style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", letterSpacing: "-0.02em" }}>Production</h1>
-          <h1 className="text-white font-bold leading-none" style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", letterSpacing: "-0.02em" }}>Dashboard</h1>
+          <h1
+            className="text-white font-bold leading-none"
+            style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", letterSpacing: "-0.02em" }}
+          >
+            Production
+          </h1>
+          <h1
+            className="text-white font-bold leading-none"
+            style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", letterSpacing: "-0.02em" }}
+          >
+            Dashboard
+          </h1>
           <p className="text-white/75 mt-2 max-w-sm text-sm leading-relaxed">
             Monitor production KPIs, daily output, and performance metrics in real-time across all units.
           </p>

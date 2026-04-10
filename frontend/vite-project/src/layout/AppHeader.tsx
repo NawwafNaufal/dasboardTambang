@@ -175,8 +175,8 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           </button>
 
           <Link to="/" className="lg:hidden">
-            <img className="dark:hidden" src="./images/logo/UTSG.png" alt="Logo" />
-            <img className="hidden dark:block" src="./images/logo/UTSG.png" alt="Logo" />
+            <img className="dark:hidden w-20" src="./images/logo/UTSG.png" alt="Logo" />
+            <img className="hidden dark:block w-20" src="./images/logo/UTSG.png" alt="Logo" />
           </Link>
 
           <button
@@ -216,9 +216,9 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           </div>
         </div>
 
-        <div className={`${isApplicationMenuOpen ? "flex" : "hidden"} items-center justify-between w-full gap-4 px-5 py-2 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none`}>
+        {/* ✅ FIX: Tambah bg-white dark:bg-gray-900 agar tidak transparan di mobile */}
+        <div className={`${isApplicationMenuOpen ? "flex" : "hidden"} items-center justify-between w-full gap-4 px-5 py-2 lg:flex shadow-theme-md lg:justify-end lg:px-0 lg:shadow-none bg-white dark:bg-gray-900`}>
           <div className="flex items-center gap-2 2xsm:gap-3 mr-5">
-            {/* ✅ DarkMode di kiri, PT Select di kanan */}
             <ThemeToggleButton />
             <UserDropdown selectedPT={selectedPT} onPTChange={onPTChange} />
           </div>
