@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
+
 import {
   BoxCubeIcon,
   CalenderIcon,
@@ -312,24 +313,32 @@ const AppSidebar: React.FC = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-              <img
-                className="dark:hidden"
-                src="/images/logo/logo.svg"
-                alt="Logo"
-                width={150}
-                height={40}
-              />
+             <div className="flex items-center gap-2">
+  <img
+    className="dark:hidden"
+    src="/images/logo/UTSG.png"
+    alt="Logo"
+    width={50}
+    height={40}
+  />
+  <span 
+  className="text-black dark:text-white font-semibold text-lg"
+    style={{ fontFamily: "'Poppins', sans-serif" }}
+  >
+    MOA 2
+  </span>
+</div>
               <img
                 className="hidden dark:block"
-                src="/images/logo/logo-dark.svg"
+                src="/images/logo/UTSG.png"
                 alt="Logo"
-                width={150}
+                width={50}
                 height={40}
               />
             </>
           ) : (
             <img
-              src="/images/logo/logo-icon.svg"
+              src="/images/logo/UTSG.png"
               alt="Logo"
               width={32}
               height={32}
