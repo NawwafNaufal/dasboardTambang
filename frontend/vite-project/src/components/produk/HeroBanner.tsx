@@ -48,7 +48,7 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
           </p>
         </div>
 
-        {/* TAB - sejajar dengan kolom RIGHT (setelah col-span-4) */}
+        {/* TAB */}
         <div className="absolute bottom-6 md:bottom-8 xl:left-[calc(32.333%+1.5rem)] left-6">
           <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-sm p-1">
             {tabs.map((tab) => (
@@ -57,7 +57,7 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
                 onClick={() => onTabChange?.(tab)}
                 className={`px-6 py-2 rounded-sm text-sm font-medium transition-all duration-200 ${
                   activeTab === tab
-                    ? "bg-white text-gray-800 shadow"
+                    ? "bg-white dark:bg-gray-800 text-gray-800 dark:text-white shadow"
                     : "text-white hover:text-white/80"
                 }`}
               >
