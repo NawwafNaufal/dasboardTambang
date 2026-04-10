@@ -11,17 +11,23 @@ const KPI_SERIES = [
   { name: "EU", color: "#FCA5A5", key: "eu" },
 ];
 
-// Hook untuk deteksi dark mode
+// ✅ FIX: Observe class "dark" di <html>, bukan system preference
 function useDarkMode(): boolean {
   const [isDark, setIsDark] = useState(
-    () => window.matchMedia?.("(prefers-color-scheme: dark)").matches ?? false
+    () => document.documentElement.classList.contains("dark")
   );
+
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
+    const observer = new MutationObserver(() => {
+      setIsDark(document.documentElement.classList.contains("dark"));
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+    return () => observer.disconnect();
   }, []);
+
   return isDark;
 }
 
@@ -274,7 +280,6 @@ export default function SyncKpiChart() {
     setTooltip(null);
   };
 
-  // Warna berdasarkan mode
   const colors = {
     cardBg: isDark ? "#111827" : "#ffffff",
     cardBorder: isDark ? "#1f2937" : "#f0f0f0",
@@ -424,7 +429,6 @@ export default function SyncKpiChart() {
 
                 return (
                   <g key={mi}>
-                    {/* Hover background kolom */}
                     <rect
                       x={mi * colW + 4} y={TOP}
                       width={colW - 8} height={chartH}
@@ -446,7 +450,6 @@ export default function SyncKpiChart() {
 
                       return (
                         <g key={si} onMouseMove={e => handleMouseMove(e, mi)} onMouseLeave={handleMouseLeave}>
-                          {/* Shadow bar */}
                           <rect
                             x={bx} y={by + 4}
                             width={barW} height={bh}
@@ -454,7 +457,6 @@ export default function SyncKpiChart() {
                             fill={s.color}
                             opacity={opacity * 0.15}
                           />
-                          {/* Bar utama */}
                           <rect
                             x={bx} y={by}
                             width={barW} height={bh}
@@ -463,7 +465,6 @@ export default function SyncKpiChart() {
                             opacity={opacity}
                             style={{ transition: "opacity 0.2s" }}
                           />
-                          {/* Label nilai rotasi vertikal */}
                           {val > 0 && (
                             <text
                               x={lx} y={ly}
@@ -482,7 +483,6 @@ export default function SyncKpiChart() {
                       );
                     })}
 
-                    {/* Label bulan */}
                     <text
                       x={cx} y={TOP + chartH + 20}
                       textAnchor="middle"

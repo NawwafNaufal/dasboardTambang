@@ -325,7 +325,6 @@ const AppSidebar: React.FC = () => {
   className="text-black dark:text-white font-semibold text-lg"
     style={{ fontFamily: "'Poppins', sans-serif" }}
   >
-    MOA 2
   </span>
 </div>
               <img
