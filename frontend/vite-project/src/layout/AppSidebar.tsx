@@ -318,7 +318,7 @@ const AppSidebar: React.FC = () => {
     className="dark:hidden"
     src="/images/logo/UTSG.png"
     alt="Logo"
-    width={50}
+    width={70}
     height={40}
   />
   <span 
