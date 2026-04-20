@@ -44,11 +44,9 @@ export default function MonthlyTarget({
       resizeTimeoutRef.current = setTimeout(updateSize, 300);
     };
 
-    // Observe body untuk detect layout shift
     const bodyObserver = new ResizeObserver(handleResize);
     bodyObserver.observe(document.body);
 
-    // Observe sidebar TailAdmin langsung
     const sidebar = document.querySelector("aside") || document.querySelector("nav");
     let sidebarObserver: ResizeObserver | null = null;
     if (sidebar) {

@@ -11,7 +11,6 @@ import StatisticsChart from "../../components/ecommerce/StatisticsChart";
 import MonthlyTarget from "../../components/ecommerce/MonthlyTarget";
 import { useEffect, useRef, useState } from "react";
 
-// Hook untuk animasi slide-up saat elemen masuk viewport
 function useSlideUp(delay = 0) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -84,7 +83,6 @@ export default function HomeProduk() {
 
         {/* WRAPPER SPACING */}
         <div className="px-2 md:px-3 xl:px-4 w-full mt-0">
-          {/* ===================== VOLUME ===================== */}
           {activeTab === "Volume" && (
             <>
               <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch w-full mt-0">
@@ -123,7 +121,6 @@ export default function HomeProduk() {
             </>
           )}
 
-          {/* ===================== INDEX ===================== */}
           {activeTab === "Index" && (
             <>
               <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch w-full mt-0">

@@ -62,9 +62,6 @@ interface StatisticsChartProps {
   selectedPT?: string;
 }
 
-/* =========================
-   HELPER FUNCTIONS
-========================= */
 const getMonthNumber = (monthName: string): number => {
   const months: Record<string, number> = {
     "Januari": 1, "Februari": 2, "Maret": 3, "April": 4,
@@ -78,14 +75,10 @@ const getDaysInMonth = (month: number, year: number): number => {
   return new Date(year, month, 0).getDate();
 };
 
-// ✅ Helper format angka Indonesia
 const formatIDR = (value: number): string => {
   return value.toLocaleString('id-ID');
 };
 
-/* =========================
-   MAIN COMPONENT
-========================= */
 export default function StatisticsChart({ 
   selectedPT = "PT Semen Tonasa" 
 }: StatisticsChartProps) {
@@ -151,9 +144,7 @@ export default function StatisticsChart({
     };
   }, []);
 
-  /* =========================
-     FETCH DATA FROM API
-  ========================= */
+
   const fetchStatisticsData = async () => {
     try {
       setLoading(true);
@@ -224,9 +215,7 @@ export default function StatisticsChart({
     setIsZoomed(false);
   }, [selectedPT]);
 
-  /* =========================
-     PREPARE CHART DATA
-  ========================= */
+
   const prepareChartData = () => {
     if (!apiData || !apiData.data || !selectedCategory || !apiData.data[selectedCategory]) {
       return { days: [], targetData: [], actualData: [], targetValue: 0 };
@@ -257,9 +246,7 @@ export default function StatisticsChart({
 
   const { days, targetData, actualData, targetValue } = prepareChartData();
 
-  /* =========================
-     CHART CONFIGURATION
-  ========================= */
+
   const series = useMemo(() => [
     {
       name: 'Target Plan',
@@ -366,7 +353,6 @@ export default function StatisticsChart({
           return '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 160px;">' +
             '<div style="font-weight: 600; color: #ec6765; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">Target Plan</div>' +
             '<div style="display: flex; justify-content: space-between;">' +
-            // ✅ FIX: Format nilai target
             '<span style="color: #ec6765; font-weight: 600; font-size: 12px;">' + formatIDR(value) + ' ' + unit + '</span>' +
             '</div>' +
             '</div>';
@@ -388,7 +374,6 @@ export default function StatisticsChart({
           breakdownItem.units.forEach(unit => {
             html += '<div style="display: flex; justify-content: space-between; gap: 16px;">';
             html += '<span style="color: #6b7280; font-size: 12px;">' + unit.unitName + ':</span>';
-            // ✅ FIX: Format nilai breakdown
             html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + formatIDR(unit.actual) + ' ' + unit.unit + '</span>';
             html += '</div>';
           });
@@ -396,7 +381,6 @@ export default function StatisticsChart({
         } else {
           html += '<div style="display: flex; justify-content: space-between;">';
           html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
-          // ✅ FIX: Format nilai total
           html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + formatIDR(value ?? 0) + ' ' + activity.unit + '</span>';
           html += '</div>';
         }
@@ -426,7 +410,6 @@ export default function StatisticsChart({
           colors: '#9CA3AF',
           fontSize: '12px',
         },
-        // ✅ FIX: Format y-axis label dengan pemisah ribuan
         formatter: function(value) {
           return formatIDR(value);
         }
@@ -447,9 +430,7 @@ export default function StatisticsChart({
     }]
   }), [days, isZoomed, apiData, selectedCategory, selectedMonth]);
 
-  /* =========================
-     HANDLERS
-  ========================= */
+
   const handleCategoryChange = (cat: string) => {
     setSelectedCategory(cat);
     setSelectedDay(null);
@@ -460,9 +441,7 @@ export default function StatisticsChart({
     setSelectedDay(null);
   };
 
-  /* =========================
-     RENDER
-  ========================= */
+
   if (loading) {
     return (
       <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">

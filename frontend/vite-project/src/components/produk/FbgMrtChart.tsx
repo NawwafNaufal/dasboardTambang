@@ -7,8 +7,8 @@ type Divisi  = "produksi" | "hauling";
 
 interface DataRecord {
   machine: string;
-  col1: number; // fbg or rit
-  col2: number; // mtr or ton
+  col1: number; 
+  col2: number; 
 }
 
 const ALL_MACHINES = [
