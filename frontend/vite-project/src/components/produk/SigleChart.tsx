@@ -11,7 +11,6 @@ const KPI_SERIES = [
   { name: "EU", color: "#FCA5A5", key: "eu" },
 ];
 
-// ✅ FIX: Observe class "dark" di <html>, bukan system preference
 function useDarkMode(): boolean {
   const [isDark, setIsDark] = useState(
     () => document.documentElement.classList.contains("dark")

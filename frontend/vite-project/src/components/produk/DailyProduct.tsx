@@ -161,7 +161,6 @@ export default function DailyProduct() {
   const textColor = isDark ? "#aaaaaa" : "#6b7280";
   const gridColor = isDark ? "#2e2e33" : "#e5e7eb";
 
-  // fetch units
   useEffect(() => {
     if (!selectedPT || !currentUnitActivity) return;
     const fetchUnits = async () => {
@@ -187,7 +186,6 @@ export default function DailyProduct() {
     fetchUnits();
   }, [selectedPT, currentUnitActivity]);
 
-  // fetch daily data
   useEffect(() => {
     if (!selectedPT || !currentUnitActivity || !selectedUnit) return;
     const monthIdx = months.indexOf(selectedMonth) + 1;
@@ -263,7 +261,6 @@ export default function DailyProduct() {
         if (seriesIndex === 1) return `${val.toFixed(2)} mtr/jam`;
         return `${val.toFixed(4)} ltr/mtr`;
       },
-      // Data label formatter per series untuk productivity
       dataLabelFormatter: (val: number, opts: any) => {
         const si = opts.seriesIndex;
         if (si === 0) return (val as number).toFixed(1);
@@ -289,7 +286,6 @@ export default function DailyProduct() {
         title: { text: "Liter", style: { color: "#F97316" } }
       }],
       tooltipFormatter: (val: number) => `${val.toFixed(2)} ltr`,
-      // Data label formatter untuk fuel
       dataLabelFormatter: (val: number) => (val as number).toFixed(0),
       dataLabelColors: ["#F97316"],
     },
@@ -299,7 +295,6 @@ export default function DailyProduct() {
   const mainPct = pctChange(cfg.mainData);
   const isPositive = Number(mainPct) >= 0;
 
-  // Jika data terlalu banyak (>15 hari), tampilkan label hanya di titik genap agar tidak berhimpitan
   const tooManyPoints = dailyData.days.length > 15;
 
   const options: ApexOptions = {
@@ -311,7 +306,6 @@ export default function DailyProduct() {
     dataLabels: {
       enabled: true,
       formatter: (val: number, opts: any) => {
-        // Sembunyikan label pada index ganjil jika data terlalu banyak
         if (tooManyPoints && opts.dataPointIndex % 2 !== 0) return "";
         return cfg.dataLabelFormatter(val, opts);
       },

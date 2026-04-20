@@ -246,10 +246,8 @@ export default function MonthlySalesChart({
   
   const currentProductData = apiData[selectedPT][currentProductName];
 
-  // Convert month data to values array
   const monthlyValues = currentProductData.map(item => item.value);
   
-  // Month abbreviations
   const monthAbbreviations = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const options: ApexOptions = {

@@ -15,14 +15,12 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden" style={{ height: "510px" }}>
-      {/* Gambar siang - tampil di light mode */}
       <img
         src="../../../public/images/cards/tambang1.png"
         alt="Hero Banner"
         className="absolute inset-0 w-full h-full object-cover opacity-100 dark:opacity-0 transition-opacity duration-700"
         style={{ objectPosition: "90% center" }}
       />
-      {/* Gambar malam - tampil di dark mode */}
       <img
         src="../../../public/images/cards/tambang2.png"
         alt="Hero Banner Night"

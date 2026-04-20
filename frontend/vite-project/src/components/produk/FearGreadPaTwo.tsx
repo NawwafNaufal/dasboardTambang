@@ -89,7 +89,6 @@ export default function FearGreedGaugePaTwo({ initialValue = 84 }: Props) {
       <div style={{ display: "flex", alignItems: "center", gap: "7px", marginBottom: "4px" }}>
       </div>
 
-      {/* CSS: border radius pada setiap ujung segmen arc */}
       <style>{`
         .gauge-component svg path {
           stroke-linecap: round !important;
