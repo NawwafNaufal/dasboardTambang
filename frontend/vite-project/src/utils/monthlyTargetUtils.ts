@@ -67,12 +67,12 @@ export const getPerformanceMessage = (currentData: CurrentData): string => {
   const averageFormatted = currentData.today.toLocaleString('id-ID');
 
   if (currentData.deviation >= 10) {
-    return `Outstanding! Average ${averageFormatted} per day.`;
+    return `Outstanding! Average ${averageFormatted}.`;
   } else if (currentData.deviation >= 0) {
-    return `Great work! Average ${averageFormatted} per day.`;
+    return `Great work! Average ${averageFormatted}.`;
   } else if (currentData.deviation >= -10) {
-    return `Average ${averageFormatted} per day.`;
+    return `Average ${averageFormatted}.`;
   } else {
-    return `Average ${averageFormatted} per day.`;
+    return `Average ${averageFormatted}.`;
   }
 };

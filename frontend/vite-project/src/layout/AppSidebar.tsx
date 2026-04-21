@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router";
 
-
 import {
   BoxCubeIcon,
   CalenderIcon,
@@ -25,79 +24,15 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   {
-  icon: <GridIcon />,
-  name: "Dashboard",
-  subItems: [
-    { name: "Produksi", path: "", pro: false },
-  ],
-}
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Calendar",
-  //   path: "/calendar",
-  // },
-//   {
-//     icon: <UserCircleIcon />,
-//     name: "User Profile",
-//     path: "/profile",
-//   },
-//   {
-//   name: "Forms",
-//   icon: <ListIcon />,
-//   subItems: [
-//     { name: "Form Elements", path: "/form-elements", pro: false },
-//     { name: "Form Produk Admin", path: "/form-elements-produktivity", pro: false },
-//     { name: "Form Produk User", path: "/form-produk-user", pro: false },
-//   ],
-// },
-//   {
-//     name: "Tables",
-//     icon: <TableIcon />,
-//     subItems: [
-//       { name: "Basic Tables", path: "/basic-tables", pro: false },
-//       { name: "Admin Tables", path: "/admin-tables", pro: false }
-//     ],
-//   },
-//   {
-//     name: "Pages",
-//     icon: <PageIcon />,
-//     subItems: [
-//       { name: "Blank Page", path: "/blank", pro: false },
-//       { name: "404 Error", path: "/error-404", pro: false },
-//     ],
-//   },
+    icon: <GridIcon />,
+    name: "Dashboard",
+    subItems: [
+      { name: "Produksi", path: "", pro: false },
+    ],
+  }
 ];
 
-const othersItems: NavItem[] = [
-  // {
-  //   icon: <PieChartIcon />,
-  //   name: "Charts",
-  //   subItems: [
-  //     { name: "Line Chart", path: "/line-chart", pro: false },
-  //     { name: "Bar Chart", path: "/bar-chart", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <BoxCubeIcon />,
-  //   name: "UI Elements",
-  //   subItems: [
-  //     { name: "Alerts", path: "/alerts", pro: false },
-  //     { name: "Avatar", path: "/avatars", pro: false },
-  //     { name: "Badge", path: "/badge", pro: false },
-  //     { name: "Buttons", path: "/buttons", pro: false },
-  //     { name: "Images", path: "/images", pro: false },
-  //     { name: "Videos", path: "/videos", pro: false },
-  //   ],
-  // },
-  // {
-  //   icon: <PlugInIcon />,
-  //   name: "Authentication",
-  //   subItems: [
-  //     { name: "Sign In", path: "/signin", pro: false },
-  //     { name: "Sign Up", path: "/signup", pro: false },
-  //   ],
-  // },
-];
+const othersItems: NavItem[] = [];
 
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
@@ -107,12 +42,9 @@ const AppSidebar: React.FC = () => {
     type: "main" | "others";
     index: number;
   } | null>(null);
-  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>(
-    {}
-  );
+  const [subMenuHeight, setSubMenuHeight] = useState<Record<string, number>>({});
   const subMenuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
-  // const isActive = (path: string) => location.pathname === path;
   const isActive = useCallback(
     (path: string) => location.pathname === path,
     [location.pathname]
@@ -185,7 +117,7 @@ const AppSidebar: React.FC = () => {
               }`}
             >
               <span
-                className={`menu-item-icon-size  ${
+                className={`menu-item-icon-size ${
                   openSubmenu?.type === menuType && openSubmenu?.index === index
                     ? "menu-item-icon-active"
                     : "menu-item-icon-inactive"
@@ -199,8 +131,7 @@ const AppSidebar: React.FC = () => {
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
                   className={`ml-auto w-5 h-5 transition-transform duration-200 ${
-                    openSubmenu?.type === menuType &&
-                    openSubmenu?.index === index
+                    openSubmenu?.type === menuType && openSubmenu?.index === index
                       ? "rotate-180 text-brand-500"
                       : ""
                   }`}
@@ -292,7 +223,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-3 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-3 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200
         ${
           isExpanded || isMobileOpen
             ? "w-[240px]"
@@ -300,8 +231,8 @@ const AppSidebar: React.FC = () => {
             ? "w-[240px]"
             : "w-[65px]"
         }
-        ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
-        lg:translate-x-0`}
+        ${isExpanded || isHovered || isMobileOpen ? "translate-x-0" : "-translate-x-full"}
+      `}
       onMouseEnter={() => !isExpanded && setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -313,20 +244,20 @@ const AppSidebar: React.FC = () => {
         <Link to="/">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
-             <div className="flex items-center gap-2">
-  <img
-    className="dark:hidden"
-    src="/images/logo/UTSG.png"
-    alt="Logo"
-    width={70}
-    height={40}
-  />
-  <span 
-  className="text-black dark:text-white font-semibold text-lg"
-    style={{ fontFamily: "'Poppins', sans-serif" }}
-  >
-  </span>
-</div>
+              <div className="flex items-center gap-2">
+                <img
+                  className="dark:hidden"
+                  src="/images/logo/UTSG.png"
+                  alt="Logo"
+                  width={70}
+                  height={40}
+                />
+                <span
+                  className="text-black dark:text-white font-semibold text-lg"
+                  style={{ fontFamily: "'Poppins', sans-serif" }}
+                >
+                </span>
+              </div>
               <img
                 className="hidden dark:block"
                 src="/images/logo/UTSG.png"
@@ -364,7 +295,7 @@ const AppSidebar: React.FC = () => {
               </h2>
               {renderMenuItems(navItems, "main")}
             </div>
-            <div className="">
+            <div>
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
@@ -372,10 +303,6 @@ const AppSidebar: React.FC = () => {
                     : "justify-start"
                 }`}
               >
-                {/* {isExpanded || isHovered || isMobileOpen ? (
-                ) : (
-                  <HorizontaLDots />
-                )} */}
               </h2>
               {renderMenuItems(othersItems, "others")}
             </div>
