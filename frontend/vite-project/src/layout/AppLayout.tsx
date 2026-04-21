@@ -10,18 +10,29 @@ const LayoutContent: React.FC = () => {
   const [selectedPT, setSelectedPT] = useState("PT Semen Tonasa");
   const [currentActivity, setCurrentActivity] = useState<string>("");
   const [activeTab, setActiveTab] = useState("Volume");
-  const [currentUnitActivity, setCurrentUnitActivity] = useState<string>(""); // ← TAMBAH
+  const [currentUnitActivity, setCurrentUnitActivity] = useState<string>("");
+
+  const sidebarOpen = isExpanded || isHovered || isMobileOpen;
 
   return (
     <div className="min-h-screen xl:flex">
-      <div>
-        <AppSidebar />
-        <Backdrop />
-      </div>
+      {/* Sidebar */}
       <div
-        className={`flex-1 transition-all duration-300 ease-in-out min-w-0 ${
-          isExpanded || isHovered ? "lg:ml-[290px]" : "lg:ml-[90px]"
-        } ${isMobileOpen ? "ml-0" : ""}`}
+        className={`fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
+      >
+        <AppSidebar />
+      </div>
+
+      {/* Backdrop */}
+      {sidebarOpen && <Backdrop />}
+
+      {/* Main content */}
+      <div
+        className={`flex-1 min-w-0 w-full transition-all duration-300 ease-in-out
+          ${isExpanded || isHovered ? "lg:ml-[240px]" : isMobileOpen ? "ml-0" : "lg:ml-0"}
+        `}
       >
         <AppHeader
           selectedPT={selectedPT}
@@ -29,10 +40,18 @@ const LayoutContent: React.FC = () => {
           currentActivity={currentActivity}
           onActivityChange={setCurrentActivity}
           activeTab={activeTab}
-          onUnitActivityChange={setCurrentUnitActivity} // ← TAMBAH
+          onUnitActivityChange={setCurrentUnitActivity}
         />
         <div className="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
-          <Outlet context={{ selectedPT, currentActivity, activeTab, setActiveTab, currentUnitActivity }} />
+          <Outlet
+            context={{
+              selectedPT,
+              currentActivity,
+              activeTab,
+              setActiveTab,
+              currentUnitActivity,
+            }}
+          />
         </div>
       </div>
     </div>

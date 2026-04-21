@@ -73,7 +73,7 @@ export default function HomeProduk() {
   return (
     <>
       <PageMeta title="Dashboard Produk" description="Dashboard page" />
-      <div className="flex flex-col gap-4 md:gap-6">
+      <div className="flex flex-col gap-4 md:gap-6 ">
         {/* HERO */}
         <SlideUp delay={0}>
           <div className="relative">

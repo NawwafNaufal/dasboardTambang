@@ -12,8 +12,8 @@ export default function MonthlyTargetStats({ currentData }: MonthlyTargetStatsPr
       <StatItem label="Max" value={currentData.max} />
       <Divider />
       <StatItem label="Min" value={currentData.min} />
-      <Divider />
-      <StatItem label="Average" value={currentData.today} />
+      {/* <Divider /> */}
+      {/* <StatItem label="Average" value={currentData.today} /> */}
     </div>
   );
 }

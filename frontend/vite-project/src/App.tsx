@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import NotFound from "./pages/OtherPage/NotFound";
+import SignIn from "./pages/AuthPages/SignIn";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
 // import Calendar from "./pages/Calendar";
@@ -30,6 +31,7 @@ export default function App() {
           </Route>
 
           {/* Auth Layout */}
+          <Route path="/signin" element={<SignIn />} />
 
           {/* Fallback Route */}
           <Route path="*" element={<NotFound />} />
