@@ -79,18 +79,9 @@ function UnitSelect({ value, onChange, units, t }: {
       </button>
       {open && (
         <div style={{
-          position: "fixed",
-          top: (() => {
-            const el = ref.current;
-            if (!el) return 0;
-            return el.getBoundingClientRect().bottom + 6;
-          })(),
-          left: (() => {
-            const el = ref.current;
-            if (!el) return 0;
-            const rect = el.getBoundingClientRect();
-            return rect.right - 130;
-          })(),
+          position: "absolute",
+          top: "calc(100% + 6px)",
+          right: 0,
           background: t.pickerBg,
           borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
           border: `1px solid ${t.pickerBorder}`, zIndex: 9999, width: 130, overflow: "hidden"
@@ -299,7 +290,7 @@ export default function ProductivityIndexChart() {
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
-//d
+
   return (
     <div style={{
       fontFamily: "'DM Sans','Segoe UI',sans-serif",
@@ -309,13 +300,12 @@ export default function ProductivityIndexChart() {
       boxShadow: t.shadow,
       padding: "20px 22px 18px",
       height: "100%",
-      width: "100%",   
+      width: "100%",
       boxSizing: "border-box",
       display: "flex",
       flexDirection: "column",
       position: "relative",
       zIndex: 0,
-      isolation: "isolate",
     }}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');`}</style>
 
@@ -346,18 +336,9 @@ export default function ProductivityIndexChart() {
             </button>
             {showMonthPicker && (
               <div style={{
-                position: "fixed",
-                top: (() => {
-                  const el = pickerRef.current;
-                  if (!el) return 0;
-                  return el.getBoundingClientRect().bottom + 6;
-                })(),
-                left: (() => {
-                  const el = pickerRef.current;
-                  if (!el) return 0;
-                  const rect = el.getBoundingClientRect();
-                  return rect.right - 160;
-                })(),
+                position: "absolute",
+                top: "calc(100% + 6px)",
+                right: 0,
                 zIndex: 9999,
                 background: t.pickerBg, border: `1px solid ${t.pickerBorder}`, borderRadius: 14,
                 boxShadow: "0 8px 24px rgba(0,0,0,0.15)", padding: 8,
