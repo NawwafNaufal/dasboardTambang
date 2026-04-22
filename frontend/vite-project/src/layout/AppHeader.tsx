@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useSidebar } from "../context/SidebarContext";
 import { ThemeToggleButton } from "../components/common/ThemeToggleButton";
 
@@ -33,61 +34,38 @@ interface ApiResponse {
 }
 
 const ACTIVITY_ICONS: Record<string, string> = {
-  // Loading hauling
   "loading hauling": "https://img.icons8.com/ios/50/dump-truck.png",
   "loading_hauling": "https://img.icons8.com/ios/50/dump-truck.png",
-
-  // Drilling
+  "loading": "https://img.icons8.com/ios/50/dump-truck.png",
+  "hauling": "https://img.icons8.com/ios/50/mine-cart.png",
   "drilling": "https://img.icons8.com/material/24/drilled-well.png",
-
-  // Perintisan Used
   "perintisan used": "https://img.icons8.com/ios/50/flag--v1.png",
   "perintisan_used": "https://img.icons8.com/ios/50/flag--v1.png",
-
-  // Perintisan New
   "perintisan new": "https://img.icons8.com/ios/50/map-marker--v1.png",
   "perintisan_new": "https://img.icons8.com/ios/50/map-marker--v1.png",
-
-  // Breaker
   "breaker": "https://img.icons8.com/ios/50/lime-stone.png",
-
-  // Bulldozer New
   "buldozzer new": "https://img.icons8.com/ios/50/bulldozer.png",
   "buldozzer_new": "https://img.icons8.com/ios/50/bulldozer.png",
   "bulldozer new": "https://img.icons8.com/ios/50/bulldozer.png",
   "bulldozer_new": "https://img.icons8.com/ios/50/bulldozer.png",
-
-  // Bulldozer Used
   "buldozzer used": "https://img.icons8.com/ios-filled/50/bulldozer.png",
   "buldozzer_used": "https://img.icons8.com/ios-filled/50/bulldozer.png",
   "bulldozer used": "https://img.icons8.com/ios-filled/50/bulldozer.png",
   "bulldozer_used": "https://img.icons8.com/ios-filled/50/bulldozer.png",
-
-  // OB Rehandle
   "ob rehandle": "https://img.icons8.com/ios/50/portraits.png",
   "ob_rehandle": "https://img.icons8.com/ios/50/portraits.png",
-
-  // OB Insitu
   "ob institiu": "https://img.icons8.com/ios/50/chevron-right.png",
   "ob_institiu": "https://img.icons8.com/ios/50/chevron-right.png",
   "ob insitu": "https://img.icons8.com/ios/50/chevron-right.png",
   "ob_insitu": "https://img.icons8.com/ios/50/chevron-right.png",
-
-  // ER
   "er": "https://img.icons8.com/ios/50/harvester.png",
-
-  // PPO Direct
   "ppo direct": "https://img.icons8.com/ios/50/gears--v1.png",
   "ppo_direct": "https://img.icons8.com/ios/50/gears--v1.png",
-
-  // Cut & Fill
   "cut & fill": "https://img.icons8.com/ios/50/golden-fever.png",
   "cut_&_fill": "https://img.icons8.com/ios/50/golden-fever.png",
   "cut and fill": "https://img.icons8.com/ios/50/golden-fever.png",
   "cut_and_fill": "https://img.icons8.com/ios/50/golden-fever.png",
   "cut & fills": "https://img.icons8.com/ios/50/golden-fever.png",
-
-  // Stock
   "stock": "https://img.icons8.com/ios/50/stocks--v1.png",
 };
 
@@ -116,7 +94,6 @@ const ActivityIcon = ({ activity, isActive }: { activity: string; isActive: bool
     );
   }
 
-  // Fallback icon (svg lama)
   return (
     <div
       className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 ${!isActive ? "bg-gray-100 dark:bg-gray-700" : ""}`}
@@ -129,14 +106,122 @@ const ActivityIcon = ({ activity, isActive }: { activity: string; isActive: bool
         className={!isActive ? "text-gray-400 dark:text-gray-500" : ""}
         style={isActive ? { color: "white" } : {}}
       >
-        <path d="M2 20h20v2H2z"/>
-        <path d="M7 3v5l5-3v5l5-3v12H7V7"/>
-        <path d="M7 7H2v12h5"/>
+        <path d="M2 20h20v2H2z" />
+        <path d="M7 3v5l5-3v5l5-3v12H7V7" />
+        <path d="M7 7H2v12h5" />
       </svg>
     </div>
   );
 };
 
+// ─── Per-tab Dropdown (posisi tepat di bawah tab masing-masing) ───────────────
+interface PTDropdownProps {
+  pt: string;
+  ptIndex: number;
+  isOpen: boolean;
+  prevOpenIndex: number | null;
+  activities: string[];
+  currentActivity?: string;
+  onSelect: (pt: string, act: string) => void;
+}
+
+const PTDropdown: React.FC<PTDropdownProps> = ({
+  pt,
+  ptIndex,
+  isOpen,
+  prevOpenIndex,
+  activities,
+  currentActivity,
+  onSelect,
+}) => {
+  const formatActivityName = (name: string) =>
+    name.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+
+  // Arah slide: dari kanan jika pindah dari tab di kanan, dari kiri jika dari tab di kiri
+  const slideX =
+    prevOpenIndex === null ? 0 : prevOpenIndex > ptIndex ? 100 : -100;
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Bridge invisible supaya mouse bisa turun ke dropdown tanpa menutup */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-full h-[28px] w-[240px]" />
+
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            // KEY: left-1/2 -translate-x-1/2 → dropdown selalu centered di bawah tab-nya sendiri
+            className="absolute top-[calc(100%+24px)] left-1/2 -translate-x-1/2 w-[240px] bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl shadow-black/10 dark:shadow-black/40 py-2 z-[99999]"
+          >
+            {/* Nub segitiga centered di atas dropdown */}
+            <span
+              className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rotate-45 rounded-tl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+              style={{ clipPath: "polygon(0 0, 100% 0, 50% 50%, 0% 100%)" }}
+            />
+
+            {/* Konten slide horizontal sesuai arah */}
+            <div className="overflow-hidden">
+              <motion.div
+                key={pt}
+                initial={{ opacity: 0, x: slideX }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, ease: "easeInOut" }}
+              >
+                <div className="px-4 py-1.5 mb-1">
+                  <span className="text-[10px] font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase">
+                    Aktivitas — {pt}
+                  </span>
+                </div>
+
+                {activities.length === 0 ? (
+                  <div className="px-4 py-2 text-sm text-gray-400">Tidak ada aktivitas</div>
+                ) : (
+                  activities.map((act) => {
+                    const isCurrentAct = currentActivity === act;
+                    return (
+                      <button
+                        key={act}
+                        onClick={() => onSelect(pt, act)}
+                        className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
+                          isCurrentAct ? "" : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                        }`}
+                        style={isCurrentAct ? { backgroundColor: "rgba(253, 143, 63, 0.1)" } : {}}
+                      >
+                        <ActivityIcon activity={act} isActive={isCurrentAct} />
+                        <p
+                          className={`text-sm leading-tight ${
+                            !isCurrentAct ? "text-gray-600 dark:text-gray-300 font-medium" : "font-semibold"
+                          }`}
+                          style={isCurrentAct ? { color: "#fd8f3f" } : {}}
+                        >
+                          {formatActivityName(act)}
+                        </p>
+                        {isCurrentAct && (
+                          <svg
+                            width="14" height="14" viewBox="0 0 16 16" fill="none"
+                            className="ml-auto flex-shrink-0"
+                            style={{ color: "#fd8f3f" }}
+                          >
+                            <path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </button>
+                    );
+                  })
+                )}
+              </motion.div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// ─── Main AppHeader ──────────────────────────────────────────────────────────
 const AppHeader: React.FC<AppHeaderProps> = ({
   selectedPT,
   onPTChange,
@@ -149,6 +234,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 }) => {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openDropdownPT, setOpenDropdownPT] = useState<string | null>(null);
+  const [prevOpenIndex, setPrevOpenIndex] = useState<number | null>(null);
   const [allPTs, setAllPTs] = useState<string[]>([]);
   const [loadingPTs, setLoadingPTs] = useState(true);
   const [activitiesByPT, setActivitiesByPT] = useState<Record<string, string[]>>({});
@@ -159,10 +245,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
 
   const formatActivityName = (name: string) =>
-    name
-      .split("_")
-      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(" ");
+    name.split("_").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
@@ -180,22 +263,15 @@ const AppHeader: React.FC<AppHeaderProps> = ({
         if (result.success && result.data) {
           const pts = Object.keys(result.data);
           const map: Record<string, string[]> = {};
-          pts.forEach((pt) => {
-            map[pt] = Object.keys(result.data[pt]);
-          });
+          pts.forEach((pt) => { map[pt] = Object.keys(result.data[pt]); });
 
           const JAKAMITRA = "Jakamitra";
           const allPtList = pts.includes(JAKAMITRA) ? pts : [...pts, JAKAMITRA];
-          if (!map[JAKAMITRA]) {
-            map[JAKAMITRA] = ["CUT & FILL", "stock"];
-          }
+          if (!map[JAKAMITRA]) map[JAKAMITRA] = ["CUT & FILL", "stock"];
 
           setAllPTs(allPtList);
           setActivitiesByPT(map);
-
-          if (allPtList.length > 0 && !selectedPT) {
-            onPTChange(allPtList[0]);
-          }
+          if (allPtList.length > 0 && !selectedPT) onPTChange(allPtList[0]);
         }
       } catch {
         setAllPTs([]);
@@ -227,6 +303,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setOpenDropdownPT(null);
+        setPrevOpenIndex(null);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -234,26 +311,29 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   }, []);
 
   const handleToggle = () => {
-    if (window.innerWidth >= 1024) {
-      toggleSidebar();
-    } else {
-      toggleMobileSidebar();
-    }
+    if (window.innerWidth >= 1024) toggleSidebar();
+    else toggleMobileSidebar();
   };
 
-  const handlePTClick = (pt: string) => {
+  const handlePTHover = (pt: string) => {
+    if (openDropdownPT && openDropdownPT !== pt) {
+      setPrevOpenIndex(allPTs.indexOf(openDropdownPT));
+    }
+    setOpenDropdownPT(pt);
     onPTChange(pt);
-    setOpenDropdownPT(openDropdownPT === pt ? null : pt);
+  };
+
+  const handleNavLeave = () => {
+    setOpenDropdownPT(null);
+    setPrevOpenIndex(null);
   };
 
   const handleActivitySelect = (pt: string, activity: string) => {
     onPTChange(pt);
-    if (activeTab === "Volume") {
-      onActivityChange?.(activity);
-    } else {
-      onUnitActivityChange?.(activity);
-    }
+    if (activeTab === "Volume") onActivityChange?.(activity);
+    else onUnitActivityChange?.(activity);
     setOpenDropdownPT(null);
+    setPrevOpenIndex(null);
   };
 
   const currentActivitiesForDropdown = (pt: string): string[] => {
@@ -297,20 +377,25 @@ const AppHeader: React.FC<AppHeaderProps> = ({
             )}
           </button>
 
-          {/* Tengah: Nav PT (desktop) */}
-          <nav className="hidden lg:flex items-center justify-center" ref={dropdownRef}>
+          {/* Tengah: Nav PT */}
+          <nav
+            className="hidden lg:flex items-center justify-center"
+            ref={dropdownRef}
+            onMouseLeave={handleNavLeave}
+          >
             {loadingPTs ? (
               <span className="text-sm text-gray-400 animate-pulse">Memuat PT...</span>
             ) : (
               <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-0.5">
-                {allPTs.map((pt) => {
+                {allPTs.map((pt, idx) => {
                   const isActive = selectedPT === pt;
                   const isOpen = openDropdownPT === pt;
 
                   return (
                     <div key={pt} className="relative">
                       <button
-                        onClick={() => handlePTClick(pt)}
+                        onMouseEnter={() => handlePTHover(pt)}
+                        onClick={() => handlePTHover(pt)}
                         className={`
                           flex items-center gap-1.5 px-5 py-2 rounded-lg text-sm transition-all duration-200
                           ${isActive
@@ -321,54 +406,25 @@ const AppHeader: React.FC<AppHeaderProps> = ({
                         style={isActive ? { color: "#fd8f3f" } : {}}
                       >
                         <span>{pt}</span>
-                        <svg
+                        <motion.svg
                           width="10" height="10" viewBox="0 0 16 16" fill="none"
-                          className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                          animate={{ rotate: isOpen ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
                         >
-                          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
+                          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </motion.svg>
                       </button>
 
-                      {isOpen && (
-                        <div
-                          className="absolute top-[calc(100%+8px)] left-1/2 -translate-x-1/2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl shadow-black/10 dark:shadow-black/40 min-w-[220px] py-2 z-[99999]"
-                          style={{ animation: "dropdownSlide 0.15s ease-out" }}
-                        >
-                          <div className="px-4 py-1.5 mb-1">
-                            <span className="text-[10px] font-bold tracking-widest text-gray-400 dark:text-gray-500 uppercase">
-                              Aktivitas — {pt}
-                            </span>
-                          </div>
-                          {currentActivitiesForDropdown(pt).length === 0 ? (
-                            <div className="px-4 py-2 text-sm text-gray-400">Tidak ada aktivitas</div>
-                          ) : (
-                            currentActivitiesForDropdown(pt).map((act) => {
-                              const isCurrentAct = currentActivity === act;
-                              return (
-                                <button
-                                  key={act}
-                                  onClick={() => handleActivitySelect(pt, act)}
-                                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${isCurrentAct ? "" : "hover:bg-gray-50 dark:hover:bg-gray-800"}`}
-                                  style={isCurrentAct ? { backgroundColor: "rgba(117, 176, 249, 0.1)" } : {}}
-                                >
-                                  <ActivityIcon activity={act} isActive={isCurrentAct} />
-                                  <p
-                                    className={`text-sm leading-tight ${!isCurrentAct ? "text-gray-600 dark:text-gray-300 font-medium" : "font-semibold"}`}
-                                    style={isCurrentAct ? { color: "#fd8f3f" } : {}}
-                                  >
-                                    {formatActivityName(act)}
-                                  </p>
-                                  {isCurrentAct && (
-                                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" className="ml-auto flex-shrink-0" style={{ color: "#fd8f3f" }}>
-                                      <path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                  )}
-                                </button>
-                              );
-                            })
-                          )}
-                        </div>
-                      )}
+                      {/* Dropdown masing-masing tab, centered di bawah tab-nya */}
+                      <PTDropdown
+                        pt={pt}
+                        ptIndex={idx}
+                        isOpen={isOpen}
+                        prevOpenIndex={prevOpenIndex}
+                        activities={currentActivitiesForDropdown(pt)}
+                        currentActivity={currentActivity}
+                        onSelect={handleActivitySelect}
+                      />
                     </div>
                   );
                 })}
@@ -396,136 +452,130 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       </header>
 
       {/* Mobile Dropdown */}
-      {isMobileMenuOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-[99997] bg-black/20 backdrop-blur-[2px] lg:hidden"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-          <div
-            className="fixed top-[65px] left-0 right-0 z-[99998] lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-xl overflow-y-auto max-h-[80vh]"
-            style={{ animation: "mobileMenuSlideDown 0.18s ease-out" }}
-          >
-            <div className="px-3 pt-2 pb-3 space-y-1">
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <div
+              className="fixed inset-0 z-[99997] bg-black/20 backdrop-blur-[2px] lg:hidden"
+              onClick={() => setMobileMenuOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="fixed top-[65px] left-0 right-0 z-[99998] lg:hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 shadow-xl overflow-y-auto max-h-[80vh]"
+            >
+              <div className="px-3 pt-2 pb-3 space-y-1">
 
-              {/* Theme Row */}
-              <div className="flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800">
-                <div className="w-9 h-9 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0">
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="dark:hidden">
-                    <path d="M17.4547 11.97L18.1799 12.1611C18.265 11.8383 18.1265 11.4982 17.8401 11.3266C17.5538 11.1551 17.1885 11.1934 16.944 11.4207L17.4547 11.97ZM8.0306 2.5459L8.57989 3.05657C8.80718 2.81209 8.84554 2.44682 8.67398 2.16046C8.50243 1.8741 8.16227 1.73559 7.83948 1.82066L8.0306 2.5459ZM12.9154 13.0035C9.64678 13.0035 6.99707 10.3538 6.99707 7.08524H5.49707C5.49707 11.1823 8.81835 14.5035 12.9154 14.5035V13.0035ZM16.944 11.4207C15.8869 12.4035 14.4721 13.0035 12.9154 13.0035V14.5035C14.8657 14.5035 16.6418 13.7499 17.9654 12.5193L16.944 11.4207ZM16.7295 11.7789C15.9437 14.7607 13.2277 16.9586 10.0003 16.9586V18.4586C13.9257 18.4586 17.2249 15.7853 18.1799 12.1611L16.7295 11.7789ZM10.0003 16.9586C6.15734 16.9586 3.04199 13.8433 3.04199 10.0003H1.54199C1.54199 14.6717 5.32892 18.4586 10.0003 18.4586V16.9586ZM3.04199 10.0003C3.04199 6.77289 5.23988 4.05695 8.22173 3.27114L7.83948 1.82066C4.21532 2.77574 1.54199 6.07486 1.54199 10.0003H3.04199ZM6.99707 7.08524C6.99707 5.52854 7.5971 4.11366 8.57989 3.05657L7.48132 2.03522C6.25073 3.35885 5.49707 5.13487 5.49707 7.08524H6.99707Z" fill="#fd8f3f"/>
-                  </svg>
-                  <svg width="16" height="16" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="hidden dark:block">
-                    <path fillRule="evenodd" clipRule="evenodd" d="M9.99998 1.5415C10.4142 1.5415 10.75 1.87729 10.75 2.2915V3.5415C10.75 3.95572 10.4142 4.2915 9.99998 4.2915C9.58577 4.2915 9.24998 3.95572 9.24998 3.5415V2.2915C9.24998 1.87729 9.58577 1.5415 9.99998 1.5415ZM10.0009 6.79327C8.22978 6.79327 6.79402 8.22904 6.79402 10.0001C6.79402 11.7712 8.22978 13.207 10.0009 13.207C11.772 13.207 13.2078 11.7712 13.2078 10.0001C13.2078 8.22904 11.772 6.79327 10.0009 6.79327ZM5.29402 10.0001C5.29402 7.40061 7.40135 5.29327 10.0009 5.29327C12.6004 5.29327 14.7078 7.40061 14.7078 10.0001C14.7078 12.5997 12.6004 14.707 10.0009 14.707C7.40135 14.707 5.29402 12.5997 5.29402 10.0001ZM15.9813 5.08035C16.2742 4.78746 16.2742 4.31258 15.9813 4.01969C15.6884 3.7268 15.2135 3.7268 14.9207 4.01969L14.0368 4.90357C13.7439 5.19647 13.7439 5.67134 14.0368 5.96423C14.3297 6.25713 14.8045 6.25713 15.0974 5.96423L15.9813 5.08035ZM18.4577 10.0001C18.4577 10.4143 18.1219 10.7501 17.7077 10.7501H16.4577C16.0435 10.7501 15.7077 10.4143 15.7077 10.0001C15.7077 9.58592 16.0435 9.25013 16.4577 9.25013H17.7077C18.1219 9.25013 18.4577 9.58592 18.4577 10.0001ZM14.9207 15.9806C15.2135 16.2735 15.6884 16.2735 15.9813 15.9806C16.2742 15.6877 16.2742 15.2128 15.9813 14.9199L15.0974 14.036C14.8045 13.7431 14.3297 13.7431 14.0368 14.036C13.7439 14.3289 13.7439 14.8038 14.0368 15.0967L14.9207 15.9806ZM9.99998 15.7088C10.4142 15.7088 10.75 16.0445 10.75 16.4588V17.7088C10.75 18.123 10.4142 18.4588 9.99998 18.4588C9.58577 18.4588 9.24998 18.123 9.24998 17.7088V16.4588C9.24998 16.0445 9.58577 15.7088 9.99998 15.7088ZM5.96356 15.0972C6.25646 14.8043 6.25646 14.3295 5.96356 14.0366C5.67067 13.7437 5.1958 13.7437 4.9029 14.0366L4.01902 14.9204C3.72613 15.2133 3.72613 15.6882 4.01902 15.9811C4.31191 16.274 4.78679 16.274 5.07968 15.9811L5.96356 15.0972ZM4.29224 10.0001C4.29224 10.4143 3.95645 10.7501 3.54224 10.7501H2.29224C1.87802 10.7501 1.54224 10.4143 1.54224 10.0001C1.54224 9.58592 1.87802 9.25013 2.29224 9.25013H3.54224C3.95645 9.25013 4.29224 9.58592 4.29224 10.0001ZM4.9029 5.9637C5.1958 6.25659 5.67067 6.25659 5.96356 5.9637C6.25646 5.6708 6.25646 5.19593 5.96356 4.90303L5.07968 4.01915C4.78679 3.72626 4.31191 3.72626 4.01902 4.01915C3.72613 4.31204 3.72613 4.78692 4.01902 5.07981L4.9029 5.9637Z" fill="#fd8f3f"/>
-                  </svg>
+                {/* Theme Row */}
+                <div className="flex items-center gap-3 px-3 py-2.5 rounded-2xl bg-gray-50 dark:bg-gray-800">
+                  <div className="w-9 h-9 rounded-full bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 flex items-center justify-center flex-shrink-0">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="dark:hidden">
+                      <path d="M17.4547 11.97L18.1799 12.1611C18.265 11.8383 18.1265 11.4982 17.8401 11.3266C17.5538 11.1551 17.1885 11.1934 16.944 11.4207L17.4547 11.97ZM8.0306 2.5459L8.57989 3.05657C8.80718 2.81209 8.84554 2.44682 8.67398 2.16046C8.50243 1.8741 8.16227 1.73559 7.83948 1.82066L8.0306 2.5459ZM12.9154 13.0035C9.64678 13.0035 6.99707 10.3538 6.99707 7.08524H5.49707C5.49707 11.1823 8.81835 14.5035 12.9154 14.5035V13.0035ZM16.944 11.4207C15.8869 12.4035 14.4721 13.0035 12.9154 13.0035V14.5035C14.8657 14.5035 16.6418 13.7499 17.9654 12.5193L16.944 11.4207ZM16.7295 11.7789C15.9437 14.7607 13.2277 16.9586 10.0003 16.9586V18.4586C13.9257 18.4586 17.2249 15.7853 18.1799 12.1611L16.7295 11.7789ZM10.0003 16.9586C6.15734 16.9586 3.04199 13.8433 3.04199 10.0003H1.54199C1.54199 14.6717 5.32892 18.4586 10.0003 18.4586V16.9586ZM3.04199 10.0003C3.04199 6.77289 5.23988 4.05695 8.22173 3.27114L7.83948 1.82066C4.21532 2.77574 1.54199 6.07486 1.54199 10.0003H3.04199ZM6.99707 7.08524C6.99707 5.52854 7.5971 4.11366 8.57989 3.05657L7.48132 2.03522C6.25073 3.35885 5.49707 5.13487 5.49707 7.08524H6.99707Z" fill="#fd8f3f" />
+                    </svg>
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="hidden dark:block">
+                      <path fillRule="evenodd" clipRule="evenodd" d="M9.99998 1.5415C10.4142 1.5415 10.75 1.87729 10.75 2.2915V3.5415C10.75 3.95572 10.4142 4.2915 9.99998 4.2915C9.58577 4.2915 9.24998 3.95572 9.24998 3.5415V2.2915C9.24998 1.87729 9.58577 1.5415 9.99998 1.5415ZM10.0009 6.79327C8.22978 6.79327 6.79402 8.22904 6.79402 10.0001C6.79402 11.7712 8.22978 13.207 10.0009 13.207C11.772 13.207 13.2078 11.7712 13.2078 10.0001C13.2078 8.22904 11.772 6.79327 10.0009 6.79327ZM5.29402 10.0001C5.29402 7.40061 7.40135 5.29327 10.0009 5.29327C12.6004 5.29327 14.7078 7.40061 14.7078 10.0001C14.7078 12.5997 12.6004 14.707 10.0009 14.707C7.40135 14.707 5.29402 12.5997 5.29402 10.0001ZM15.9813 5.08035C16.2742 4.78746 16.2742 4.31258 15.9813 4.01969C15.6884 3.7268 15.2135 3.7268 14.9207 4.01969L14.0368 4.90357C13.7439 5.19647 13.7439 5.67134 14.0368 5.96423C14.3297 6.25713 14.8045 6.25713 15.0974 5.96423L15.9813 5.08035ZM18.4577 10.0001C18.4577 10.4143 18.1219 10.7501 17.7077 10.7501H16.4577C16.0435 10.7501 15.7077 10.4143 15.7077 10.0001C15.7077 9.58592 16.0435 9.25013 16.4577 9.25013H17.7077C18.1219 9.25013 18.4577 9.58592 18.4577 10.0001ZM14.9207 15.9806C15.2135 16.2735 15.6884 16.2735 15.9813 15.9806C16.2742 15.6877 16.2742 15.2128 15.9813 14.9199L15.0974 14.036C14.8045 13.7431 14.3297 13.7431 14.0368 14.036C13.7439 14.3289 13.7439 14.8038 14.0368 15.0967L14.9207 15.9806ZM9.99998 15.7088C10.4142 15.7088 10.75 16.0445 10.75 16.4588V17.7088C10.75 18.123 10.4142 18.4588 9.99998 18.4588C9.58577 18.4588 9.24998 18.123 9.24998 17.7088V16.4588C9.24998 16.0445 9.58577 15.7088 9.99998 15.7088ZM5.96356 15.0972C6.25646 14.8043 6.25646 14.3295 5.96356 14.0366C5.67067 13.7437 5.1958 13.7437 4.9029 14.0366L4.01902 14.9204C3.72613 15.2133 3.72613 15.6882 4.01902 15.9811C4.31191 16.274 4.78679 16.274 5.07968 15.9811L5.96356 15.0972ZM4.29224 10.0001C4.29224 10.4143 3.95645 10.7501 3.54224 10.7501H2.29224C1.87802 10.7501 1.54224 10.4143 1.54224 10.0001C1.54224 9.58592 1.87802 9.25013 2.29224 9.25013H3.54224C3.95645 9.25013 4.29224 9.58592 4.29224 10.0001ZM4.9029 5.9637C5.1958 6.25659 5.67067 6.25659 5.96356 5.9637C6.25646 5.6708 6.25646 5.19593 5.96356 4.90303L5.07968 4.01915C4.78679 3.72626 4.31191 3.72626 4.01902 4.01915C3.72613 4.31204 3.72613 4.78692 4.01902 5.07981L4.9029 5.9637Z" fill="#fd8f3f" />
+                    </svg>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex-1">Mode Gelap</p>
+                  <ThemeToggleButton />
                 </div>
-                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 flex-1">Mode Gelap</p>
-                <ThemeToggleButton />
-              </div>
 
-              {/* Section label */}
-              <div className="px-3 pt-2 pb-1">
-                <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Pilih PT & Aktivitas</span>
-              </div>
+                <div className="px-3 pt-2 pb-1">
+                  <span className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">Pilih PT & Aktivitas</span>
+                </div>
 
-              {/* PT list */}
-              {loadingPTs ? (
-                <div className="px-3 py-3 text-sm text-gray-400 animate-pulse">Memuat...</div>
-              ) : (
-                allPTs.map((pt) => {
-                  const isActive = selectedPT === pt;
-                  const ptActivities = currentActivitiesForDropdown(pt);
-                  const isOpen = openDropdownPT === pt;
+                {loadingPTs ? (
+                  <div className="px-3 py-3 text-sm text-gray-400 animate-pulse">Memuat...</div>
+                ) : (
+                  allPTs.map((pt) => {
+                    const isActive = selectedPT === pt;
+                    const ptActivities = currentActivitiesForDropdown(pt);
+                    const isOpen = openDropdownPT === pt;
 
-                  return (
-                    <div key={pt}>
-                      <button
-                        onClick={() => {
-                          onPTChange(pt);
-                          setOpenDropdownPT(isOpen ? null : pt);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-colors ${
-                          isActive
-                            ? "text-white"
-                            : "bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        }`}
-                        style={isActive ? { backgroundColor: "#fd8f3f" } : {}}
-                      >
-                        <p className={`text-sm font-semibold flex-1 text-left ${isActive ? "text-white" : "text-gray-800 dark:text-gray-100"}`}>
-                          {pt}
-                        </p>
-                        <svg
-                          width="14" height="14" viewBox="0 0 16 16" fill="none"
-                          className={`transition-transform ${isOpen ? "rotate-180" : ""}`}
-                          style={isActive ? { color: "white" } : { color: "#9ca3af" }}
+                    return (
+                      <div key={pt}>
+                        <button
+                          onClick={() => {
+                            onPTChange(pt);
+                            setOpenDropdownPT(isOpen ? null : pt);
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-colors ${
+                            isActive ? "text-white" : "bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`}
+                          style={isActive ? { backgroundColor: "#fd8f3f" } : {}}
                         >
-                          <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </button>
+                          <p className={`text-sm font-semibold flex-1 text-left ${isActive ? "text-white" : "text-gray-800 dark:text-gray-100"}`}>
+                            {pt}
+                          </p>
+                          <motion.svg
+                            width="14" height="14" viewBox="0 0 16 16" fill="none"
+                            animate={{ rotate: isOpen ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                            style={isActive ? { color: "white" } : { color: "#9ca3af" }}
+                          >
+                            <path d="M4 6l4 4 4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                          </motion.svg>
+                        </button>
 
-                      {isOpen && (
-                        <div
-                          className="ml-4 mt-1 space-y-0.5 pl-3"
-                          style={{ borderLeft: "2px solid rgba(117, 176, 249, 0.4)" }}
-                        >
-                          {ptActivities.map((act) => {
-                            const isCur = currentActivity === act;
-                            return (
-                              <button
-                                key={act}
-                                onClick={() => {
-                                  handleActivitySelect(pt, act);
-                                  setMobileMenuOpen(false);
-                                }}
-                                className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left transition-colors ${
-                                  isCur
-                                    ? "text-white"
-                                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
-                                }`}
-                                style={isCur ? { backgroundColor: "#fd8f3f" } : {}}
-                              >
-                                {/* Icon mobile */}
-                                {(() => {
-                                  const iconUrl = getActivityIcon(act);
-                                  return iconUrl ? (
-                                    <img
-                                      src={iconUrl}
-                                      alt={act}
-                                      width={14}
-                                      height={14}
-                                      className="flex-shrink-0"
-                                      style={isCur ? { filter: "brightness(0) invert(1)" } : { filter: "brightness(0) invert(0.5)" }}
-                                    />
-                                  ) : isCur ? (
-                                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
-                                      <path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                  ) : null;
-                                })()}
-                                <span className="text-sm font-medium">{formatActivityName(act)}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </>
-      )}
-
-      <style>{`
-        @keyframes dropdownSlide {
-          from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
-          to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-        @keyframes mobileMenuSlideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+                        <AnimatePresence>
+                          {isOpen && (
+                            <motion.div
+                              key={pt + "-mob"}
+                              initial={{ opacity: 0, height: 0 }}
+                              animate={{ opacity: 1, height: "auto" }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
+                              className="overflow-hidden ml-4 mt-1 pl-3"
+                              style={{ borderLeft: "2px solid rgba(117, 176, 249, 0.4)" }}
+                            >
+                              <div className="space-y-0.5 py-1">
+                                {ptActivities.map((act) => {
+                                  const isCur = currentActivity === act;
+                                  return (
+                                    <button
+                                      key={act}
+                                      onClick={() => {
+                                        handleActivitySelect(pt, act);
+                                        setMobileMenuOpen(false);
+                                      }}
+                                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-left transition-colors ${
+                                        isCur ? "text-white" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                                      }`}
+                                      style={isCur ? { backgroundColor: "#fd8f3f" } : {}}
+                                    >
+                                      {(() => {
+                                        const iconUrl = getActivityIcon(act);
+                                        return iconUrl ? (
+                                          <img
+                                            src={iconUrl} alt={act} width={14} height={14}
+                                            className="flex-shrink-0"
+                                            style={isCur ? { filter: "brightness(0) invert(1)" } : { filter: "brightness(0) invert(0.5)" }}
+                                          />
+                                        ) : isCur ? (
+                                          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" className="flex-shrink-0">
+                                            <path d="M3 8l4 4 6-6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                                          </svg>
+                                        ) : null;
+                                      })()}
+                                      <span className="text-sm font-medium">{formatActivityName(act)}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };

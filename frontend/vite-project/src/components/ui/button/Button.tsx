@@ -28,20 +28,35 @@ const Button: React.FC<ButtonProps> = ({
 
   const variantClasses = {
     primary:
-      "bg-orange-500 text-white shadow-theme-xs hover:bg-orange-600 disabled:bg-orange-300",
+      "text-white shadow-theme-xs disabled:opacity-50",
     outline:
       "bg-white text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
   };
+
+  const primaryStyle =
+    variant === "primary"
+      ? {
+          backgroundColor: "#fd9141",
+          // hover & disabled dihandle via inline + onMouseEnter/Leave
+        }
+      : {};
 
   return (
     <button
       className={`inline-flex items-center justify-center gap-2 rounded-lg transition ${className} ${
         sizeClasses[size]
-      } ${variantClasses[variant]} ${
-        disabled ? "cursor-not-allowed opacity-50" : ""
-      }`}
+      } ${variantClasses[variant]} ${disabled ? "cursor-not-allowed opacity-50" : ""}`}
+      style={primaryStyle}
       onClick={onClick}
       disabled={disabled}
+      onMouseEnter={e => {
+        if (variant === "primary" && !disabled)
+          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#e8803a";
+      }}
+      onMouseLeave={e => {
+        if (variant === "primary")
+          (e.currentTarget as HTMLButtonElement).style.backgroundColor = "#fd9141";
+      }}
     >
       {startIcon && <span className="flex items-center">{startIcon}</span>}
       {children}

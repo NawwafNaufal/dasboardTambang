@@ -13,7 +13,6 @@ export default function AuthLayout({
       <div className="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0">
         {children}
 
-        {/* Panel kanan dengan background gambar tambang4 penuh */}
         <div
           className="items-center hidden w-full h-full lg:w-1/2 lg:grid"
           style={{
@@ -23,13 +22,10 @@ export default function AuthLayout({
             backgroundRepeat: "no-repeat",
           }}
         >
-          {/* Overlay gelap agar teks tetap terbaca */}
           <div className="relative flex items-center justify-center z-1 w-full h-full bg-black/40">
-            {/* Grid Shape dekoratif */}
             <GridShape />
           </div>
         </div>
-
         <div className="fixed z-50 hidden bottom-6 right-6 sm:block">
           <ThemeTogglerTwo />
         </div>

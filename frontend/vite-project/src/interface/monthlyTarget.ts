@@ -33,7 +33,7 @@ export interface CurrentData {
   actual: number;
   max: number;
   min: number;
-  today: number;  // average
+  today: number;  
   percentage: number;
   deviation: number;
 }
