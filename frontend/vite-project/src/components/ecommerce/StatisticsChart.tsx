@@ -97,9 +97,6 @@ export default function StatisticsChart({
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  /* =========================
-     FIX CHART WIDTH
-  ========================= */
   useEffect(() => {
     const updateChartWidth = () => {
       if (chartContainerRef.current) {
@@ -301,7 +298,7 @@ export default function StatisticsChart({
         }
       },
     },
-    colors: ["#ec6765", "#27b5f5"],
+    colors: ["#ec6765", "#ff7f00"],
     stroke: { curve: "straight", width: [2, 2] },
     fill: { 
       type: ['solid', 'gradient'],
@@ -312,7 +309,7 @@ export default function StatisticsChart({
       size: [0, 6],
       strokeWidth: 2, 
       strokeColors: "#fff", 
-      colors: ["#ec6765", "#60A5FA"],
+      colors: ["#ec6765", "#fd8f3f"],
       hover: { size: [0, 9] } 
     },
     dataLabels: { 
@@ -320,7 +317,7 @@ export default function StatisticsChart({
       enabledOnSeries: [1],
       background: {
         enabled: true,
-        foreColor: '#60A5FA',
+        foreColor: '#ff7f00',
         borderRadius: 4,
         padding: 4,
         opacity: 0.9,
@@ -332,7 +329,6 @@ export default function StatisticsChart({
         colors: ['#ffffff']
       },
       offsetY: -10,
-      // ✅ FIX: Format angka dengan pemisah ribuan
       formatter: function(value) {
         return value ? formatIDR(Number(value)) : '';
       }
@@ -365,7 +361,7 @@ export default function StatisticsChart({
         const breakdownItem = activity.breakdownDetails?.find(b => b.day === parseInt(day));
         
         let html = '<div style="padding: 10px 12px; background: white; border: 1px solid #e5e7eb; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); min-width: 180px;">';
-        html += '<div style="font-weight: 600; color: #60A5FA; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">';
+        html += '<div style="font-weight: 600; color: #ff7f00; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; font-size: 13px;">';
         html += (dailyItem?.dayName ?? '-') + ', ' + day + ' ' + selectedMonth;
         html += '</div>';
         
@@ -373,15 +369,15 @@ export default function StatisticsChart({
           html += '<div style="display: flex; flex-direction: column; gap: 4px;">';
           breakdownItem.units.forEach(unit => {
             html += '<div style="display: flex; justify-content: space-between; gap: 16px;">';
-            html += '<span style="color: #6b7280; font-size: 12px;">' + unit.unitName + ':</span>';
-            html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + formatIDR(unit.actual) + ' ' + unit.unit + '</span>';
+            html += '<span style="color: #fd8f3f; font-size: 12px;">' + unit.unitName + ':</span>';
+            html += '<span style="color: #ff7f00; font-weight: 600; font-size: 12px;">' + formatIDR(unit.actual) + ' ' + unit.unit + '</span>';
             html += '</div>';
           });
           html += '</div>';
         } else {
           html += '<div style="display: flex; justify-content: space-between;">';
           html += '<span style="color: #6b7280; font-size: 12px;">Total:</span>';
-          html += '<span style="color: #60A5FA; font-weight: 600; font-size: 12px;">' + formatIDR(value ?? 0) + ' ' + activity.unit + '</span>';
+          html += '<span style="color: #ff7f00; font-weight: 600; font-size: 12px;">' + formatIDR(value ?? 0) + ' ' + activity.unit + '</span>';
           html += '</div>';
         }
         
@@ -512,7 +508,7 @@ export default function StatisticsChart({
               <select
                 value={selectedMonth}
                 onChange={(e) => handleMonthChange(e.target.value)}
-                className="h-9 w-full sm:w-36 rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="h-9 w-full sm:w-36 rounded-lg border border-gray-200 bg-white pl-10 pr-8 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
               >
                 {["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"].map(m => (
                   <option key={m} value={m}>{m}</option>

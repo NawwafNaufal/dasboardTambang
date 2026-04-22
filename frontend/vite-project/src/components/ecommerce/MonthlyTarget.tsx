@@ -128,7 +128,7 @@ export default function MonthlyTarget({
         },
       },
     },
-    fill: { type: "solid", colors: ["#60A5FA"] },
+    fill: { type: "solid", colors: ["#fd8f3f"] },
     stroke: { lineCap: "round" },
     labels: ["Progress"],
   };

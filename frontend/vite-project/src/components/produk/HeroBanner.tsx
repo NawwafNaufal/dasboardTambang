@@ -24,7 +24,7 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
     >
       {/* Light mode image */}
       <img
-        src="../../../public/images/cards/tambang1.png"
+        src="../../../public/images/cards/tambang4.jpg"
         alt="Hero Banner"
         className="absolute inset-0 w-full h-full object-cover opacity-100 dark:opacity-0 transition-opacity duration-700"
         style={{ objectPosition: "90% center" }}

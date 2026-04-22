@@ -348,7 +348,7 @@ export default function ProductivityIndexChart() {
                   <button key={m} onClick={() => { setSelectedMonth(i); setShowMonthPicker(false); }}
                     style={{
                       fontSize: 11, padding: "6px 4px", borderRadius: 8, fontWeight: 600, border: "none",
-                      background: selectedMonth === i ? "#3b82f6" : "transparent",
+                      background: selectedMonth === i ? "#fd9141" : "transparent",
                       color: selectedMonth === i ? "#fff" : t.pickerText,
                       cursor: "pointer", fontFamily: "inherit"
                     }}>{m}</button>

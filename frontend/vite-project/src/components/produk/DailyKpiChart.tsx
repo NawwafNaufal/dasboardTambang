@@ -10,7 +10,7 @@ type Month = "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun" | "Jul" | "Aug" | "Se
 const months: Month[] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const KPI_OPTIONS = [
-  { label: "PA", color: "#60A5FA" },
+  { label: "PA", color: "#fd9141" },
   { label: "MA", color: "#FACC15" },
   { label: "UA", color: "#4ADE80" },
   { label: "EU", color: "#F87171" },
@@ -346,7 +346,7 @@ export default function DailyKpiChart({ selectedPT }: { selectedPT: string }) {
                   cursor: "pointer",
                   whiteSpace: "nowrap",
                   transition: "all 0.15s",
-                  background: selectedMonth === m ? "#3B82F6" : "transparent",
+                  background: selectedMonth === m ? "#fd9141" : "transparent",
                   color: selectedMonth === m ? "#fff" : "#9ca3af",
                 }}
               >

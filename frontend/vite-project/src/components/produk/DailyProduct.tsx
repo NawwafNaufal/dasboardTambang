@@ -46,11 +46,11 @@ const SingleSelect: React.FC<SingleSelectProps> = ({ options, value, onChange })
         onClick={() => setOpen(!open)}
         className={`flex items-center gap-3 px-5 py-1 rounded-xl min-w-[120px] justify-between border text-sm font-semibold transition-all ${
           open
-            ? "border-brand-500 ring-2 ring-brand-100 bg-white text-brand-500 dark:bg-gray-800 dark:border-brand-400 dark:ring-brand-900/40 dark:text-brand-400"
+            ? "border-[#fd9141] ring-2 ring-orange-100 bg-white text-[#fd9141] dark:bg-gray-800 dark:border-[#fd9141] dark:ring-orange-900/40 dark:text-[#fd9141]"
             : "border-gray-200 bg-white text-gray-700 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
         }`}
       >
-        <span className="text-sm font-semibold text-brand-500 dark:text-brand-400">{value || "Pilih Unit"}</span>
+        <span className="text-sm font-semibold text-[#fd9141]">{value || "Pilih Unit"}</span>
         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16"
           style={{ transform: open ? "rotate(180deg)" : "rotate(0deg)", transition: "transform 0.2s" }}
           className="text-gray-400">
@@ -69,7 +69,7 @@ const SingleSelect: React.FC<SingleSelectProps> = ({ options, value, onChange })
               </svg>
               <input ref={inputRef} value={search} onChange={(e) => setSearch(e.target.value)}
                 placeholder="Cari unit..."
-                className="w-full pl-7 pr-6 py-1.5 text-xs rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100 transition-all"
+                className="w-full pl-7 pr-6 py-1.5 text-xs rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200 outline-none focus:border-[#fd9141] focus:ring-2 focus:ring-orange-100 transition-all"
               />
               {search && (
                 <button onClick={() => setSearch("")}
@@ -87,11 +87,11 @@ const SingleSelect: React.FC<SingleSelectProps> = ({ options, value, onChange })
                 <button key={opt} onClick={() => { onChange(opt); setOpen(false); }}
                   className={`w-full flex items-center gap-2 px-3 py-2 text-sm text-left transition-colors ${
                     isActive
-                      ? "bg-brand-50 dark:bg-brand-900/30 text-brand-500 dark:text-brand-400 font-semibold"
+                      ? "bg-orange-50 dark:bg-orange-900/30 text-[#fd9141] font-semibold"
                       : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
                   }`}>
                   {isActive ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" className="text-brand-500 flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style={{ color: "#fd9141" }} className="flex-shrink-0">
                       <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
                     </svg>
                   ) : <span style={{ width: 12 }} />}
@@ -236,18 +236,18 @@ export default function DailyProduct() {
       mainData: dailyData.lbgJam,
       mainDec: 2,
       mainLabel: "Lbg/Jam",
-      mainColor: "text-brand-500 dark:text-brand-400",
+      mainColor: "text-[#fd9141]",
       series: [
         { name: "Lbg/Jam", data: dailyData.lbgJam },
         { name: "Mtr/Jam", data: dailyData.mtrJam },
         { name: "Ltr/Mtr", data: dailyData.ltrMtr },
       ],
-      colors: ["#38BDF8","#34D399","#FACC15"],
+      colors: ["#fd9141","#34D399","#FACC15"],
       yaxis: [
         {
           seriesName: "Lbg/Jam", min: 0, tickAmount: 5,
-          labels: { style: { colors: "#38BDF8", fontSize: "11px" }, formatter: (v: number) => v.toFixed(1) },
-          title: { text: "Lbg/Jam", style: { color: "#38BDF8" } }
+          labels: { style: { colors: "#fd9141", fontSize: "11px" }, formatter: (v: number) => v.toFixed(1) },
+          title: { text: "Lbg/Jam", style: { color: "#fd9141" } }
         },
         { seriesName: "Mtr/Jam", opposite: false, show: false, min: 0 },
         {
@@ -267,7 +267,7 @@ export default function DailyProduct() {
         if (si === 1) return (val as number).toFixed(1);
         return (val as number).toFixed(3);
       },
-      dataLabelColors: ["#38BDF8", "#34D399", "#FACC15"],
+      dataLabelColors: ["#fd9141", "#34D399", "#FACC15"],
     },
     fuel: {
       title: "Fuel Consumption",
@@ -414,7 +414,7 @@ export default function DailyProduct() {
               <button key={t} onClick={() => setTab(t)}
                 className={`flex items-center gap-1.5 px-5 py-3 text-sm font-semibold underline-offset-4 transition-all ${
                   active
-                    ? "underline decoration-2 decoration-brand-500 text-brand-500 dark:text-brand-400"
+                    ? "underline decoration-2 decoration-[#fd9141] text-[#fd9141]"
                     : "no-underline text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
                 }`}>
                 {icon}{t === "productivity" ? "Productivity" : "Fuel"}
@@ -474,7 +474,7 @@ export default function DailyProduct() {
                 <button key={m} onClick={() => setSelectedMonth(m)}
                   className={`text-sm px-3 py-1.5 rounded-lg font-medium transition-all ${
                     selectedMonth === m
-                      ? "bg-brand-500 text-white"
+                      ? "bg-[#fd9141] text-white"
                       : "text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   }`}>
                   {m}

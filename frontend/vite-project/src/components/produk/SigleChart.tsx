@@ -15,7 +15,6 @@ function useDarkMode(): boolean {
   const [isDark, setIsDark] = useState(
     () => document.documentElement.classList.contains("dark")
   );
-
   useEffect(() => {
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
@@ -26,7 +25,6 @@ function useDarkMode(): boolean {
     });
     return () => observer.disconnect();
   }, []);
-
   return isDark;
 }
 
@@ -162,14 +160,19 @@ function Tooltip({ tooltip, data, isDark }: { tooltip: any; data: number[][]; is
 
   return (
     <div style={{
-      position: "fixed", left: x + 16, top: y - 10,
+      position: "absolute",
+      left: x,
+      top: y,
       background: isDark ? "#1f2937" : "#ffffff",
       borderRadius: 14,
       boxShadow: isDark
         ? "0 8px 32px rgba(0,0,0,0.5)"
         : "0 8px 32px rgba(0,0,0,0.14)",
       border: `1px solid ${isDark ? "#374151" : "#f0f0f0"}`,
-      padding: "12px 16px", zIndex: 9999, minWidth: 180, pointerEvents: "none",
+      padding: "12px 16px",
+      zIndex: 9999,
+      minWidth: 180,
+      pointerEvents: "none",
     }}>
       <div style={{ fontWeight: 700, fontSize: 14, color: isDark ? "#f9fafb" : "#111", marginBottom: 8 }}>
         {months[monthIdx]} 2026
@@ -205,6 +208,7 @@ export default function SyncKpiChart() {
   const [activeMonth, setActiveMonth] = useState<number | null>(null);
   const [tooltip, setTooltip] = useState<any>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   // Fetch units
   useEffect(() => {
@@ -272,8 +276,27 @@ export default function SyncKpiChart() {
 
   const handleMouseMove = (e: React.MouseEvent, mi: number) => {
     setActiveMonth(mi);
-    setTooltip({ x: e.clientX, y: e.clientY, monthIdx: mi });
+    if (!cardRef.current) return;
+
+    const rect = cardRef.current.getBoundingClientRect();
+    const tooltipW = 200;
+    const tooltipH = 130;
+    const padding = 8;
+
+    let x = e.clientX - rect.left + padding;
+    let y = e.clientY - rect.top - tooltipH / 2;
+
+    // Flip ke kiri jika keluar batas card kanan
+    if (x + tooltipW > rect.width - padding) {
+      x = e.clientX - rect.left - tooltipW - padding;
+    }
+    // Clamp atas/bawah dalam card
+    if (y < padding) y = padding;
+    if (y + tooltipH > rect.height - padding) y = rect.height - tooltipH - padding;
+
+    setTooltip({ x, y, monthIdx: mi });
   };
+
   const handleMouseLeave = () => {
     setActiveMonth(null);
     setTooltip(null);
@@ -308,7 +331,8 @@ export default function SyncKpiChart() {
   const TOP = labelH + 10;
 
   return (
-    <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", height: "100%" }}>
+    // ← wrapper position: relative agar tooltip absolute mengacu ke sini
+    <div ref={cardRef} style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif", height: "100%", position: "relative" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
         .kpi-scroll {
@@ -511,6 +535,7 @@ export default function SyncKpiChart() {
         </p>
       </div>
 
+      {/* Tooltip di dalam wrapper position:relative, pakai position:absolute */}
       <Tooltip tooltip={tooltip} data={chartData} isDark={isDark} />
     </div>
   );
