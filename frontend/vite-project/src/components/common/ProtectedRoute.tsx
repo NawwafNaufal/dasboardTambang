@@ -1,14 +1,16 @@
 import { Navigate, Outlet } from "react-router";
+import { useAuth } from "../../context/AuthContext";
 
 export default function ProtectedRoute() {
-  // Cek apakah user sudah login
-  // Sesuaikan dengan cara kamu menyimpan auth (localStorage, context, dll)
-  const isAuthenticated = !!localStorage.getItem("token"); 
+  const { isAuthenticated, loading } = useAuth();
 
-  // Jika belum login, redirect ke halaman signin
-  if (!isAuthenticated) {
-    return <Navigate to="/signin" replace />;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-8 h-8 border-4 border-blue-500 rounded-full border-t-transparent animate-spin" />
+      </div>
+    );
   }
 
-  return <Outlet />;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/signin" replace />;
 }

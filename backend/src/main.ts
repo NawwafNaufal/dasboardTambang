@@ -18,7 +18,10 @@ import getUnit from "./routes/productivity/getUnit"
 import avaibilityIndex from "./routes/productivity/getTotalPaUaMaUe"
 import dailyProductivity from "./routes/productivity/dailyProductivity"
 import getPaUaMaEu from "./routes/productivity/getPaMaUaEu"
-import sigIn from "./routes/login/loginRoutes"
+import sigIn from "./routes/auth/loginRoutes"
+import logOut from "./routes/auth/logoutRoutes"
+import { validateCookie } from "./middleware/auth/validateCookie";
+
 
 const app = express();
 const PORT = process.env.PORT;
@@ -54,18 +57,19 @@ app.get("/h",(req,res) => {
   res.send("Hello World")
 })
 
-app.use("/api", productivity);
-app.use("/api",planRkpa)
-app.use("/api", staticD)
-app.use("/api",monthlyTarget)
-app.use("/api",getActivityUnit)
-app.use("/api",produktivityIndexMounth)
-app.use("/api",getUnit)
-app.use("/api",avaibilityIndex)
-app.use("/api",dailyProductivity)
-app.use("/api",getPaUaMaEu)
+app.use("/api", validateCookie,productivity);
+app.use("/api",validateCookie,planRkpa)
+app.use("/api", validateCookie,staticD)
+app.use("/api",validateCookie,monthlyTarget)
+app.use("/api",validateCookie,getActivityUnit)
+app.use("/api",validateCookie,produktivityIndexMounth)
+app.use("/api",validateCookie,getUnit)
+app.use("/api",validateCookie,avaibilityIndex)
+app.use("/api",validateCookie,dailyProductivity)
+app.use("/api",validateCookie,getPaUaMaEu)
 
 app.use("/auth",sigIn)
+app.use("/auth",logOut)
 app.use(error);
 
 const startServer = async () => {

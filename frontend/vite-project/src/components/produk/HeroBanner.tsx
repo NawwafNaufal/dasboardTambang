@@ -32,7 +32,7 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
 
       {/* Dark mode image */}
       <img
-        src="../../../public/images/cards/tambang2.png"
+        src="../../../public/images/cards/tambang4.jpg"
         alt="Hero Banner Night"
         className="absolute inset-0 w-full h-full object-cover opacity-0 dark:opacity-100 transition-opacity duration-700"
         style={{ objectPosition: "90% 57%" }}

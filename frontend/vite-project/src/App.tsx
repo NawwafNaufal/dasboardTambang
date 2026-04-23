@@ -3,12 +3,12 @@ import NotFound from "./pages/OtherPage/NotFound";
 import SignIn from "./pages/AuthPages/SignIn";
 import LineChart from "./pages/Charts/LineChart";
 import BarChart from "./pages/Charts/BarChart";
-// import Calendar from "./pages/Calendar";
 import Blank from "./pages/Blank";
 import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import HomeProduk from "./pages/Dashboard/HomeProduk";
+import ProtectedRoute from "./components/common/ProtectedRoute"; 
 
 export default function App() {
   return (
@@ -16,21 +16,18 @@ export default function App() {
       <Router>
         <ScrollToTop />
         <Routes>
-          {/* Dashboard Layout */}
-          <Route element={<AppLayout />}>
-            <Route index path="/" element={<Home />} />
-            <Route index path="/produksi" element={<HomeProduk />} />
-
-            {/* Others Page */}
-            {/* <Route path="/calendar" element={<Calendar />} /> */}
-            <Route path="/blank" element={<Blank />} />
-
-            {/* Charts */}
-            <Route path="/line-chart" element={<LineChart />} />
-            <Route path="/bar-chart" element={<BarChart />} />
+          {/* Protected Routes - harus login dulu */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route index path="/" element={<Home />} />
+              <Route path="/produksi" element={<HomeProduk />} />
+              <Route path="/blank" element={<Blank />} />
+              <Route path="/line-chart" element={<LineChart />} />
+              <Route path="/bar-chart" element={<BarChart />} />
+            </Route>
           </Route>
 
-          {/* Auth Layout */}
+          {/* Auth Layout - public */}
           <Route path="/signin" element={<SignIn />} />
 
           {/* Fallback Route */}

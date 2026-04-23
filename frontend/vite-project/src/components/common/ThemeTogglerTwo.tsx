@@ -2,11 +2,13 @@ import { useTheme } from "../../context/ThemeContext";
 
 export default function ThemeTogglerTwo() {
   const { toggleTheme } = useTheme();
+
   return (
     <button
       onClick={toggleTheme}
-      className="inline-flex items-center justify-center text-white transition-colors rounded-full size-14 bg-brand-500 hover:bg-brand-600"
+      className="inline-flex items-center justify-center text-white transition-colors rounded-full size-14 bg-[#fd9141] hover:bg-[#e67e35]"
     >
+      {/* ICON DARK MODE (matahari) */}
       <svg
         className="hidden dark:block"
         width="20"
@@ -22,6 +24,8 @@ export default function ThemeTogglerTwo() {
           fill="currentColor"
         />
       </svg>
+
+      {/* ICON LIGHT MODE (bulan) */}
       <svg
         className="dark:hidden"
         width="20"
