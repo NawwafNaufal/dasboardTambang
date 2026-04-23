@@ -277,7 +277,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   useEffect(() => {
     const fetchUnit = async () => {
       try {
-        const response = await fetch("http://43.157.205.158:4000/api/activities");
+        const response = await fetch("http://moa2.site/api/api/activities");
         if (!response.ok) throw new Error();
         const result = await response.json();
         if (result.success) {
