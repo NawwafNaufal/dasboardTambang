@@ -95,21 +95,21 @@ const AppSidebar: React.FC = () => {
   };
 
   const handleLogout = async () => {
-  try {
-    await fetch("http://localhost:4000/auth/sign-out", {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-  } catch (err) {
-    console.error("Logout error:", err);
-  } finally {
-    await logout();
-    navigate("/signin");
-  }
-};
+    try {
+      await fetch("http://43.157.205.158:4000/auth/sign-out", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (err) {
+      console.error("Logout error:", err);
+    } finally {
+      await logout();
+      navigate("/signin");
+    }
+  };
 
   const renderMenuItems = (items: NavItem[], menuType: "main" | "others") => (
     <ul className="flex flex-col gap-4">
@@ -235,7 +235,14 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-3 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200
+      className={`
+        fixed top-0 left-0 px-3 z-50
+        flex flex-col
+        bg-white dark:bg-gray-900 dark:border-gray-800
+        text-gray-900 border-r border-gray-200
+        transition-all duration-300 ease-in-out
+        mt-16 lg:mt-0
+        h-[calc(100vh-4rem)] lg:h-screen
         ${
           isExpanded || isMobileOpen
             ? "w-[240px]"
@@ -250,7 +257,7 @@ const AppSidebar: React.FC = () => {
     >
       {/* Logo */}
       <div
-        className={`py-8 flex ${
+        className={`py-8 flex flex-shrink-0 ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
@@ -289,8 +296,8 @@ const AppSidebar: React.FC = () => {
         </Link>
       </div>
 
-      {/* Nav Menu */}
-      <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
+      {/* Nav Menu — flex-1 + overflow-y-auto agar scroll tapi logout tetap di bawah */}
+      <div className="flex-1 overflow-y-auto no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
             <div>
@@ -319,19 +326,19 @@ const AppSidebar: React.FC = () => {
         </nav>
       </div>
 
-      {/* Logout Button */}
-      <div className="mt-auto border-t border-gray-200 dark:border-gray-800 py-4">
+      {/* Logout Button — flex-shrink-0 agar tidak tertekan ke atas */}
+      <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-800 py-4">
         <button
           onClick={handleLogout}
           className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-gray-600 dark:text-gray-400 transition-colors duration-200
             ${!isExpanded && !isHovered ? "lg:justify-center" : "justify-start"}
           `}
-          onMouseEnter={e => {
+          onMouseEnter={(e) => {
             const btn = e.currentTarget;
             btn.style.backgroundColor = "#fff4ec";
             btn.style.color = "#fd8f3f";
           }}
-          onMouseLeave={e => {
+          onMouseLeave={(e) => {
             const btn = e.currentTarget;
             btn.style.backgroundColor = "";
             btn.style.color = "";

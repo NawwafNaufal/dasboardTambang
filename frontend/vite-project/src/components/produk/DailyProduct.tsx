@@ -323,9 +323,7 @@ export default function DailyProduct() {
         borderWidth: 1,
         borderColor: isDark ? "#374151" : "#e5e7eb",
         opacity: 0.85,
-        dropShadow: {
-          enabled: false,
-        },
+        dropShadow: { enabled: false },
       },
       offsetY: -8,
     },
@@ -390,8 +388,9 @@ export default function DailyProduct() {
       </div>
 
       {/* TAB ROW */}
-      <div className="flex items-center justify-between px-6 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex items-center gap-2 py-2">
+      <div className="border-t border-gray-200 dark:border-gray-700">
+        {/* Baris 1: Unit selector */}
+        <div className="flex items-center gap-2 px-6 pt-3 pb-1">
           <span className="text-sm text-gray-400 dark:text-gray-500 font-medium">Unit:</span>
           {loadingUnits ? (
             <span className="text-sm text-gray-400">Loading...</span>
@@ -399,7 +398,8 @@ export default function DailyProduct() {
             <SingleSelect options={units} value={selectedUnit} onChange={setSelectedUnit} />
           )}
         </div>
-        <div className="flex">
+        {/* Baris 2: Tab buttons rata kiri */}
+        <div className="flex px-2">
           {(["productivity", "fuel"] as Tab[]).map((t) => {
             const active = tab === t;
             const icon = t === "productivity"
@@ -412,7 +412,7 @@ export default function DailyProduct() {
                 </svg>;
             return (
               <button key={t} onClick={() => setTab(t)}
-                className={`flex items-center gap-1.5 px-5 py-3 text-sm font-semibold underline-offset-4 transition-all ${
+                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold underline-offset-4 transition-all ${
                   active
                     ? "underline decoration-2 decoration-[#fd9141] text-[#fd9141]"
                     : "no-underline text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
