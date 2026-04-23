@@ -96,7 +96,7 @@ const AppSidebar: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://moa2.site/api/auth/log-out", {
+      await fetch("https://moa2.site/api/auth/log-out", {
         method: "POST",
         credentials: "include",
         headers: {

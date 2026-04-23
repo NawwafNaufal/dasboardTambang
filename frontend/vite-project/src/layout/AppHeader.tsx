@@ -219,7 +219,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   onPTChange,
   currentActivity,
   onActivityChange,
-  apiUrl = "http://moa2.site/api/api/monthly-actual/by-site",
+  apiUrl = "https://moa2.site/api/api/monthly-actual/by-site",
   year = 2026,
   activeTab = "Volume",
   onUnitActivityChange,

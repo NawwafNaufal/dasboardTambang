@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import type { MonthlyTargetData } from "../interface/monthlyTarget";
 
-const API_URL = "http://moa2.site/api";
+const API_URL = "https://moa2.site/api";
 
 export function useMonthlyTargetData(
   selectedPT: string,

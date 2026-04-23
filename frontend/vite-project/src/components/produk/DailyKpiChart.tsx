@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { useOutletContext } from "react-router";
 import * as ApexChartsLib from "apexcharts";
 
-const BASE_URL = "http://moa2.site/api/api";
+const BASE_URL = "https://moa2.site/api/api";
 
 type Month = "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun" | "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec";
 const months: Month[] = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
