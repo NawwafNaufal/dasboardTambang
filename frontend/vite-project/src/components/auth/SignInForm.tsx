@@ -5,7 +5,7 @@ import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
-import { useAuth } from "../../context/AuthContext"; // ← tambah import
+import { useAuth } from "../../context/AuthContext";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +15,7 @@ export default function SignInForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuth(); // ← tambah ini
+  const { setIsAuthenticated } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +23,7 @@ export default function SignInForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:4000/auth/sign-in", {
+      const response = await fetch("http://43.157.205.158:4000/auth/sign-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
