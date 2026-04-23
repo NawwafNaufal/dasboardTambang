@@ -96,7 +96,7 @@ const AppSidebar: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await fetch("http://43.157.205.158:4000/auth/sign-out", {
+      await fetch("http://moa2.site/api/auth/log-out", {
         method: "POST",
         credentials: "include",
         headers: {

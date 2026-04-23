@@ -23,7 +23,7 @@ export default function SignInForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://43.157.205.158:4000/auth/sign-in", {
+      const response = await fetch("http://moa2.site/api/auth/sign-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

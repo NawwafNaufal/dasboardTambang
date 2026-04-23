@@ -7,7 +7,7 @@ const ApexChart = Chart as any;
 
 export default function MonthlySalesChart({ 
   selectedPT = "PT Semen Tonasa",
-  apiUrl = "http://43.157.205.158:4000/api/monthly-actual/by-site", 
+  apiUrl = "http://moa2.site/api/monthly-actual/by-site", 
   year = 2026,  
   currentActivity
 }: MonthlySalesChartProps) {

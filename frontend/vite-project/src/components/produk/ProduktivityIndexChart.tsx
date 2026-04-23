@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
 import { useOutletContext } from "react-router";
 
-const BASE_URL = "http://43.157.205.158:4000/api";
+const BASE_URL = "http://moa2.site/api/api";
 const months = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
 
 const METRICS = [

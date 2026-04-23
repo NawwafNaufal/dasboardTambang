@@ -63,7 +63,7 @@ const formatNumber = (num: number): string => {
 export default function EcommerceMetrics({
   selectedPT = "PT Semen Tonasa",
   currentActivity,
-  apiUrl = "http://43.157.205.158:4000/api/plan-rkpa",
+  apiUrl = "http://moa2.site/api/plan-rkpa",
   year = 2026,
 }: EcommerceMetricsProps) {
   const [apiData, setApiData] = useState<{ [siteName: string]: SiteActivities } | null>(null);

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useOutletContext } from "react-router";
 import { useSidebar } from "../../context/SidebarContext";
 
-const BASE_URL = "http://43.157.205.158:4000/api";
+const BASE_URL = "http://moa2.site/api/api";
 
 type Month = "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun" | "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec";
 const months: Month[] = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
