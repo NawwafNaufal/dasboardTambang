@@ -17,25 +17,14 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
   return (
     <div
       className="relative w-full overflow-hidden rounded-2xl"
-      style={{
-        height: "567px",
-        marginTop: "-1.5rem", // sesuaikan dengan padding-top parent (p-6 = 1.5rem, p-4 = 1rem, p-8 = 2rem)
-      }}
+      style={{ height: "clamp(420px, 70vw, 567px)", marginTop: "-1.5rem" }}
     >
-      {/* Light mode image */}
+      {/* Background image */}
       <img
         src="../../../public/images/cards/tambang4.jpg"
         alt="Hero Banner"
-        className="absolute inset-0 w-full h-full object-cover opacity-100 dark:opacity-0 transition-opacity duration-700"
-        style={{ objectPosition: "90% center" }}
-      />
-
-      {/* Dark mode image */}
-      <img
-        src="../../../public/images/cards/tambang4.jpg"
-        alt="Hero Banner Night"
-        className="absolute inset-0 w-full h-full object-cover opacity-0 dark:opacity-100 transition-opacity duration-700"
-        style={{ objectPosition: "90% 57%" }}
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ objectPosition: "center center" }}
       />
 
       {/* Gradient overlay */}
@@ -43,7 +32,7 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to right, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.2) 60%, transparent 100%)",
+            "linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.4) 100%)",
         }}
       />
 
@@ -70,24 +59,24 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
         <div>
           <h1
             className="text-white font-bold leading-none"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", letterSpacing: "-0.02em" }}
+            style={{ fontSize: "clamp(2rem, 8vw, 4.5rem)", letterSpacing: "-0.02em" }}
           >
             Production
           </h1>
           <h1
             className="text-white font-bold leading-none"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 4.5rem)", letterSpacing: "-0.02em" }}
+            style={{ fontSize: "clamp(2rem, 8vw, 4.5rem)", letterSpacing: "-0.02em" }}
           >
             Dashboard
           </h1>
           <p className="text-white/75 mt-2 max-w-sm text-sm leading-relaxed">
-            Monitor production KPIs, daily output, and performance metrics in real-time across all units.
+            Gain real-time insights into production KPIs, site-level volume, daily output, and performance across all operations.
           </p>
         </div>
 
         {/* TAB */}
-        <div className="absolute bottom-6 md:bottom-8 xl:left-[calc(32.333%+1.5rem)] left-6">
-          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-sm p-1">
+        <div className="w-full">
+          <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm rounded-sm p-1">
             {tabs.map((tab) => (
               <button
                 key={tab}
