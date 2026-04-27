@@ -36,7 +36,6 @@ export default function SignInForm() {
         return;
       }
 
-      // ← Tambah 2 baris ini sebelum navigate
       sessionStorage.setItem("isLoggedIn", "true");
       setIsAuthenticated(true);
 
@@ -49,7 +48,6 @@ export default function SignInForm() {
     }
   };
 
-  // JSX tidak berubah sama sekali, copy paste dari punya kamu
   return (
     <div className="flex flex-col flex-1">
       <div className="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">

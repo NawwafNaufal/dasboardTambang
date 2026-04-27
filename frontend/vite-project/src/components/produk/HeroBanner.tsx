@@ -19,7 +19,7 @@ export default function HeroBanner({ activeTab, onTabChange }: HeroBannerProps) 
       className="relative w-full overflow-hidden rounded-2xl"
       style={{
         height: "567px",
-        marginTop: "-1.5rem", // sesuaikan dengan padding-top parent (p-6 = 1.5rem, p-4 = 1rem, p-8 = 2rem)
+        marginTop: "-1.5rem",
       }}
     >
       {/* Light mode image */}
