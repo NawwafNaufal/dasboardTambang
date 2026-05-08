@@ -20,8 +20,6 @@ import dailyProductivity from "./routes/productivity/dailyProductivity"
 import getPaUaMaEu from "./routes/productivity/getPaMaUaEu"
 import sigIn from "./routes/auth/loginRoutes"
 import logOut from "./routes/auth/logoutRoutes"
-// import { validateCookie } from "./middleware/auth/validateCookie";
-
 
 const app = express();
 const PORT = process.env.PORT;

@@ -535,7 +535,6 @@ export default function SyncKpiChart() {
         </p>
       </div>
 
-      {/* Tooltip di dalam wrapper position:relative, pakai position:absolute */}
       <Tooltip tooltip={tooltip} data={chartData} isDark={isDark} />
     </div>
   );

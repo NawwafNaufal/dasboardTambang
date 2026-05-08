@@ -22,7 +22,6 @@ export default function FearGreedGaugePaTwo({ initialValue = 84 }: Props) {
   const [value]                   = useState<number>(initialValue);
   const [displayed, setDisplayed] = useState<number>(0);
 
-  // Deteksi dark mode dari TailAdmin (class "dark" di <html>)
   const [dark, setDark] = useState<boolean>(
     typeof document !== "undefined"
       ? document.documentElement.classList.contains("dark")
