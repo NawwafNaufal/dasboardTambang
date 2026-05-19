@@ -1,7 +1,3 @@
-// ============================================
-// FILE: hooks/useAlert.ts
-// ============================================
-
 import { useState } from "react";
 
 export type AlertType = 'success' | 'error' | 'warning' | 'info';

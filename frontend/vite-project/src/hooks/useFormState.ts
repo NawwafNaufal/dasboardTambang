@@ -6,7 +6,7 @@ export const useFormState = () => {
   const [selectedUnit, setSelectedUnit] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [inputValue, setInputValue] = useState("");
-  const [formKey, setFormKey] = useState(0); // <-- tambahkan ini
+  const [formKey, setFormKey] = useState(0); 
 
   const resetForm = () => {
     setSelectedDate("");
@@ -14,7 +14,7 @@ export const useFormState = () => {
     setSelectedUnit(null);
     setInputValue("");
     setMessage("");
-    setFormKey(prev => prev + 1); // <-- increment key untuk force re-render
+    setFormKey(prev => prev + 1); 
   };
 
   return {
@@ -28,7 +28,7 @@ export const useFormState = () => {
     setSelectedDate,
     inputValue,
     setInputValue,
-    formKey, // <-- export formKey
+    formKey, 
     resetForm,
   };
 };
