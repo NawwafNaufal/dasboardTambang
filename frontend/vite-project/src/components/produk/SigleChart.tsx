@@ -266,7 +266,6 @@ export default function SyncKpiChart() {
     fetchChart();
   }, [selectedPT, currentUnitActivity, selectedUnit, year]);
 
-  // Auto-scroll ke bulan saat ini
   useEffect(() => {
     if (scrollRef.current) {
       const mi = new Date().getMonth();

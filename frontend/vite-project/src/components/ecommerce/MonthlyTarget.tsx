@@ -16,7 +16,7 @@ export default function MonthlyTarget({
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [chartKey, setChartKey] = useState(0);
   const [chartHeight, setChartHeight] = useState(330);
-  const chartRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null!);
   const resizeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentYear = new Date().getFullYear();

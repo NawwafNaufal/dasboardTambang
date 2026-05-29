@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchUnits, fetchDailyAvailability } from "@/components/DailyKpiChart/ApiKpiChart";
+import { fetchUnits, fetchDailyAvailability } from "../api/DailyKpiChart/ApiKpiChart";
 import { MONTHS, Month } from "../constants/ConstantsKpiChart";
 import { ChartData, EMPTY_CHART } from "../interface/TypesKpiChart";
 

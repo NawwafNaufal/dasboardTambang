@@ -9,7 +9,6 @@ export const validateProductivity = (req : Request, res : Response, next : NextF
         if(error){
             return next(error)
         }
-
             req.body = value
                 next()
 }

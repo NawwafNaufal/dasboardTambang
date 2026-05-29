@@ -310,7 +310,7 @@ export default function StatisticsChart({
       strokeWidth: 2, 
       strokeColors: "#fff", 
       colors: ["#ec6765", "#fd8f3f"],
-      hover: { size: [0, 9] } 
+      hover: { size: 9 } 
     },
     dataLabels: { 
       enabled: isZoomed,
@@ -416,7 +416,7 @@ export default function StatisticsChart({
       position: 'top',
       horizontalAlign: 'right',
       offsetY: -10,
-      markers: { width: 12, height: 12, radius: 2 },
+      markers: { size: 6 },
     },
     responsive: [{
       breakpoint: 768,
@@ -437,26 +437,6 @@ export default function StatisticsChart({
     setSelectedDay(null);
   };
 
-
-  if (loading) {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="flex items-center justify-center h-80">
-          <div className="text-gray-500 dark:text-gray-400">Loading statistics...</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
-        <div className="flex items-center justify-center h-80">
-          <div className="text-red-500">Error: {error}</div>
-        </div>
-      </div>
-    );
-  }
 
   const hasData = apiData && apiData.data && Object.keys(apiData.data).length > 0;
   const categories = hasData ? Object.keys(apiData.data) : [];
@@ -525,33 +505,53 @@ export default function StatisticsChart({
       </div>
 
       {!hasData ? (
-        <div className="flex flex-col items-center justify-center h-80 gap-4 px-4">
-          <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
-            <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
+        loading ? (
+          <div className="flex items-center justify-center h-80">
+            <div className="text-gray-500 dark:text-gray-400">Loading statistics...</div>
           </div>
-          <div className="text-center max-w-md">
-            <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">Tidak Ada Data</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Belum ada data operasional untuk {apiData?.site || selectedPT} di bulan {selectedMonth} {selectedYear}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-              Silakan pilih bulan lain atau tambahkan data melalui spreadsheet
-            </p>
+        ) : error ? (
+          <div className="flex items-center justify-center h-80">
+            <div className="text-red-500">Error: {error}</div>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-80 gap-4 px-4">
+            <div className="rounded-full bg-gray-100 p-4 dark:bg-gray-800">
+              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <div className="text-center max-w-md">
+              <p className="text-gray-700 dark:text-gray-300 font-medium mb-1">Tidak Ada Data</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Belum ada data operasional untuk {apiData?.site || selectedPT} di bulan {selectedMonth} {selectedYear}
+              </p>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
+                Silakan pilih bulan lain atau tambahkan data melalui spreadsheet
+              </p>
+            </div>
+          </div>
+        )
       ) : (
         <>
-          <div ref={chartContainerRef} className="w-full max-w-full">
-            <Chart 
-              key={chartKey}
-              options={options} 
-              series={series} 
-              type="area" 
-              height={310}
-              width={chartWidth}
-            />
+          <div ref={chartContainerRef} className="w-full max-w-full" style={{ minHeight: 310 }}>
+            {loading ? (
+              <div className="flex items-center justify-center h-[310px]">
+                <div className="text-gray-500 dark:text-gray-400">Loading statistics...</div>
+              </div>
+            ) : error ? (
+              <div className="flex items-center justify-center h-[310px]">
+                <div className="text-red-500">Error: {error}</div>
+              </div>
+            ) : (
+              <Chart 
+                key={chartKey}
+                options={options} 
+                series={series} 
+                type="area" 
+                height={310}
+                width={chartWidth}
+              />
+            )}
           </div>
 
           {selectedDay && (

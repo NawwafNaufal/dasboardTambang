@@ -1,9 +1,9 @@
 import { useOutletContext } from "react-router";
 import PageMeta from "../../components/common/PageMeta";
-import DailyKpiChart from "@/components/produk/DailyKpiChart";
+import DailyKpiChart from "../../components/DailyKpiChart/DailyKpiChart";
 import SyncKpiChart from "@/components/produk/SigleChart";
-import ProductivityIndexChart from "@/components/produk/ProduktivityIndexChart";
-import DailyProduct from "@/components/produk/DailyProduct";
+import ProductivityIndexChart from "../../components/ProductivityIndex/ProductivityIndexChart";
+import DailyProduct from "../../components/DailyProduct/DailyProduct"
 import HeroBanner from "@/components/produk/HeroBanner";
 import EcommerceMetrics from "../../components/ecommerce/EcommerceMetrics";
 import MonthlySalesChart from "../../components/ecommerce/MonthlySalesChart";

@@ -17,7 +17,6 @@ export const syncDailyOperationJob = async () => {
     let errors = 0;
     let totalRecords = 0;
 
-    // ─── 1. SHEET1 (Daily Operation) ───────────────────────────
     const allSpreadsheets = await getAllSpreadsheetsData("PRODUKSI");
 
     for (const { site, data, success } of allSpreadsheets) {
@@ -44,19 +43,14 @@ export const syncDailyOperationJob = async () => {
       }
     }
 
-    // tunggu 10 detik sebelum fetch DRILLING
     logger.info("[JOB] Waiting 10s before fetching DRILLING...");
-    // ganti semua delay 10s → 15s
 await new Promise(resolve => setTimeout(resolve, 20000));
 
-    // ─── 2. SHEET DRILLING ─────────────────────────────────────
-    // ─── 2. SHEET DRILLING ─────────────────────────────────────
 const drillingSheets = await getAllSpreadsheetsData("DRILLING");
 
 for (const { site, data, success } of drillingSheets) {
   if (!success) continue;
   const rows = data as string[][];
-  // cari row yang r[2] berisi format tanggal seperti "1-Jan-26"
   const firstDateRow = rows.find(r => r[2] && r[2].includes('-Jan-'));
   console.log(`[DRILLING RAW] site: ${site}, first date row:`, JSON.stringify(firstDateRow));
   console.log(`[DRILLING RAW] total rows: ${rows.length}`);
@@ -68,7 +62,6 @@ for (const { site, data, success } of drillingSheets) {
     continue;
   }
 
-  // ✅ kirim semua rows sekaligus
   const results = transformMultiUnitActivity(data as string[][]);
   totalRecords += results.length;
 
@@ -79,6 +72,7 @@ for (const { site, data, success } of drillingSheets) {
         if (res.action === "insert") inserted++;
         if (res.action === "update") updated++;
       } catch (error: any) {
+        
         logger.error(`[JOB] Error syncing DRILLING ${site} - ${date}`, {
           message: error.message,
           stack: error.stack,

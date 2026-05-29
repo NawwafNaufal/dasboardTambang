@@ -15,8 +15,22 @@ export const getDailyAvailabilityService = async ({
   month,
   unit,
 }: DailyAvailabilityQuery) => {
-  const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const monthStr = monthNames[month - 1];
+  const monthVariations: Record<number, string[]> = {
+    1: ["Jan"],
+    2: ["Feb"],
+    3: ["Mar"],
+    4: ["Apr"],
+    5: ["May", "Mei"],
+    6: ["Jun"],
+    7: ["Jul"],
+    8: ["Aug", "Agu"],
+    9: ["Sep"],
+    10: ["Oct", "Okt"],
+    11: ["Nov"],
+    12: ["Dec", "Des"],
+  };
+  const variations = monthVariations[month] || [];
+  const monthRegex = variations.join("|");
   const yearShort = String(year).slice(-2);
 
   const data = await ProductionUnits.aggregate([
@@ -25,7 +39,7 @@ export const getDailyAvailabilityService = async ({
         site,
         activity,
         unit,
-        date: { $regex: `^\\d{1,2}-${monthStr}-${yearShort}$` },
+        date: { $regex: `^\\d{1,2}-(${monthRegex})-${yearShort}$` },
       },
     },
     {

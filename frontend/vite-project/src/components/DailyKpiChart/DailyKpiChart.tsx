@@ -1,4 +1,4 @@
-import Chart from "react-apexcharts";
+import Chart from "react-apexcharts"
 import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router";
 import * as ApexChartsLib from "apexcharts";
@@ -102,7 +102,7 @@ export default function DailyKpiChart({ selectedPT }: DailyKpiChartProps) {
                   cursor: "pointer",
                   whiteSpace: "nowrap",
                   transition: "all 0.15s",
-                  background: selectedMonth === m ? "#3B82F6" : "transparent",
+                  background: selectedMonth === m ? "#fd9141" : "transparent",
                   color: selectedMonth === m ? "#fff" : "#9ca3af",
                 }}
               >
@@ -182,7 +182,7 @@ export default function DailyKpiChart({ selectedPT }: DailyKpiChartProps) {
 
       {/* Chart */}
       <div className="border border-gray-100 dark:border-gray-800 rounded-xl px-3 pt-2 pb-0">
-        <div className="w-full max-w-full overflow-hidden">
+        <div className="w-full max-w-full overflow-hidden" style={{ minHeight: 300 }}>
           {loadingChart ? (
             <div style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span className="text-gray-400 text-sm">Loading...</span>

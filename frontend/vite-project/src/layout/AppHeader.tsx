@@ -219,7 +219,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   onPTChange,
   currentActivity,
   onActivityChange,
-  apiUrl = "http://43.157.205.158:4000/api/monthly-actual/by-site",
+  apiUrl = "http://localhost:4000/api/monthly-actual/by-site",
   year = 2026,
   activeTab = "Volume",
   onUnitActivityChange,
@@ -277,7 +277,7 @@ const AppHeader: React.FC<AppHeaderProps> = ({
   useEffect(() => {
     const fetchUnit = async () => {
       try {
-        const response = await fetch("http://43.157.205.158:4000/api/activities");
+        const response = await fetch("http://localhost:4000/api/activities");
         if (!response.ok) throw new Error();
         const result = await response.json();
         if (result.success) {
