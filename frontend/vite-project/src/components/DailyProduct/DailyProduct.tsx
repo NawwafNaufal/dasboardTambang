@@ -1,3 +1,6 @@
+import Chart from "react-apexcharts";
+import { ApexOptions } from "apexcharts";
+import ApexCharts from "apexcharts";
 import { useState, useEffect, useMemo } from "react";
 import { useOutletContext } from "react-router";
 
@@ -62,6 +65,20 @@ export default function DailyProduct() {
     setIsLtrMtrVisible(true);
   }, [tab, selectedMonth, selectedUnit]);
 
+  useEffect(() => {
+    if (tab === "productivity") {
+      try {
+        if (isLtrMtrVisible) {
+          ApexCharts.exec("daily-product-chart", "showSeries", "Ltr/Mtr");
+        } else {
+          ApexCharts.exec("daily-product-chart", "hideSeries", "Ltr/Mtr");
+        }
+      } catch (e) {
+        console.warn("ApexCharts exec failed", e);
+      }
+    }
+  }, [isLtrMtrVisible, tab]);
+
   const dynamicYaxis = useMemo(() => {
     if (tab !== "productivity") {
       return cfg.yaxis;
@@ -96,7 +113,7 @@ export default function DailyProduct() {
           title: { text: "Mtr/Jam", style: { color: "#34D399", fontWeight: 600 } },
         },
         {
-          seriesName: "Ltr/Mtr", opposite: true, show: false, min: 0
+          seriesName: "Ltr/Mtr", opposite: false, show: false, min: 0
         },
       ];
     }
@@ -104,6 +121,7 @@ export default function DailyProduct() {
 
   const options: ApexOptions = {
     chart: {
+      id: "daily-product-chart",
       type: "line",
       fontFamily: "Outfit, sans-serif",
       toolbar: { show: false },
@@ -113,9 +131,8 @@ export default function DailyProduct() {
         legendClick: (chartContext: any, seriesIndex: number, config: any) => {
           if (tab === "productivity" && seriesIndex === 2) {
             setTimeout(() => {
-              const isVisible = chartContext.w.globals.seriesVisible[seriesIndex];
-              setIsLtrMtrVisible(isVisible);
-            }, 50);
+              setIsLtrMtrVisible(prev => !prev);
+            }, 100);
           }
         }
       }
@@ -282,7 +299,7 @@ export default function DailyProduct() {
           </div>
         ) : (
           // @ts-ignore
-          <Chart options={options} series={cfg.series} type="line" height={300} />
+          <Chart id="daily-product-chart" options={options} series={cfg.series} type="line" height={300} />
         )}
 
         {/* Month Picker */}
