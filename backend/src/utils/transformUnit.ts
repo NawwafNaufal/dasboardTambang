@@ -124,20 +124,26 @@ export const transformMultiUnitActivity = (rows: string[][]) => {
     for (const block of unitPositions) {
       const base = block.colIndex;
 
-      const fuel   = parseNum(row[base + block.fuelOffset]) ?? 0;
-      const pa     = parsePrecent(row[base + block.paOffset]);
+      const fuelRaw = row[base + block.fuelOffset];
+      const paRaw = row[base + block.paOffset];
+      const euRaw = row[base + block.euOffset];
+      const lbgRaw = row[base + block.lbgOffset];
+
+      const hasFuel = fuelRaw !== undefined && fuelRaw.trim() !== "" && fuelRaw.trim() !== "-";
+      const hasPa = paRaw !== undefined && paRaw.trim() !== "" && paRaw.trim() !== "-";
+      const hasEu = euRaw !== undefined && euRaw.trim() !== "" && euRaw.trim() !== "-";
+      const hasLbg = lbgRaw !== undefined && lbgRaw.trim() !== "" && lbgRaw.trim() !== "-";
+
+      if (!hasFuel && !hasPa && !hasEu && !hasLbg) continue;
+
+      const fuel   = parseNum(fuelRaw) ?? 0;
+      const pa     = parsePrecent(paRaw);
       const ma     = parsePrecent(row[base + block.maOffset]);
       const ua     = parsePrecent(row[base + block.uaOffset]);
-      const eu     = parsePrecent(row[base + block.euOffset]);
-      const lbgJam = parseNum(row[base + block.lbgOffset]) ?? 0;
+      const eu     = parsePrecent(euRaw);
+      const lbgJam = parseNum(lbgRaw) ?? 0;
       const mtrJam = parseNum(row[base + block.mtrOffset]) ?? 0;
       const ltrMtr = parseNum(row[base + block.ltrOffset]) ?? 0;
-
-      if (
-        row[base + block.paOffset] === undefined &&
-        row[base + block.euOffset] === undefined &&
-        row[base + block.lbgOffset] === undefined
-      ) continue;
 
       units.push({
         unit: block.name,

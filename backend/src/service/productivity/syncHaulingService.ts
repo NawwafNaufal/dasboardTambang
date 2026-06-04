@@ -13,7 +13,7 @@ interface HaulingUnitData {
   ma: number;
   eu: number;
   plan?: number;
-  produktivityIndex?: { // ← TAMBAH
+  produktivityIndex?: { 
     lbgJam: number;
     mtrJam: number;
     ltrMtr: number;
@@ -35,9 +35,9 @@ export const syncHaulingService = async (data: HaulingUnitData) => {
       eu: data.eu,
       fuel: data.fuel ?? 0,
       productivityIndex: {
-        lbgJam: data.produktivityIndex?.lbgJam ?? 0, // ← FIX
-        mtrJam: data.produktivityIndex?.mtrJam ?? 0, // ← FIX
-        ltrMtr: data.produktivityIndex?.ltrMtr ?? 0, // ← FIX
+        lbgJam: data.produktivityIndex?.lbgJam ?? 0, 
+        mtrJam: data.produktivityIndex?.mtrJam ?? 0, 
+        ltrMtr: data.produktivityIndex?.ltrMtr ?? 0, 
       },
     };
 

@@ -70,7 +70,7 @@ export default function ProductivityIndexChart() {
             Produktivity Index
           </p>
           <p style={{ fontSize: 18, fontWeight: 700, color: t.title, margin: "2px 0 0" }}>
-            Total Bulanan
+            Average
           </p>
         </div>
 

@@ -40,12 +40,12 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     const row = rows[i];
     
     // Check 1: Row valid
-    if (!row || row.length < 7) {
+    if (!row || row.length < 5) {
       if (site === "PT Semen Padang") {
         // console.log(`[SKIP-${i}] Length < 7 (actual: ${row?.length})`);
       }
       rowsSkipped++;
-      skipReasons["length < 7"] = (skipReasons["length < 7"] || 0) + 1;
+      skipReasons["length < 5"] = (skipReasons["length < 5"] || 0) + 1;
       continue;
     }
     
@@ -100,7 +100,7 @@ export const transformDailyOperation = (rows: string[][], site: string) => {
     // Transform berdasarkan site
     if (site === "Jakamitra") {
       const cotonFields = transformCotonFields(row);
-      if (cotonFields) activities["coton_fields"] = cotonFields;
+      if (cotonFields) activities["cut_&_fill"] = cotonFields;
 
       const stock = transformStock(row);
       if (stock) activities["stock"] = stock;

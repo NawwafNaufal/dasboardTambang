@@ -121,7 +121,7 @@ export default function HomeProduk() {
             </>
           )}
 
-          {activeTab === "Index" && (
+          {activeTab === "Performance" && (
             <>
               <div className="grid grid-cols-12 gap-4 md:gap-6 items-stretch w-full mt-0">
                 {/* LEFT */}

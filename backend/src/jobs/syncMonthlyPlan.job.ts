@@ -7,6 +7,8 @@ import { syncLoadingService } from "../service/productivity/syncLoadingService";
 import { syncHaulingService } from "../service/productivity/syncHaulingService";
 import { syncSupportingService } from "../service/productivity/syncSupportingService";
 import { logger } from "../log/winston";
+import { DailyOperation } from "../model/monthly.model";
+import { ProductionUnits } from "../model/produktivityUnit";
 
 export const syncDailyOperationJob = async () => {
   // logger.info("[JOB] Start Daily Operation Job");
@@ -27,6 +29,16 @@ export const syncDailyOperationJob = async () => {
 
       const dailyOps = transformDailyOperation(data, site);
       totalRecords += dailyOps.length;
+
+      const validDates = dailyOps.map(op => op.date);
+      if (validDates.length === 0) {
+        await DailyOperation.deleteMany({ site });
+      } else {
+        await DailyOperation.deleteMany({
+          site,
+          date: { $nin: validDates }
+        });
+      }
 
       for (const op of dailyOps) {
         try {
@@ -65,6 +77,23 @@ for (const { site, data, success } of drillingSheets) {
   const results = transformMultiUnitActivity(data as string[][]);
   totalRecords += results.length;
 
+  const validPairs = [];
+  for (const { date, units } of results) {
+    for (const unit of units) {
+      validPairs.push({ date, unit: unit.unit });
+    }
+  }
+
+  if (validPairs.length === 0) {
+    await ProductionUnits.deleteMany({ site, activity: "DRILLING" });
+  } else {
+    await ProductionUnits.deleteMany({
+      site,
+      activity: "DRILLING",
+      $nor: validPairs
+    });
+  }
+
   for (const { date, day, units } of results) {
     for (const unit of units) {
       try {
@@ -95,6 +124,24 @@ for (const { site, data, success } of loadingSheets) {
   }
   const results = transformMultiUnitActivity(data as string[][]);
   totalRecords += results.length;
+
+  const validPairs = [];
+  for (const { date, units } of results) {
+    for (const unit of units) {
+      validPairs.push({ date, unit: unit.unit });
+    }
+  }
+
+  if (validPairs.length === 0) {
+    await ProductionUnits.deleteMany({ site, activity: "LOADING" });
+  } else {
+    await ProductionUnits.deleteMany({
+      site,
+      activity: "LOADING",
+      $nor: validPairs
+    });
+  }
+
   for (const { date, day, units } of results) {
     for (const unit of units) {
       try {
@@ -124,6 +171,24 @@ for (const { site, data, success } of haulingSheets) {
   }
   const results = transformMultiUnitActivity(data as string[][]);
   totalRecords += results.length;
+
+  const validPairs = [];
+  for (const { date, units } of results) {
+    for (const unit of units) {
+      validPairs.push({ date, unit: unit.unit });
+    }
+  }
+
+  if (validPairs.length === 0) {
+    await ProductionUnits.deleteMany({ site, activity: "HAULING" });
+  } else {
+    await ProductionUnits.deleteMany({
+      site,
+      activity: "HAULING",
+      $nor: validPairs
+    });
+  }
+
   for (const { date, day, units } of results) {
     for (const unit of units) {
       try {
@@ -153,6 +218,24 @@ for (const { site, data, success } of supportingSheets) {
   }
   const results = transformMultiUnitActivity(data as string[][]);
   totalRecords += results.length;
+
+  const validPairs = [];
+  for (const { date, units } of results) {
+    for (const unit of units) {
+      validPairs.push({ date, unit: unit.unit });
+    }
+  }
+
+  if (validPairs.length === 0) {
+    await ProductionUnits.deleteMany({ site, activity: "SUPPORTING" });
+  } else {
+    await ProductionUnits.deleteMany({
+      site,
+      activity: "SUPPORTING",
+      $nor: validPairs
+    });
+  }
+
   for (const { date, day, units } of results) {
     for (const unit of units) {
       try {

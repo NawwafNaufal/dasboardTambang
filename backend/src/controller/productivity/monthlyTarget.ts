@@ -11,7 +11,7 @@ export const getMonthlyTarget = async (req: Request, res: Response, next: NextFu
             data
         });
   } catch (error : any) {
-    logger.error("[API] getStatisticsByMonth failed", {
+    logger.error("[API] getMonthlyTarget failed", {
       message: error.message,
       stack: error.stack,
     });

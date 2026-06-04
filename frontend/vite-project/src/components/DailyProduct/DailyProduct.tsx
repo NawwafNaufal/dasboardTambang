@@ -267,11 +267,23 @@ export default function DailyProduct() {
         ) : (
           <>
             <p className={`text-8xl tracking-tighter leading-none font-bold ${cfg.mainColor}`}>
-              {dailyData.plan > 0 ? dailyData.plan : "—"}
+              {tab === "fuel" ? (
+                dailyData.fuel.length > 0 && dailyData.fuel[dailyData.fuel.length - 1] > 0 ? (
+                  dailyData.fuel[dailyData.fuel.length - 1].toLocaleString("id-ID")
+                ) : (
+                  "—"
+                )
+              ) : (
+                dailyData.plan > 0 ? dailyData.plan.toLocaleString("id-ID") : "—"
+              )}
             </p>
             <div className="flex items-center gap-2 mt-2">
               <span className="text-sm text-gray-400 dark:text-gray-500">
-                Plan · {selectedUnit} · {selectedMonth} 2026
+                {tab === "fuel" ? (
+                  `Actual Fuel (Tgl ${dailyData.days.length > 0 ? dailyData.days[dailyData.days.length - 1] : ""} ${selectedMonth}) · ${selectedUnit} · 2026`
+                ) : (
+                  `Plan · ${selectedUnit} · ${selectedMonth} 2026`
+                )}
               </span>
               {cfg.mainData.length > 0 && (
                 <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${

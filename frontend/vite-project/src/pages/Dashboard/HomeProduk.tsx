@@ -30,8 +30,8 @@ export default function HomeProduk() {
         {/* HERO */}
         <HeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* ================= INDEX TAB ================= */}
-        {activeTab === "Index" && (
+        {/* ================= PERFORMANCE TAB ================= */}
+        {activeTab === "Performance" && (
           <div className="w-full">
             <ProductivityIndexChart />
           </div>
