@@ -31,7 +31,7 @@ export const getAllSpreadsheetsData = async (
         const data = await getDataGoogle(config.id, config.range);
         return {
           spreadsheetId: config.id,
-          site: config.name, // ← ubah config.site → config.name
+          site: config.name,
           data,
           success: true,
         };
@@ -39,7 +39,7 @@ export const getAllSpreadsheetsData = async (
         console.error(`[GOOGLE] Error fetching ${config.name}:`, error.message);
         return {
           spreadsheetId: config.id,
-          site: config.name, // ← ubah config.site → config.name
+          site: config.name,
           data: [],
           success: false,
           error: error.message,
