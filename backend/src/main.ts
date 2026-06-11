@@ -28,8 +28,8 @@ const PORT = process.env.PORT;
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "http://43.157.205.158:5173",
-    "http://43.157.205.158",
+    "http://43.157.205.66:5173",
+    "http://43.157.205.66",
         "http://moa2.site",       
     "https://moa2.site"   
   ],
