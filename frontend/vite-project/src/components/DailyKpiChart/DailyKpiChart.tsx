@@ -1,5 +1,7 @@
-import Chart from "react-apexcharts"
+import ReactApexChart from "react-apexcharts";
 import { useState, useEffect } from "react";
+
+const Chart = ReactApexChart as any;
 import { useOutletContext } from "react-router";
 import * as ApexChartsLib from "apexcharts";
 

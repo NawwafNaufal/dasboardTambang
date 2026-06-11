@@ -1,5 +1,7 @@
-import Chart from "react-apexcharts";
+import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
+
+const Chart = ReactApexChart as any;
 
 export default function BarChartOne() {
   const options: ApexOptions = {

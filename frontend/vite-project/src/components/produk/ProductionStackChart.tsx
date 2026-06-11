@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import * as React from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 
 type Period = "harian" | "bulanan";
 interface DR { machine: string; produksi: number; standby: number; breakdown: number; }
@@ -36,7 +37,11 @@ function rr(x:number, y:number, w:number, h:number, tl:number, tr:number, br:num
 }
 
 // ── Chart ────────────────────────────────────────────────
-const Chart: React.FC<{data:DR[]}> = ({data}) => {
+interface ChartProps {
+  data: DR[];
+}
+
+const Chart = ({data}: ChartProps) => {
   const wrap = useRef<HTMLDivElement>(null);
   const [W, setW] = useState(560);
   const [tip, setTip] = useState<{cx:number;ty:number;d:DR}|null>(null);
@@ -166,7 +171,13 @@ const Chart: React.FC<{data:DR[]}> = ({data}) => {
 };
 
 // ── Month Picker ─────────────────────────────────────────
-const MonthPicker: React.FC<{year:number;month:number;onChange:(y:number,m:number)=>void}> = ({year,month,onChange}) => {
+interface MonthPickerProps {
+  year: number;
+  month: number;
+  onChange: (y: number, m: number) => void;
+}
+
+const MonthPicker = ({year,month,onChange}: MonthPickerProps) => {
   const [open,setOpen]=useState(false);
   const [dy,setDy]=useState(year);
   const ref=useRef<HTMLDivElement>(null);
@@ -192,9 +203,9 @@ const MonthPicker: React.FC<{year:number;month:number;onChange:(y:number,m:numbe
       {open&&(
         <div style={{position:"absolute",top:"calc(100% + 6px)",right:0,background:"#fff",borderRadius:14,boxShadow:"0 12px 40px rgba(0,0,0,0.14)",padding:16,zIndex:999,minWidth:220,border:"1px solid #f0f0f0"}}>
           <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14}}>
-            <button onClick={()=>setDy(y=>y-1)} style={{width:28,height:28,borderRadius:7,border:"1px solid #e5e7eb",background:"#f9fafb",cursor:"pointer",fontSize:14,color:"#374151",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
+            <button onClick={()=>setDy((y: number)=>y-1)} style={{width:28,height:28,borderRadius:7,border:"1px solid #e5e7eb",background:"#f9fafb",cursor:"pointer",fontSize:14,color:"#374151",display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>
             <span style={{fontWeight:700,fontSize:13,color:"#111827"}}>{dy}</span>
-            <button onClick={()=>setDy(y=>y+1)} style={{width:28,height:28,borderRadius:7,border:"1px solid #e5e7eb",background:"#f9fafb",cursor:"pointer",fontSize:14,color:"#374151",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
+            <button onClick={()=>setDy((y: number)=>y+1)} style={{width:28,height:28,borderRadius:7,border:"1px solid #e5e7eb",background:"#f9fafb",cursor:"pointer",fontSize:14,color:"#374151",display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5}}>
             {MNS.map((nm2,idx)=>{ const a=dy===year&&idx+1===month; return (
@@ -213,7 +224,12 @@ const MonthPicker: React.FC<{year:number;month:number;onChange:(y:number,m:numbe
 };
 
 // ── Date Picker ──────────────────────────────────────────
-const DatePicker: React.FC<{value:string;onChange:(v:string)=>void}> = ({value,onChange}) => {
+interface DatePickerProps {
+  value: string;
+  onChange: (v: string) => void;
+}
+
+const DatePicker = ({value,onChange}: DatePickerProps) => {
   const [open,setOpen]=useState(false);
   const ref=useRef<HTMLDivElement>(null);
   const [vY,vM,vD]=value.split("-").map(Number);
@@ -222,8 +238,8 @@ const DatePicker: React.FC<{value:string;onChange:(v:string)=>void}> = ({value,o
   useEffect(()=>{ const h=(e:MouseEvent)=>{if(ref.current&&!ref.current.contains(e.target as Node))setOpen(false);}; document.addEventListener("mousedown",h); return()=>document.removeEventListener("mousedown",h); },[]);
   const fd=new Date(ny,nm-1,1).getDay(), dim=new Date(ny,nm,0).getDate();
   const cells=Array(fd).fill(null).concat(Array.from({length:dim},(_,i)=>i+1));
-  const prev=()=>{if(nm===1){setNy(y=>y-1);setNm(12);}else setNm(m=>m-1);};
-  const next=()=>{if(nm===12){setNy(y=>y+1);setNm(1);}else setNm(m=>m+1);};
+  const prev=()=>{if(nm===1){setNy((y: number)=>y-1);setNm(12);}else setNm((m: number)=>m-1);};
+  const next=()=>{if(nm===12){setNy((y: number)=>y+1);setNm(1);}else setNm((m: number)=>m+1);};
   return (
     <div ref={ref} style={{position:"relative",display:"inline-block"}}>
       <button onClick={()=>setOpen(!open)} style={{
@@ -324,7 +340,7 @@ export default function ProductionStackedBar() {
 
         {period==="harian"
           ?<DatePicker value={date} onChange={setDate}/>
-          :<MonthPicker year={year} month={month} onChange={(y,m)=>{setYear(y);setMonth(m);}}/>}
+          :<MonthPicker year={year} month={month} onChange={(y: number, m: number)=>{setYear(y);setMonth(m);}}/>}
       </div>
 
       <div style={{fontSize:14,fontWeight:700,color:"#1f2937",marginBottom:10}}>{title}</div>

@@ -1,9 +1,12 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
+import * as React from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 
+const ApexChart = ReactApexChart as any;
+
 type Period  = "harian" | "bulanan";
-type Divisi  = "produksi" | "hauling";
+export type Divisi  = "produksi" | "hauling";
 
 interface DataRecord {
   machine: string;
@@ -46,14 +49,14 @@ function getProduksiMonthly(year: number, month: number): DataRecord[] {
 }
 
 // Loading/Hauling: rit & ton
-function getHaulingDaily(date: string): DataRecord[] {
+export function getHaulingDaily(date: string): DataRecord[] {
   return ALL_MACHINES.map((machine) => {
     const s1 = makeSeed("rit" + date + machine);
     const s2 = makeSeed("ton" + date + machine);
     return { machine, col1: Math.max(0, 20 + (s1 % 60)), col2: Math.max(0, 150 + (s2 % 400)) };
   });
 }
-function getHaulingMonthly(year: number, month: number): DataRecord[] {
+export function getHaulingMonthly(year: number, month: number): DataRecord[] {
   const key = `${year}-${String(month).padStart(2, "0")}`;
   return ALL_MACHINES.map((machine) => {
     const s1 = makeSeed("rit" + key + machine);
@@ -62,8 +65,13 @@ function getHaulingMonthly(year: number, month: number): DataRecord[] {
   });
 }
 
-// ── Month Picker ───────────────────────────────────────
-const MonthPicker: React.FC<{ year: number; month: number; onChange: (y: number, m: number) => void }> = ({ year, month, onChange }) => {
+interface MonthPickerProps {
+  year: number;
+  month: number;
+  onChange: (y: number, m: number) => void;
+}
+
+const MonthPicker = ({ year, month, onChange }: MonthPickerProps) => {
   const [open, setOpen] = useState(false);
   const [displayYear, setDisplayYear] = useState(year);
   const ref = useRef<HTMLDivElement>(null);
@@ -81,9 +89,9 @@ const MonthPicker: React.FC<{ year: number; month: number; onChange: (y: number,
       {open && (
         <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, background: "#fff", borderRadius: "14px", boxShadow: "0 8px 32px rgba(0,0,0,0.15)", padding: "16px", zIndex: 999, minWidth: "220px" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
-            <button onClick={() => setDisplayYear(y => y - 1)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#6b7280", padding: "2px 6px" }}>‹</button>
+            <button onClick={() => setDisplayYear((y: number) => y - 1)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#6b7280", padding: "2px 6px" }}>‹</button>
             <span style={{ fontWeight: 700, fontSize: "15px", color: "#111827" }}>{displayYear}</span>
-            <button onClick={() => setDisplayYear(y => y + 1)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#6b7280", padding: "2px 6px" }}>›</button>
+            <button onClick={() => setDisplayYear((y: number) => y + 1)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#6b7280", padding: "2px 6px" }}>›</button>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "6px" }}>
             {MONTH_NAMES_SHORT.map((name, idx) => {
@@ -105,7 +113,12 @@ const MonthPicker: React.FC<{ year: number; month: number; onChange: (y: number,
 };
 
 // ── Date Picker ────────────────────────────────────────
-const DatePicker: React.FC<{ value: string; onChange: (v: string) => void }> = ({ value, onChange }) => {
+interface DatePickerProps {
+  value: string;
+  onChange: (v: string) => void;
+}
+
+const DatePicker = ({ value, onChange }: DatePickerProps) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const [vYear, vMonth, vDay] = value.split("-").map(Number);
@@ -118,8 +131,8 @@ const DatePicker: React.FC<{ value: string; onChange: (v: string) => void }> = (
   const firstDay    = new Date(navYear, navMonth - 1, 1).getDay();
   const daysInMonth = new Date(navYear, navMonth, 0).getDate();
   const cells = Array(firstDay).fill(null).concat(Array.from({ length: daysInMonth }, (_, i) => i + 1));
-  const prevMonth = () => { if (navMonth === 1) { setNavYear(y => y-1); setNavMonth(12); } else setNavMonth(m => m-1); };
-  const nextMonth = () => { if (navMonth === 12) { setNavYear(y => y+1); setNavMonth(1); } else setNavMonth(m => m+1); };
+  const prevMonth = () => { if (navMonth === 1) { setNavYear((y: number) => y-1); setNavMonth(12); } else setNavMonth((m: number) => m-1); };
+  const nextMonth = () => { if (navMonth === 12) { setNavYear((y: number) => y+1); setNavMonth(1); } else setNavMonth((m: number) => m+1); };
   return (
     <div ref={ref} style={{ position: "relative", display: "inline-block" }}>
       <button onClick={() => setOpen(!open)} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "7px 14px", borderRadius: "8px", border: "1px solid #d1d5db", background: "#fff", fontSize: "14px", fontWeight: 600, cursor: "pointer", boxShadow: "0 1px 3px rgba(0,0,0,0.08)", color: "#374151" }}>
@@ -159,9 +172,9 @@ const DatePicker: React.FC<{ value: string; onChange: (v: string) => void }> = (
 };
 
 // ── Main Component ─────────────────────────────────────
-const OutputChart: React.FC = () => {
+const OutputChart = () => {
   const [period,       setPeriod]       = useState<Period>("harian");
-  const [divisi,       setDivisi]       = useState<Divisi>("produksi");
+  // const [divisi,       setDivisi]       = useState<Divisi>("produksi");
   const [selectedDate, setSelectedDate] = useState("2026-02-27");
   const [selectedYear, setSelectedYear] = useState(2026);
   const [selectedMonth, setSelectedMonth] = useState(2);
@@ -257,12 +270,12 @@ const OutputChart: React.FC = () => {
         </div>
         {period === "harian"
           ? <DatePicker value={selectedDate} onChange={setSelectedDate} />
-          : <MonthPicker year={selectedYear} month={selectedMonth} onChange={(y, m) => { setSelectedYear(y); setSelectedMonth(m); }} />
+          : <MonthPicker year={selectedYear} month={selectedMonth} onChange={(y: number, m: number) => { setSelectedYear(y); setSelectedMonth(m); }} />
         }
       </div>
 
       {/* Chart */}
-      <ReactApexChart options={options} series={series} type="line" height={420} />
+      <ApexChart options={options} series={series} type="line" height={420} />
 
       {/* Summary Cards */}
       <div style={{ display: "flex", gap: "12px", marginTop: "16px" }}>

@@ -1,4 +1,4 @@
-import type React from "react";
+import * as React from "react";
 import { useEffect, useRef } from "react";
 
 interface DropdownProps {
@@ -8,12 +8,12 @@ interface DropdownProps {
   className?: string;
 }
 
-export const Dropdown: React.FC<DropdownProps> = ({
+export const Dropdown = ({
   isOpen,
   onClose,
   children,
   className = "",
-}) => {
+}: DropdownProps) => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

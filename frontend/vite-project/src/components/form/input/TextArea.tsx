@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 
 interface TextareaProps {
   placeholder?: string; // Placeholder text
@@ -11,7 +11,7 @@ interface TextareaProps {
   hint?: string; // Hint text to display
 }
 
-const TextArea: React.FC<TextareaProps> = ({
+const TextArea = ({
   placeholder = "Enter your message", // Default placeholder
   rows = 3, // Default number of rows
   value = "", // Default value
@@ -20,7 +20,7 @@ const TextArea: React.FC<TextareaProps> = ({
   disabled = false, // Disabled state
   error = false, // Error state
   hint = "", // Default hint text
-}) => {
+}: TextareaProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (onChange) {
       onChange(e.target.value);
