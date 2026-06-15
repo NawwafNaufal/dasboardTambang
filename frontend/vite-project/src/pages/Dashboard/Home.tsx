@@ -34,7 +34,6 @@ function useSlideUp(delay = 0) {
   return { ref, visible };
 }
 
-// Komponen wrapper animasi
 function SlideUp({
   children,
   delay = 0,

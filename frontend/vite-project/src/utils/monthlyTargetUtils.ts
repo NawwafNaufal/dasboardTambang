@@ -29,8 +29,8 @@ export const getCurrentActivityData = (
   }
 
   const normalizedCurrent = normalizeActivityName(currentActivity);
-  console.log('🔎 [MonthlyTarget] Looking for activity:', normalizedCurrent);
-  console.log('📋 [MonthlyTarget] Available activities:', Object.keys(data.activityBreakdown));
+  console.log('[MonthlyTarget] Looking for activity:', normalizedCurrent);
+  console.log('[MonthlyTarget] Available activities:', Object.keys(data.activityBreakdown));
 
   const activityKey = Object.keys(data.activityBreakdown).find(
     key => normalizeActivityName(key) === normalizedCurrent
@@ -39,7 +39,7 @@ export const getCurrentActivityData = (
   if (activityKey) {
     const activityData = data.activityBreakdown[activityKey];
     const deviation = activityData.percentage - 100;
-    console.log('✅ [MonthlyTarget] Found activity:', activityKey);
+    console.log('[MonthlyTarget] Found activity:', activityKey);
     return {
       plan: activityData.plan,
       actual: activityData.actual,
@@ -51,7 +51,7 @@ export const getCurrentActivityData = (
     };
   }
 
-  console.warn('⚠️ [MonthlyTarget] Activity not found, using total');
+  console.warn('[MonthlyTarget] Activity not found, using total');
   return {
     plan: data.totalPlan,
     actual: data.totalActual,

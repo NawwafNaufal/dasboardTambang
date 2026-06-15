@@ -1,4 +1,4 @@
-export const BASE_URL = "http://43.157.205.66:4000/api";
+export const BASE_URL = "/api";
 
 export type Month = "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun" | "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec";
 

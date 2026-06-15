@@ -27,17 +27,14 @@ export default function HomeProduk() {
       />
       <div className="flex flex-col gap-4 md:gap-6">
 
-        {/* HERO */}
         <HeroBanner activeTab={activeTab} onTabChange={setActiveTab} />
 
-        {/* ================= PERFORMANCE TAB ================= */}
         {activeTab === "Performance" && (
           <div className="w-full">
             <ProductivityIndexChart />
           </div>
         )}
 
-        {/* ================= VOLUME TAB ================= */}
         {activeTab === "Volume" && (
           <>
             <div className="grid grid-cols-12 gap-4 md:gap-6">
@@ -66,13 +63,10 @@ export default function HomeProduk() {
           </>
         )}
 
-        {/* ================= UNIT TAB ================= */}
         {activeTab === "Unit" && (
           <>
             <div className="grid grid-cols-12 gap-4 md:gap-6">
-              {/* LEFT kosong */}
               <div className="hidden xl:block xl:col-span-4 min-w-0" />
-              {/* RIGHT */}
               <div className="col-span-12 xl:col-span-8 min-w-0 overflow-hidden">
                 <SyncKpiChart />
               </div>
